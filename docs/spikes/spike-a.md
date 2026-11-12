@@ -151,6 +151,31 @@ production CSP `connect-src data:`). **Real Gemini Nano execution through Fireba
     without extensions.
   - Chrome's built-in AI feedback notice (LanguageModel in use).
 
+### 2026-11-12 — A-3 step 3: explore-02 … 05 (same session, same environment)
+
+Exploration only (not a gate result). Dates compared with the printed original notation.
+
+- explore-02 (text scale 0.8): name ✓ `NGUYEN VAN MINH`, number ✓ `EF87654321GH`, expiry ✓ `2028年11月15日`; extract 18,260 ms
+  (the page had been reloaded before this run; prepare 14 ms).
+- explore-03 (rotated 4°): **name ✗ `SATOS MARIA CLARA`** (truth `SANTOS MARIA CLARA`, one letter dropped — a wrong
+  candidate, not an unread field), number ✓ `JK24681357LM`, expiry ✓ `2026年12月01日`; extract 6,356 ms.
+- explore-04 (dark, low contrast): name ✓, number ✓ `NP13572468QR`, expiry ✓ `2029年06月30日`; extract 5,973 ms.
+- explore-05 (scale 0.9, rotated −3°, bright, low contrast): name ✓ `LI XIAOMEI`, number ✓ `ST99887766UV`,
+  expiry ✓ `2027年08月20日`; extract 6,912 ms.
+
+Totals over explore-01…05 (15 fields): 14 exact (original notation), 1 wrong candidate (name, rotated card), 0 unread.
+Timing: first extraction after a page load ≈ 17.7–18.3 s; following extractions in the same page ≈ 6.0–6.9 s.
+Likely a first-run (session/model warm-up) cost; to be measured separately with more runs.
+
+Network during these runs: besides the app's own `blob:` / `data:` entries, the DevTools log shows `sprite.svg`,
+`content-deepl-input-controller.css`, `react-*.css`, `deepl-ui.shadow.css`, `js.js`, `dom.js` with initiator
+`content.js` — injected by a translation browser extension, not by the app. A content-script extension can read the
+page, including personal data on screen; this is the boundary stated in architecture.md §2.2. Evidence runs must
+use a Chrome profile without extensions.
+
+Implications: the wrong-but-plausible name on a rotated card confirms that per-field user confirmation is required
+regardless of accuracy (requirements.md §3 Must 4). The 10 s target is reachable for warm runs; the first run is not.
+
 ## Open questions
 
 1. CSP for the image path: keep `'none'` (image extraction impossible) or allow `data:` only in
