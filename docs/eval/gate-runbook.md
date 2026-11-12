@@ -1,18 +1,32 @@
 # Gate run (real device) — docs/eval/protocol.md §6
 
-Use the TEST Chrome profile (no extensions) on https://formtwin-dev-private.web.app after deploying the current main.
-Do not change prompts, code or thresholds between steps.
+Do not change code, prompts or thresholds between steps. Wi-Fi on. Chrome profile without extensions ("TEST").
 
-1. Open the app, open DevTools (Network, Preserve log). Prepare AI.
-2. Page-first-run timing (3 times): reload the page, Prepare AI, extract `data/eval/explore/explore-01.png`,
-   note "Extract time". Repeat 3 times.
-3. Warm-up: in the same page, extract `explore-01.png` once more (not scored).
-4. Gate: in the same page, extract `data/eval/gate/gate-01.png` … `gate-12.png` in order, once each.
-   For each card take one screenshot showing "3. Candidates" (the read values) and "Extract time".
-   If a card takes over 30 s, write "timeout" for it.
-5. Correction time: for gate-01 … gate-03, after extraction apply the candidates, fix if needed, check all six
-   fields; note "Confirm time". Then "End session and clear data" and type the same card's values by hand,
-   check all six; note "Manual entry time".
-6. PDF check: on gate-01 after confirming, Create PDF → Save PDF; send the PDF.
-7. Send all screenshots and the PDF. They are transcribed into `data/eval/results/gate-<date>-mac.json`
-   and scored with `node scripts/eval/score.mjs data/eval/gate/manifest.json <results>`.
+## 0. Prepare
+`git pull` → `npm ci` → `npm run build -w @formtwin/private-app` → `firebase deploy --only hosting:private`.
+
+## A. Open
+Open https://formtwin-dev-private.web.app in the TEST profile. DevTools (Cmd+Opt+I) → Network → tick "Preserve log".
+
+## B. Page-first-run timing (3 times, not scored for accuracy)
+1. Reload (Cmd+R). 2. Prepare AI → wait for `ready`. 3. Choose `data/eval/explore/explore-01.png`
+(in the file dialog: Cmd+Shift+G and type the folder path). 4. Extract on this device → wait for the result.
+5. Note "Extract time". Repeat 1–5 three times.
+
+## C. Warm-up (not recorded)
+Without reloading, extract `explore-01.png` once more.
+
+## D. Gate (scored)
+Without reloading, for `data/eval/gate/gate-01.png` … `gate-12.png` in order: choose → Extract → wait →
+one screenshot showing "3. Candidates" and "Extract time" (zoom out if needed). Over 30 s → note "timeout".
+Do not reload. Do not press candidate buttons.
+
+## E. Correction time (after D, same page; extractions here are not scored)
+For gate-01, gate-02, gate-03: choose → Extract → apply candidates → compare with the image and fix →
+check all six → note "Confirm time" → (gate-01 only: Create PDF → Save PDF) → End session and clear data →
+type the same card by hand → check all six → note "Manual entry time" → End session and clear data.
+
+## F. Send
+B: three times. D: twelve screenshots. E: six times. gate-01 PDF.
+They are transcribed into `data/eval/results/gate-<date>-mac.json` and scored with
+`node scripts/eval/score.mjs data/eval/gate/manifest.json <results>`.
