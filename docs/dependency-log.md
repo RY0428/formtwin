@@ -39,3 +39,11 @@ downgrade firebase to 9.x and ESLint to 9.x.
 - moderate: minimatch via ESLint / typescript-eslint (lint-time only), see above.
 - Deprecation warnings for `@opentelemetry/sdk-trace-*` come from @firebase/crashlytics (not used).
 - npm 11 blocks unlisted install scripts: `fsevents` (macOS file watcher, optional) is left unapproved.
+
+## 2026-11-12 — Spike C (PDF)
+
+- pdf-lib 1.17.1 — last release 2021-11-06 (unmaintained). Chosen by the specs; usage kept small and tested.
+- @pdf-lib/fontkit 1.1.1 — subsetting is unreliable for Japanese fonts (CFF crash; TrueType glyph loss in pdf.js).
+  Fonts are embedded in full (`subset: false`).
+- pdfjs-dist 6.5.438 — used for text-extraction tests and visual checks; viewer integration later.
+- Font: BIZ UDGothic Regular (OFL), replaces Noto Sans JP; see `THIRD_PARTY_NOTICES.md`.

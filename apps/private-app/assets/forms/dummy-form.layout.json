@@ -1,0 +1,50 @@
+{
+  "formId": "dummy-extension-of-stay-v0",
+  "sourcePdfSha256": "e9e0440ed17986381c3a9c409f08133613de4a437fd9178c6c219160108c780c",
+  "fields": [
+    {
+      "kind": "coordinateText",
+      "id": "nameKanji",
+      "page": 0,
+      "x": 44,
+      "y": 702,
+      "width": 360,
+      "fontSize": 12
+    },
+    {
+      "kind": "coordinateText",
+      "id": "nameRoman",
+      "page": 0,
+      "x": 44,
+      "y": 642,
+      "width": 360,
+      "fontSize": 12
+    },
+    {
+      "kind": "coordinateText",
+      "id": "expiry",
+      "page": 0,
+      "x": 44,
+      "y": 582,
+      "width": 220,
+      "fontSize": 12
+    },
+    {
+      "kind": "acroText",
+      "id": "residenceCardNumber",
+      "name": "residenceCardNumber",
+      "fontSize": 12
+    },
+    {
+      "kind": "acroText",
+      "id": "address",
+      "name": "address",
+      "fontSize": 11
+    },
+    {
+      "kind": "acroCheck",
+      "id": "familyInJapan",
+      "name": "familyInJapan"
+    }
+  ]
+}
