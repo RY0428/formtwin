@@ -1,0 +1,84 @@
+{
+  "set": "explore",
+  "purpose": "Exploration only: prompt, crop and threshold tuning. Never reuse for gate or release judgement.",
+  "synthetic": true,
+  "generator": "scripts/generate-sample-cards.py",
+  "dateFormatNote": "Ground truth uses ISO dates; the card prints YYYY年MM月DD日.",
+  "cases": [
+    {
+      "file": "explore-01.png",
+      "sha256": "4f66e79b20929ee523161495847338b518774b89487c2c89b3522a93854c2d72",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 0,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "TANAKA HANAKO",
+        "residenceCardNumber": "AB12345678CD",
+        "periodOfStayExpiry": "2027-03-31"
+      }
+    },
+    {
+      "file": "explore-02.png",
+      "sha256": "59bbc3552856630d0cda42ffd44f96c659c200fa111d373a54c07ae4f0e14112",
+      "conditions": {
+        "scale": 0.8,
+        "rotate": 0,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "NGUYEN VAN MINH",
+        "residenceCardNumber": "EF87654321GH",
+        "periodOfStayExpiry": "2028-11-15"
+      }
+    },
+    {
+      "file": "explore-03.png",
+      "sha256": "baed818f488420a42ee0411f6904d3524debfde9e15950ac25804cdc07adfb66",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 4,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "SANTOS MARIA CLARA",
+        "residenceCardNumber": "JK24681357LM",
+        "periodOfStayExpiry": "2026-12-01"
+      }
+    },
+    {
+      "file": "explore-04.png",
+      "sha256": "c72ce5e326a354361462da8dedb56464e7b069c21f67896b47b078981b8e86b4",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 0,
+        "brightness": 0.6,
+        "contrast": 0.8
+      },
+      "groundTruth": {
+        "fullName": "SHARMA RAVI KUMAR",
+        "residenceCardNumber": "NP13572468QR",
+        "periodOfStayExpiry": "2029-06-30"
+      }
+    },
+    {
+      "file": "explore-05.png",
+      "sha256": "f4b5ba68ddf9dbc583d09ea6e3cf7701d97cf42d712fa0397daf98cebec7fb53",
+      "conditions": {
+        "scale": 0.9,
+        "rotate": -3,
+        "brightness": 1.15,
+        "contrast": 0.7
+      },
+      "groundTruth": {
+        "fullName": "LI XIAOMEI",
+        "residenceCardNumber": "ST99887766UV",
+        "periodOfStayExpiry": "2027-08-20"
+      }
+    }
+  ]
+}

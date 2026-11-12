@@ -119,6 +119,15 @@ Environment: developer's MacBook (macOS), desktop Chrome (version to be recorded
   no page mentions "Gemini Nano 4", "Gemma 4", or `nano_v3`. **No official mapping found** between the
   contest's "Gemini Nano 4" and the Chrome model labels `nano_v3` / Gemma 4.
 
+### 2026-11-12 — A-3 step 1: app on the developer's Mac (local, production CSP)
+
+Environment: macOS (Intel per UA), Chrome 157.0.8103.79, Gemma 4 flag Default (Prompt API served by `nano_v3`),
+firebase 13.3.0, `npm run preview -w @formtwin/private-app` (production headers) on http://localhost:4174.
+
+- "Browser AI availability" = `available`; **Prepare AI → AI status `ready`**, prepare time 20 ms
+  (model already downloaded). This is real `initializeDeviceModel()` on a device, not the fake.
+- Extraction not run yet (no sample image at that point). Synthetic exploration cards added in `data/eval/explore/`.
+
 ## Open questions
 
 1. CSP for the image path: keep `'none'` (image extraction impossible) or allow `data:` only in
