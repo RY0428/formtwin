@@ -1,0 +1,27 @@
+{
+  "set": "explore",
+  "run": "explore-2026-11-12-mac",
+  "note": "Transcribed from the developer's screenshots (Spike A step 2-3 and S5). Exploration only, not a judgement.",
+  "environment": {
+    "device": "developer MacBook (macOS, Intel per UA)",
+    "chrome": "157.0.8103.79",
+    "model": "nano_v3 (Gemma 4 flag Default)",
+    "sdk": "firebase 13.3.0",
+    "promptVersion": "spike-a-0",
+    "schemaVersion": "0.0.0-provisional"
+  },
+  "runs": [
+    { "file": "explore-01.png", "order": 1, "pageFirstRun": true, "extractMs": 17689, "timedOut": false,
+      "fields": { "fullName": "TANAKA HANAKO", "residenceCardNumber": "AB12345678CD", "periodOfStayExpiry": "2027年03月31日" } },
+    { "file": "explore-02.png", "order": 1, "pageFirstRun": true, "extractMs": 18260, "timedOut": false,
+      "fields": { "fullName": "NGUYEN VAN MINH", "residenceCardNumber": "EF87654321GH", "periodOfStayExpiry": "2028年11月15日" } },
+    { "file": "explore-03.png", "order": 2, "pageFirstRun": false, "extractMs": 6356, "timedOut": false,
+      "fields": { "fullName": "SATOS MARIA CLARA", "residenceCardNumber": "JK24681357LM", "periodOfStayExpiry": "2026年12月01日" } },
+    { "file": "explore-04.png", "order": 3, "pageFirstRun": false, "extractMs": 5973, "timedOut": false,
+      "fields": { "fullName": "SHARMA RAVI KUMAR", "residenceCardNumber": "NP13572468QR", "periodOfStayExpiry": "2029年06月30日" } },
+    { "file": "explore-05.png", "order": 4, "pageFirstRun": false, "extractMs": 6912, "timedOut": false,
+      "fields": { "fullName": "LI XIAOMEI", "residenceCardNumber": "ST99887766UV", "periodOfStayExpiry": "2027年08月20日" } },
+    { "file": "explore-03.png", "order": 1, "pageFirstRun": true, "extractMs": 20242, "timedOut": false,
+      "fields": { "fullName": "SANTOSTE MARIA CLARA", "residenceCardNumber": "JK24681357LM", "periodOfStayExpiry": "2026年12月01日" } }
+  ]
+}
