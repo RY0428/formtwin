@@ -105,6 +105,20 @@ Environment: developer's MacBook (macOS), desktop Chrome (version to be recorded
   name "Gemini Nano 4". Whether the contest's "Gemini Nano 4" corresponds to `nano_v3`, to the `gemma4`
   component, or to something else is **unconfirmed**; do not claim Nano 4 until an official source maps it.
 
+### 2026-11-12 — Chrome flags and contest wording
+
+- Chrome **157.0.8103.79** (from `chrome://flags`).
+- Flags present: `#prompt-api` (Default), `#prompt-api-multimodal-input` (Enabled),
+  `#gemma4-for-built-in-ai` "Gemma 4 for Built-in AI — Enables all built-in AI APIs (Prompt, Summarizer,
+  Writer, etc.) to use the Gemma 4 model" (Default), `#decisions-api`, `#on-device-model-speculative-decoding`,
+  `#prompt-api-tool-use`, `#prompt-api-sampling-mode`.
+- Contest wording (checked 2026-11-12): "Web (Chrome): Gemini Nano 4 via Firebase AI Logic" (overview);
+  "Web (Chrome): Integrating with Gemini Nano 4 via Firebase AI Logic" (Official Rules); the rules also say
+  Gemini Nano 4 can be used at no cost.
+- Searched developer.chrome.com (Prompt API, built-in, get-started, debug-gemini-nano, built-in-apis):
+  no page mentions "Gemini Nano 4", "Gemma 4", or `nano_v3`. **No official mapping found** between the
+  contest's "Gemini Nano 4" and the Chrome model labels `nano_v3` / Gemma 4.
+
 ## Open questions
 
 1. CSP for the image path: keep `'none'` (image extraction impossible) or allow `data:` only in
