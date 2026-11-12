@@ -1,11 +1,89 @@
 {
-  "note": "In progress. Steps B (page-first-run timing) and C (warm-up) of docs/eval/gate-runbook.md, transcribed from screenshots.",
-  "environment": { "url": "https://formtwin-dev-private.web.app", "profile": "TEST (no extensions)", "chrome": "157.0.8103.79", "sdk": "firebase 13.3.0", "promptVersion": "spike-a-0" },
+  "note": "In progress. Steps B, C and D (gate-01..05) of docs/eval/gate-runbook.md, transcribed from screenshots.",
+  "environment": {
+    "url": "https://formtwin-dev-private.web.app",
+    "profile": "TEST (no extensions)",
+    "chrome": "157.0.8103.79",
+    "sdk": "firebase 13.3.0",
+    "promptVersion": "spike-a-0"
+  },
   "pageFirstRun": [
-    { "file": "explore-01.png", "extractMs": 17459, "prepareMs": 41, "fields": { "fullName": "TANAKA HANAKO", "residenceCardNumber": "AB12345678CD", "periodOfStayExpiry": "2027年03月31日" } },
-    { "file": "explore-01.png", "extractMs": 5644, "prepareMs": 11 },
-    { "file": "explore-01.png", "extractMs": 5824, "prepareMs": 9 }
+    {
+      "file": "explore-01.png",
+      "extractMs": 17459,
+      "prepareMs": 41,
+      "fields": {
+        "fullName": "TANAKA HANAKO",
+        "residenceCardNumber": "AB12345678CD",
+        "periodOfStayExpiry": "2027年03月31日"
+      }
+    },
+    {
+      "file": "explore-01.png",
+      "extractMs": 5644,
+      "prepareMs": 11
+    },
+    {
+      "file": "explore-01.png",
+      "extractMs": 5824,
+      "prepareMs": 9
+    }
   ],
-  "warmUp": { "file": "explore-01.png", "extractMs": 5528 },
-  "network": "Each reload: document, index-*.js (≈3.7 MB), favicon.ico, then blob: and data: only. No other origin."
+  "warmUp": {
+    "file": "explore-01.png",
+    "extractMs": 5528
+  },
+  "network": "Each reload: document, index-*.js (≈3.7 MB), favicon.ico, then blob: and data: only. No other origin.",
+  "gate": [
+    {
+      "file": "gate-01.png",
+      "extractMs": 5088,
+      "timedOut": false,
+      "fields": {
+        "fullName": "SUZUKI KENTA",
+        "residenceCardNumber": "GA10293847BC",
+        "periodOfStayExpiry": "2027年05月20日"
+      }
+    },
+    {
+      "file": "gate-02.png",
+      "extractMs": 5487,
+      "timedOut": false,
+      "fields": {
+        "fullName": "PEREZ GARCIA LUCIA",
+        "residenceCardNumber": "GD56473829EF",
+        "periodOfStayExpiry": "2028年01月09日"
+      }
+    },
+    {
+      "file": "gate-03.png",
+      "extractMs": 5214,
+      "timedOut": false,
+      "fields": {
+        "fullName": "KIM MINJUN",
+        "residenceCardNumber": "GH11223344JK",
+        "periodOfStayExpiry": "2026年12月24日"
+      }
+    },
+    {
+      "file": "gate-04.png",
+      "extractMs": 5934,
+      "timedOut": false,
+      "fields": {
+        "fullName": "OKAFOR CHINEDU EMEKA",
+        "residenceCardNumber": "GL99001122MN",
+        "periodOfStayExpiry": "2029年03月03日"
+      }
+    },
+    {
+      "file": "gate-05.png",
+      "extractMs": 5295,
+      "timedOut": false,
+      "fields": {
+        "fullName": "TRAN THI HOA",
+        "residenceCardNumber": "GP314159260R",
+        "periodOfStayExpiry": "2027年10月31日"
+      }
+    }
+  ]
 }
