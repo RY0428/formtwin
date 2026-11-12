@@ -1,0 +1,11 @@
+{
+  "note": "In progress. Steps B (page-first-run timing) and C (warm-up) of docs/eval/gate-runbook.md, transcribed from screenshots.",
+  "environment": { "url": "https://formtwin-dev-private.web.app", "profile": "TEST (no extensions)", "chrome": "157.0.8103.79", "sdk": "firebase 13.3.0", "promptVersion": "spike-a-0" },
+  "pageFirstRun": [
+    { "file": "explore-01.png", "extractMs": 17459, "prepareMs": 41, "fields": { "fullName": "TANAKA HANAKO", "residenceCardNumber": "AB12345678CD", "periodOfStayExpiry": "2027年03月31日" } },
+    { "file": "explore-01.png", "extractMs": 5644, "prepareMs": 11 },
+    { "file": "explore-01.png", "extractMs": 5824, "prepareMs": 9 }
+  ],
+  "warmUp": { "file": "explore-01.png", "extractMs": 5528 },
+  "network": "Each reload: document, index-*.js (≈3.7 MB), favicon.ico, then blob: and data: only. No other origin."
+}
