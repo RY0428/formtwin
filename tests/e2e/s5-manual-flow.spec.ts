@@ -51,6 +51,7 @@ test('manual entry without AI, offline, produces a partial PDF with confirmed va
   await fill(page, /^Expiry day/, '31');
   await fill(page, /^Residence card number/, 'AB12345678CD', false); // entered but not checked
 
+  await expect(page.getByTestId('manual-ms')).toHaveText('-'); // card number not checked yet
   await page.getByRole('button', { name: 'Create PDF' }).click();
   await expect(page.getByTestId('pdf-ready')).toBeVisible();
   await expect(page.getByTestId('left-blank')).toContainText('Residence card number');
@@ -65,6 +66,10 @@ test('manual entry without AI, offline, produces a partial PDF with confirmed va
 
   expect(seen.csp).toEqual([]);
   expect(seen.foreign).toEqual([]);
+
+  const row = page.locator('div', { has: page.getByLabel(/^Residence card number/) }).last();
+  await row.getByLabel('Checked against my card').check();
+  await expect(page.getByTestId('manual-ms')).toHaveText(/^\d+ ms$/);
 });
 
 test('editing after PDF creation withdraws the confirmation and invalidates the PDF', async ({ page }) => {

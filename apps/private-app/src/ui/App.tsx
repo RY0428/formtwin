@@ -12,7 +12,8 @@ import {
   type DeviceAvailability,
 } from '../ondevice/index.ts';
 import { ImageRejectedError, prepareImage, type PreparedImage } from '../pii/extract/imageInput.ts';
-import { initialSession, sessionReducer } from '../pii/session/sessionState.ts';
+import { FIELD_IDS } from '../pii/session/fields.ts';
+import { initialSession, isConfirmed, sessionReducer } from '../pii/session/sessionState.ts';
 import { CandidatesPanel } from './CandidatesPanel.tsx';
 import { FieldsForm } from './FieldsForm.tsx';
 import { OutputPanel } from './OutputPanel.tsx';
@@ -26,7 +27,14 @@ const llm = new FirebaseOnDeviceLLM();
 interface Timing {
   readonly prepareMs?: number;
   readonly extractMs?: number;
+  /** Candidates shown → all fields checked (docs/eval/protocol.md §4). */
+  readonly confirmMs?: number | undefined;
+  /** First manual edit without candidates → all fields checked (baseline). */
+  readonly manualMs?: number | undefined;
 }
+
+/** Start point of the correction-time measurement. Timing only; no personal data. */
+type ConfirmClock = { readonly kind: 'candidates' | 'manual'; readonly startedAt: number } | undefined;
 
 type Bootstrap = { status: 'preparing' } | { status: 'ready'; assets: FixedAssets } | { status: 'failed' };
 
@@ -51,6 +59,16 @@ export function App() {
   const [ended, setEnded] = useState(false);
   const extractGeneration = useRef(0);
   const fileInput = useRef<HTMLInputElement>(null);
+  const confirmClock = useRef<ConfirmClock>(undefined);
+
+  useEffect(() => {
+    const clock = confirmClock.current;
+    if (clock === undefined) return;
+    if (!FIELD_IDS.every((id) => isConfirmed(session.fields[id]))) return;
+    const ms = performance.now() - clock.startedAt;
+    confirmClock.current = undefined;
+    setTiming((t) => (clock.kind === 'candidates' ? { ...t, confirmMs: ms } : { ...t, manualMs: ms }));
+  }, [session]);
 
   useEffect(() => {
     let live = true;
@@ -130,7 +148,8 @@ export function App() {
     llm.extract(image).then(
       (r) => {
         if (generation !== extractGeneration.current) return;
-        setTiming((t) => ({ ...t, extractMs: performance.now() - started }));
+        setTiming((t) => ({ ...t, extractMs: performance.now() - started, confirmMs: undefined }));
+        confirmClock.current = { kind: 'candidates', startedAt: performance.now() };
         setResult(r);
         setBusy(false);
       },
@@ -151,6 +170,7 @@ export function App() {
     setError(undefined);
     setBusy(false);
     if (fileInput.current !== null) fileInput.current.value = '';
+    confirmClock.current = undefined;
     setEnded(true);
   }, []);
 
@@ -258,6 +278,10 @@ export function App() {
               state={session}
               dispatch={(e) => {
                 setEnded(false);
+                if (confirmClock.current === undefined && result === undefined && e.type === 'edit') {
+                  confirmClock.current = { kind: 'manual', startedAt: performance.now() };
+                  setTiming((t) => ({ ...t, manualMs: undefined }));
+                }
                 dispatch(e);
               }}
             />
@@ -300,6 +324,18 @@ export function App() {
             Extract time:{' '}
             <output data-testid="extract-ms">
               {timing.extractMs === undefined ? '-' : `${Math.round(timing.extractMs)} ms`}
+            </output>
+          </li>
+          <li>
+            Confirm time (candidates → all checked):{' '}
+            <output data-testid="confirm-ms">
+              {timing.confirmMs === undefined ? '-' : `${Math.round(timing.confirmMs)} ms`}
+            </output>
+          </li>
+          <li>
+            Manual entry time (first edit → all checked):{' '}
+            <output data-testid="manual-ms">
+              {timing.manualMs === undefined ? '-' : `${Math.round(timing.manualMs)} ms`}
             </output>
           </li>
           <li>User agent: {navigator.userAgent}</li>
