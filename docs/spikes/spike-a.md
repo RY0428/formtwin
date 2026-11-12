@@ -183,8 +183,27 @@ explore-01 → all three fields match (name, number, expiry in original notation
 New Network entries were only `blob:` and `data:`. **Extraction continues offline on an already-open, prepared page.**
 Offline first launch / reload remains out of scope (requirements.md §3 Must 9).
 
-Remaining for Spike A: same runs on the hosted URL (https://formtwin-dev-private.web.app) and in a Chrome profile
-without extensions; Gemini Nano 4 evidence (organizer answer pending).
+### 2026-11-12 — A-3 step 5: hosted URL, Chrome profile without extensions
+
+Deployed with `firebase deploy --only hosting:private` from the developer's Mac (build with `.env.local`).
+New Chrome profile "TEST" (not signed in, no extensions); same Chrome 157.0.8103.79, same machine and model.
+
+- Response headers of https://formtwin-dev-private.web.app/: `Content-Security-Policy` identical to
+  `deploy/private/headers.mjs` (incl. `connect-src data:`), `Cache-Control: no-store`,
+  `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Resource-Policy: same-origin`,
+  `Referrer-Policy: no-referrer`, `Permissions-Policy`, `X-Content-Type-Options: nosniff`, HSTS (Hosting default).
+- Availability `available` in the new profile (the model is shared across profiles); Prepare → `ready` (40 ms).
+- explore-01: all three fields match (original notation); extract 18,224 ms (first run after page load).
+- Network (Keep log, whole session): the document, `index-*.js`, `favicon.ico`, the local `blob:` preview and the
+  SDK's `data:` image. All same-origin or in-memory; **no other origin**. `favicon.ico` is requested by the browser
+  and answered with `index.html` by the SPA rewrite (to fix: ship an icon).
+- Console: only Chrome's built-in AI notice. No CSP violation, no extension output.
+- App Check, Firestore, Analytics were not initialized (none present in the bundle; no requests).
+
+**Gate row "公開環境・端末経路" (requirements.md §6):** hosted URL + production CSP + `ONLY_ON_DEVICE` through
+Firebase AI Logic + App Check not initialized + no page-initiated external connection + offline continuation on the
+same screen — all observed on this device. **Open:** Gemini Nano 4 evidence (organizer answer pending); the gate row
+is therefore not marked passed yet.
 
 ## Open questions
 
