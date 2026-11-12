@@ -8,7 +8,9 @@ initialized and no page-initiated network connection, and that it keeps working 
 
 - Desktop Chrome 139+ (record exact version from `chrome://version`).
 - Hardware (Chrome docs): ≥22 GB free on the profile volume; GPU >4 GB VRAM, or CPU ≥16 GB RAM and ≥4 cores.
-- `chrome://flags/#prompt-api-for-gemini-nano-multimodal-input` → Enabled, restart (Firebase hybrid guide).
+- `chrome://flags/#prompt-api-multimodal-input` ("Prompt API Multimodal Input") → Enabled, restart.
+  (The Firebase guide names it `#prompt-api-for-gemini-nano-multimodal-input`; observed name differs.)
+- To open `chrome://on-device-internals`: first click "Enable internal debugging pages" on `chrome://chrome-urls`.
 - Firebase project with a registered Web app. Put `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_PROJECT_ID`,
   `VITE_FIREBASE_APP_ID` in `apps/private-app/.env.local` (never commit).
 - Fictional sample images only.

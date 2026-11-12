@@ -89,12 +89,30 @@ Environment: Linux container, Playwright Chromium 153.0.8010.12, firebase 13.3.0
   @firebase/app's heartbeat (`getAI()` → `_getProvider()` → `triggerHeartbeat()`). It holds SDK usage
   metadata, not personal data. Treatment needs a decision (rule 5 forbids personal data persistence).
 
+### 2026-11-12 — Developer's Mac, `chrome://on-device-internals` (before running the app)
+
+Environment: developer's MacBook (macOS), desktop Chrome (version to be recorded). Screenshots kept by the developer.
+
+- Flag: the multimodal flag is named **"Prompt API Multimodal Input" (`#prompt-api-multimodal-input`)** in this
+  Chrome, not `#prompt-api-for-gemini-nano-multimodal-input` as in the Firebase guide. Set to Enabled.
+- `chrome://on-device-internals` requires "Enable internal debugging pages" on `chrome://chrome-urls` first.
+- Broker State: performance class Medium; possible capabilities Image; VRAM 5461 MiB (3000 required);
+  device capable; disk space sufficient (20480 MiB required to install).
+- Assets / Models: `nano_v3_gpu_component` 2025.8.8.1141 **Ready** (model `nano_v3_gpu_low_tier_model`, ~4.0 GB, GPU).
+  `gemma4_component` 2026.8.7.929 **Not Installed** (model `gemma4_gpu_low_tier_model`).
+- Use cases: `prompt_api` = Available; `prompt_api_gemma4` = Pending Usage.
+- **Implication:** the model currently serving `prompt_api` is labeled `nano_v3`. This page does not show the
+  name "Gemini Nano 4". Whether the contest's "Gemini Nano 4" corresponds to `nano_v3`, to the `gemma4`
+  component, or to something else is **unconfirmed**; do not claim Nano 4 until an official source maps it.
+
 ## Open questions
 
 1. CSP for the image path: keep `'none'` (image extraction impossible) or allow `data:` only in
    `connect-src` (no network origin). Requires updating all three spec documents.
-2. Evidence that the on-device model is Gemini Nano 4.
-3. Whether the multimodal flag is still needed in the current Chrome stable for web pages.
+2. Evidence that the on-device model is Gemini Nano 4. Observed labels: `nano_v3` (ready, serves `prompt_api`) and
+   `gemma4` (not installed, `prompt_api_gemma4` pending). Need an official mapping and, if needed, a way to
+   make `prompt_api` use the right model.
+3. Whether the multimodal flag (`#prompt-api-multimodal-input`) is still needed in the current Chrome stable.
 4. Heartbeat IndexedDB write (measured): accept as non-personal SDK metadata and document, or find a
    supported way to avoid it. Decision pending.
 5. Real-device run (A-3): see `spike-a-device-runbook.md`.
