@@ -29,9 +29,10 @@
 - 雛形・スパイクA の実装（A-1）と Fake LanguageModel による E2E（A-2）まで完了。**実機検証（A-3）は未実施。** 経過は `docs/spikes/spike-a.md`。
 - SDK 注意: `LanguageModel` global が無い環境では `ONLY_ON_DEVICE` でもクラウドへ送信される（@firebase/ai 3.1.0 のコードで確認）。`FirebaseOnDeviceLLM` のガードを外さない。
 - Node 24（`.nvmrc`）。@firebase/ai 3.x の要件。
-- Devpost（support@devpost.com）へ2点問い合わせ中・回答待ち:
+- 2026-11-12 Devpost Support の案内により、大会ページの「Email the hackathon manager」宛てに3点を再送・回答待ち（③は下記 Nano 4）:
   1. 「公開様式のクラウド解析＋本人情報の端末抽出」の2経路分担でハイブリッド推論要件を満たすか（自動フォールバック必須か）
   2. 別オリジンの端末専用コンポーネントで App Check 初期化を省略できるか
+  3. 「Gemini Nano 4」は Chrome 157 の `nano_v3`（現行 Prompt API）と `#gemma4-for-built-in-ai`（Gemma 4）のどちらか、証拠に何を示すか
   - 承認済み・規約違反確定のどちらとしても扱わない。回答待ちでも実装・実機検証は進める。本人情報のクラウドフォールバックは回答にかかわらず導入しない。
 
 ## 現フェーズ: Day 1–2 成立ゲート（requirements.md 6章）
