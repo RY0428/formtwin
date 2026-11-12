@@ -27,3 +27,15 @@ either app bundle. The suggested fix downgrades ESLint (breaking). Revisit when 
   `useLimitedUseAppCheckTokens` fixed at first `getAI()`, beta `SpeechMetadata`. No hybrid/on-device changes.
 - Install scripts denied (`allowScripts` in package.json): `@firebase/util` postinstall (fetches web config
   only when `FIREBASE_WEBAPP_CONFIG` is set; not used), `protobufjs` postinstall.
+
+## 2026-11-12 — `npm audit` after adding firebase 13.3.0
+
+`npm audit`: 14 vulnerabilities (10 moderate, 4 high). Do **not** run `npm audit fix --force`: it would
+downgrade firebase to 9.x and ESLint to 9.x.
+
+- high: `@grpc/grpc-js <=1.13.5` (GHSA-m9gg-hp2v-232j, GHSA-f596-whhp-79r4) via firebase → @firebase/firestore.
+  Node-side gRPC for Firestore. Neither app imports Firestore (lint-enforced), so it is not in either browser
+  bundle. Revisit if Firestore is adopted on the public side, or pin a fixed version with `overrides`.
+- moderate: minimatch via ESLint / typescript-eslint (lint-time only), see above.
+- Deprecation warnings for `@opentelemetry/sdk-trace-*` come from @firebase/crashlytics (not used).
+- npm 11 blocks unlisted install scripts: `fsevents` (macOS file watcher, optional) is left unapproved.
