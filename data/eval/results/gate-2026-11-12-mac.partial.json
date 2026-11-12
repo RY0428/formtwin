@@ -1,5 +1,5 @@
 {
-  "note": "In progress. Steps B, C and D (gate-01..05) of docs/eval/gate-runbook.md, transcribed from screenshots.",
+  "note": "In progress. Steps B, C and D (gate-01..10) of docs/eval/gate-runbook.md, transcribed from screenshots. gate-05 card number confirmed by a zoomed screenshot; gate-10 name diacritic pending confirmation.",
   "environment": {
     "url": "https://formtwin-dev-private.web.app",
     "profile": "TEST (no extensions)",
@@ -83,6 +83,56 @@
         "fullName": "TRAN THI HOA",
         "residenceCardNumber": "GP314159260R",
         "periodOfStayExpiry": "2027年10月31日"
+      }
+    },
+    {
+      "file": "gate-06.png",
+      "extractMs": 5943,
+      "timedOut": false,
+      "fields": {
+        "fullName": "SILVA ANA PAULA",
+        "residenceCardNumber": "GS27182818TU",
+        "periodOfStayExpiry": "2028年07月14日"
+      }
+    },
+    {
+      "file": "gate-07.png",
+      "extractMs": 5708,
+      "timedOut": false,
+      "fields": {
+        "fullName": "WANG JUNJIE",
+        "residenceCardNumber": "GV16180339WX",
+        "periodOfStayExpiry": "2027年02月28日"
+      }
+    },
+    {
+      "file": "gate-08.png",
+      "extractMs": 5722,
+      "timedOut": false,
+      "fields": {
+        "fullName": "GUPTA PRIYA DEVI",
+        "residenceCardNumber": "GY14142135ZA",
+        "periodOfStayExpiry": "2029年09月09日"
+      }
+    },
+    {
+      "file": "gate-09.png",
+      "extractMs": 5352,
+      "timedOut": false,
+      "fields": {
+        "fullName": "MULLER JONAS",
+        "residenceCardNumber": "HB86753090CD",
+        "periodOfStayExpiry": "2026年11月30日"
+      }
+    },
+    {
+      "file": "gate-10.png",
+      "extractMs": 5860,
+      "timedOut": false,
+      "fields": {
+        "fullName": "SANTOS JOÃO PEDRO",
+        "residenceCardNumber": "HE24682468FG",
+        "periodOfStayExpiry": "2028年04月01日"
       }
     }
   ]
