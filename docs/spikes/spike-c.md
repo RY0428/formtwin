@@ -1,7 +1,7 @@
 # Spike C — Japanese text into a fixed PDF form
 
-Status: **done on a dummy form** (2026-11-12, dev container). The official form is not obtained yet; coordinates,
-AcroForm presence and printing are still open.
+Status: **done** on a dummy form and on page 1 of the official form 930004094.pdf (2026-11-12, dev container).
+Printing on paper is still open (developer's machine).
 
 ## Versions
 pdf-lib 1.17.1 (last published 2021-11-06 — unmaintained, see risks), @pdf-lib/fontkit 1.1.1, pdfjs-dist 6.5.438,
@@ -31,8 +31,13 @@ Node 24.22.1, Chromium 153 (Playwright) for rendering.
   embedding (developer, 2026-11-12). Cost: dummy template ≈3.1 MB (it embeds the font for its labels) and filled
   output ≈6.2 MB (two embedded copies). With an official form that has its own fonts, output ≈ form + 4.6 MB.
 
+## Official form (added 2026-11-12)
+The official form 930004094.pdf (no AcroForm, A4, no rotation) is bundled under PDL1.0; page-1 layout for name
+(family/given), expiry (year/month/day) and card number was measured and rendered correctly
+(`official-p1.png`, test in `fillPdf.test.ts`). See `docs/forms/official-form-930004094.md`.
+
 ## Open / risks
-- Official form: AcroForm or not, XFA/encryption, page size/rotation/CropBox, coordinates, redistribution terms.
+- Official form: rules for splitting a one-line Roman name into family/given (user-confirmed) and for the date parts.
 - Output size: consider a build-time character-set subset of the font (e.g. JIS X 0208 + needed symbols) with a
   proper subsetter, then embed without pdf-lib subsetting. Characters outside the set must stay `unsupported_char`.
 - pdf-lib is unmaintained since 2021; keep usage minimal and covered by tests.

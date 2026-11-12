@@ -9,11 +9,23 @@ import { fillPdf } from '../../apps/private-app/src/pii/fill/fillPdf.ts';
 const require = createRequire(import.meta.url);
 const assets = new URL('../../apps/private-app/assets/', import.meta.url);
 const out = new URL('../../docs/spikes/spike-c/', import.meta.url);
-const template = new Uint8Array(readFileSync(new URL('forms/dummy-form.pdf', assets)));
+const official = process.argv[2] === 'official';
+const template = new Uint8Array(
+  readFileSync(new URL(official ? 'forms/official/930004094.pdf' : 'forms/dummy-form.pdf', assets)),
+);
 const font = new Uint8Array(readFileSync(new URL('fonts/BIZUDGothic-Regular.ttf', assets)));
-const layout = JSON.parse(readFileSync(new URL('forms/dummy-form.layout.json', assets), 'utf8'));
+const layout = JSON.parse(
+  readFileSync(new URL(official ? 'forms/official/930004094.layout.json' : 'forms/dummy-form.layout.json', assets), 'utf8'),
+);
 
-const cases = {
+const cases = official
+  ? {
+      'official-p1': {
+        familyName: 'TANAKA', givenName: 'HANAKO', expiryYear: '2027', expiryMonth: '03', expiryDay: '31',
+        residenceCardNumber: 'AB12345678CD',
+      },
+    }
+  : {
   'filled-normal': {
     nameKanji: '山田 花子', nameRoman: 'YAMADA HANAKO', expiry: '2027年03月31日',
     residenceCardNumber: 'AB12345678CD', address: '東京都千代田区霞が関１－１－１　髙﨑テストハイツ１０１号室', familyInJapan: true,
@@ -26,7 +38,7 @@ const cases = {
 
 const pdfjsDir = require.resolve('pdfjs-dist/package.json').replace(/package\.json$/, '');
 const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width: 900, height: 1250 }, deviceScaleFactor: 1 });
+const page = await browser.newPage({ viewport: { width: 1300, height: 1800 }, deviceScaleFactor: 1 });
 const files = {
   '/pdf.mjs': [readFileSync(pdfjsDir + 'build/pdf.mjs'), 'text/javascript'],
   '/pdf.worker.mjs': [readFileSync(pdfjsDir + 'build/pdf.worker.mjs'), 'text/javascript'],
@@ -46,7 +58,7 @@ for (const [name, values] of Object.entries(cases)) {
     pdfjs.GlobalWorkerOptions.workerSrc = 'http://spike.local/pdf.worker.mjs';
     const doc = await pdfjs.getDocument({ url: 'http://spike.local/doc.pdf' }).promise;
     const p = await doc.getPage(1);
-    const vp = p.getViewport({ scale: 1.5 });
+    const vp = p.getViewport({ scale: 2 });
     const canvas = document.getElementById('c');
     canvas.width = vp.width;
     canvas.height = vp.height;

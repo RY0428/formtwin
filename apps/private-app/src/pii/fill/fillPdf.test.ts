@@ -96,3 +96,30 @@ describe('fillPdf (dummy form)', () => {
     ]);
   });
 });
+
+describe('fillPdf (official form 930004094, page 1)', () => {
+  const officialTemplate = new Uint8Array(readFileSync(new URL('forms/official/930004094.pdf', assets)));
+  const officialLayout = pdfLayoutSchema.parse(
+    JSON.parse(readFileSync(new URL('forms/official/930004094.layout.json', assets), 'utf8')),
+  );
+
+  it('fills name, expiry date parts and card number (fictional values)', async () => {
+    const { bytes, notFilled } = await fillPdf({
+      template: officialTemplate,
+      font,
+      layout: officialLayout,
+      values: {
+        familyName: 'TANAKA',
+        givenName: 'HANAKO',
+        expiryYear: '2027',
+        expiryMonth: '03',
+        expiryDay: '31',
+        residenceCardNumber: 'AB12345678CD',
+      },
+    });
+    expect(notFilled).toEqual([]);
+    const text = await pageText(bytes);
+    for (const v of ['TANAKA', 'HANAKO', '2027', 'AB12345678CD']) expect(text).toContain(v);
+    expect((await PDFDocument.load(bytes)).getPageCount()).toBe(7);
+  });
+});

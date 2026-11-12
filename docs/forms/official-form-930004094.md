@@ -50,7 +50,17 @@ Status: **approved for bundling (2026-11-12).** Unmodified copy at `apps/private
 6. 別紙 業種一覧 (business types, not submitted).
 7. 別紙 職種一覧 (occupations, not submitted).
 
-## MVP target fields on page 1 (from the residence card) — coordinates to be measured
+## MVP target fields on page 1 — layout `apps/private-app/assets/forms/official/930004094.layout.json`
+
+Measured 2026-11-12 from `pdftotext -bbox` word positions, then checked visually (pdf.js render,
+`docs/spikes/spike-c/official-p1.png`): values sit on the underline, inside each slot.
+
+- familyName x140 y617 w150; givenName x300 y617 w240
+- expiryYear x178 y453 w32; expiryMonth x244 y453 w20; expiryDay x291 y453 w20
+- residenceCardNumber x150 y429 w150
+- All 11 pt BIZ UDGothic, page 0, PDF points, bottom-left origin. Output with the full font ≈ 3.4 MB.
+
+Field notes:
 - 3 氏名 Name — **split into Family name / Given name.** The card shows one Roman-letter string, so the split is
   ambiguous and must be confirmed by the person (no automatic split).
 - 11 在留期間の満了日 Date of expiration — **separate 年 / 月 / 日 slots.** Needs a reviewed conversion rule from the
