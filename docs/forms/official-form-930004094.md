@@ -1,6 +1,6 @@
 # Official form candidate: 在留期間更新許可申請書 (930004094.pdf)
 
-Status: **analysis only. The PDF is NOT committed** until redistribution terms are confirmed (requirements.md §2, R09).
+Status: **approved for bundling (2026-11-12).** Unmodified copy at `apps/private-app/assets/forms/official/930004094.pdf`.
 
 ## Source (recorded 2026-11-12)
 - Page: https://www.moj.go.jp/isa/applications/procedures/16-3-1.html
@@ -20,7 +20,19 @@ Status: **analysis only. The PDF is NOT committed** until redistribution terms a
       state that separately, and do not present edited information as if published by the government.
     - 1.2 Respect third-party rights.
     - 1.4 Not covered: symbols/logos/character designs, and the contents listed in the **別紙** (other rules apply).
-  - **Pending:** check that application forms are not listed in the 別紙. Until then the PDF stays out of the repo.
+  - https://www.moj.go.jp/isa/copyright/additional.html (別紙) lists only the 「富士山・桜」header image.
+    Application forms are not excluded ⇒ **the blank form may be copied and redistributed under PDL1.0 with
+    attribution.** The PDF itself carries no separate rights notice.
+  - Obligations for FormTwin:
+    - Attribution in `THIRD_PARTY_NOTICES.md`, README and the app's about/credits screen.
+    - A filled PDF is processed content: the app must not present it as issued or checked by the government, and
+      should state that values were entered by the user with FormTwin (UI work; requirements.md §3 Must 6/12).
+
+## Approval checks (architecture.md §8.1)
+- Catalog keys: Metadata (empty XMP), OpenAction (GoTo page 1 /FitH), Outlines, PageLayout, PageMode, Pages,
+  Version, ViewerPreferences. No AcroForm, no Names/EmbeddedFiles (no attachments), no JavaScript, no AA actions.
+- One `%%EOF` (no incremental-update history). No annotations on any page. Info dictionary empty.
+- Not checked yet: hidden or white text, optional content layers.
 
 ## Structure (pdfinfo / pypdf / pdffonts)
 - PDF 1.6, 7 pages, all A4 portrait 595.276 × 841.89 pt, MediaBox = CropBox, rotation 0.
