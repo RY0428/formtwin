@@ -23,4 +23,23 @@ npm ci
 npm run verify   # lint, typecheck, unit tests, build, bundle check, E2E (production CSP)
 ```
 
+## Firebase setup (development project)
+
+- Project: `formtwin-dev` (Spark plan). Hosting targets in `.firebaserc`:
+  `public` → `formtwin-dev` (https://formtwin-dev.web.app), `private` → `formtwin-dev-private`
+  (https://formtwin-dev-private.web.app). To use another project, copy `.firebaserc.example`.
+- Put the Web app config in `apps/<app>/.env.local` (see `.env.example`). Never commit it.
+
+## Deploy (private-app)
+
+Requires Node 24 and the Firebase CLI (`npm install -g firebase-tools`, then `firebase login`).
+
+```bash
+npm ci
+npm run build -w @formtwin/private-app
+firebase deploy --only hosting:private
+```
+
+The public app is deployed after its App Check setup (Spike B).
+
 Design documents (Japanese): `docs/specs/`.

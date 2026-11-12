@@ -34,8 +34,13 @@ Open http://localhost:4174 with DevTools open (Network: "Preserve log"; Console)
 
 ## 2. Hosted URL
 
-Deploy `apps/private-app/dist` to the private Hosting site (`firebase deploy --only hosting:private`)
-and repeat steps 1–7 on the public URL.
+Deploy `apps/private-app/dist` to the private Hosting site and repeat steps 1–7 on
+https://formtwin-dev-private.web.app:
+
+```bash
+npm run build -w @formtwin/private-app
+firebase deploy --only hosting:private
+```
 
 ## 3. Record
 

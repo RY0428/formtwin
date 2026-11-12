@@ -1,0 +1,13 @@
+{
+  "projects": {
+    "default": "formtwin-dev"
+  },
+  "targets": {
+    "formtwin-dev": {
+      "hosting": {
+        "public": ["formtwin-dev"],
+        "private": ["formtwin-dev-private"]
+      }
+    }
+  }
+}
