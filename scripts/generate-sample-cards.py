@@ -5,7 +5,7 @@ no official design, emblem, photo, hologram or security features, and every
 image carries a large "SAMPLE / NOT A REAL DOCUMENT" watermark. All values are
 fictional. Use only for tuning prompts/cropping (requirements.md §6).
 
-Usage: python3 scripts/generate-sample-cards.py <font-path> <out-dir>
+Usage: python3 scripts/generate-sample-cards.py <font-path> <out-dir> [explore|gate]
 """
 
 import hashlib
@@ -17,7 +17,8 @@ from PIL import Image, ImageDraw, ImageEnhance, ImageFont
 
 W, H = 1000, 630
 
-CASES = [
+SETS = {}
+SETS["explore"] = [
     # id, ground truth, rendering conditions
     ("explore-01", {"fullName": "TANAKA HANAKO", "residenceCardNumber": "AB12345678CD", "periodOfStayExpiry": "2027-03-31"},
      {"scale": 1.0, "rotate": 0, "brightness": 1.0, "contrast": 1.0}),
@@ -29,6 +30,25 @@ CASES = [
      {"scale": 1.0, "rotate": 0, "brightness": 0.6, "contrast": 0.8}),
     ("explore-05", {"fullName": "LI XIAOMEI", "residenceCardNumber": "ST99887766UV", "periodOfStayExpiry": "2027-08-20"},
      {"scale": 0.9, "rotate": -3, "brightness": 1.15, "contrast": 0.7}),
+]
+
+BASE = {"scale": 1.0, "rotate": 0, "brightness": 1.0, "contrast": 1.0}
+
+# Gate set: generated AFTER the protocol freeze (docs/eval/protocol.md). New fictional values,
+# none shared with the exploration set. None = the field is blank on the card.
+SETS["gate"] = [
+    ("gate-01", {"fullName": "SUZUKI KENTA", "residenceCardNumber": "GA10293847BC", "periodOfStayExpiry": "2027-05-20"}, BASE),
+    ("gate-02", {"fullName": "PEREZ GARCIA LUCIA", "residenceCardNumber": "GD56473829EF", "periodOfStayExpiry": "2028-01-09"}, BASE),
+    ("gate-03", {"fullName": "KIM MINJUN", "residenceCardNumber": "GH11223344JK", "periodOfStayExpiry": "2026-12-24"}, BASE),
+    ("gate-04", {"fullName": "OKAFOR CHINEDU EMEKA", "residenceCardNumber": "GL99001122MN", "periodOfStayExpiry": "2029-03-03"}, BASE),
+    ("gate-05", {"fullName": "TRAN THI HOA", "residenceCardNumber": "GP31415926QR", "periodOfStayExpiry": "2027-10-31"}, {**BASE, "scale": 0.8}),
+    ("gate-06", {"fullName": "SILVA ANA PAULA", "residenceCardNumber": "GS27182818TU", "periodOfStayExpiry": "2028-07-14"}, {**BASE, "scale": 0.8}),
+    ("gate-07", {"fullName": "WANG JUNJIE", "residenceCardNumber": "GV16180339WX", "periodOfStayExpiry": "2027-02-28"}, {**BASE, "rotate": 4}),
+    ("gate-08", {"fullName": "GUPTA PRIYA DEVI", "residenceCardNumber": "GY14142135ZA", "periodOfStayExpiry": "2029-09-09"}, {**BASE, "rotate": -4}),
+    ("gate-09", {"fullName": "MULLER JONAS", "residenceCardNumber": "HB86753090CD", "periodOfStayExpiry": "2026-11-30"}, {**BASE, "brightness": 0.6, "contrast": 0.8}),
+    ("gate-10", {"fullName": "SANTOS JOAO PEDRO", "residenceCardNumber": "HE24682468FG", "periodOfStayExpiry": "2028-04-01"}, {**BASE, "brightness": 0.6, "contrast": 0.8}),
+    ("gate-11", {"fullName": "IVANOVA OLGA", "residenceCardNumber": "HH13579135JK", "periodOfStayExpiry": None}, BASE),
+    ("gate-12", {"fullName": "NAKAMURA ERIKA", "residenceCardNumber": None, "periodOfStayExpiry": "2027-06-15"}, BASE),
 ]
 
 
@@ -46,8 +66,9 @@ def render(font_path: str, truth: dict, cond: dict) -> Image.Image:
 
     rows = [
         ("氏名 / NAME", truth["fullName"]),
-        ("番号 / CARD NUMBER", truth["residenceCardNumber"]),
-        ("在留期間（満了日）/ PERIOD OF STAY (EXPIRY)", truth["periodOfStayExpiry"].replace("-", "年", 1).replace("-", "月", 1) + "日"),
+        ("番号 / CARD NUMBER", truth["residenceCardNumber"] or ""),
+        ("在留期間（満了日）/ PERIOD OF STAY (EXPIRY)",
+         "" if truth["periodOfStayExpiry"] is None else truth["periodOfStayExpiry"].replace("-", "年", 1).replace("-", "月", 1) + "日"),
     ]
     y = 120
     for lab, val in rows:
@@ -71,16 +92,21 @@ def render(font_path: str, truth: dict, cond: dict) -> Image.Image:
 
 def main() -> None:
     font_path, out_dir = sys.argv[1], Path(sys.argv[2])
+    set_name = sys.argv[3] if len(sys.argv) > 3 else "explore"
+    cases = SETS[set_name]
     out_dir.mkdir(parents=True, exist_ok=True)
     manifest = {
-        "set": "explore",
-        "purpose": "Exploration only: prompt, crop and threshold tuning. Never reuse for gate or release judgement.",
+        "set": set_name,
+        "purpose": {
+            "explore": "Exploration only: prompt, crop and threshold tuning. Never reuse for gate or release judgement.",
+            "gate": "Gate judgement only, generated after the protocol freeze (fe793c2). Not for tuning.",
+        }[set_name],
         "synthetic": True,
         "generator": "scripts/generate-sample-cards.py",
         "dateFormatNote": "Ground truth uses ISO dates; the card prints YYYY年MM月DD日.",
         "cases": [],
     }
-    for case_id, truth, cond in CASES:
+    for case_id, truth, cond in cases:
         img = render(font_path, truth, cond)
         path = out_dir / f"{case_id}.png"
         img.save(path, format="PNG", optimize=True)

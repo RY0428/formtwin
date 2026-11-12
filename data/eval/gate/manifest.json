@@ -1,0 +1,189 @@
+{
+  "set": "gate",
+  "purpose": "Gate judgement only, generated after the protocol freeze (fe793c2). Not for tuning.",
+  "synthetic": true,
+  "generator": "scripts/generate-sample-cards.py",
+  "dateFormatNote": "Ground truth uses ISO dates; the card prints YYYY年MM月DD日.",
+  "cases": [
+    {
+      "file": "gate-01.png",
+      "sha256": "e22bd4714806a5781ef08cf97fba908563479a092a3b76808e9fcaaf66f13a1a",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 0,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "SUZUKI KENTA",
+        "residenceCardNumber": "GA10293847BC",
+        "periodOfStayExpiry": "2027-05-20"
+      }
+    },
+    {
+      "file": "gate-02.png",
+      "sha256": "a4e964a08d11a4457147a1989c6a3f8c97893e6dd28aa8929e7f8a5a04f8129c",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 0,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "PEREZ GARCIA LUCIA",
+        "residenceCardNumber": "GD56473829EF",
+        "periodOfStayExpiry": "2028-01-09"
+      }
+    },
+    {
+      "file": "gate-03.png",
+      "sha256": "c690025021b277fbe8934f4a6f89a42f6fea15a971f720c46db9d550bd132633",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 0,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "KIM MINJUN",
+        "residenceCardNumber": "GH11223344JK",
+        "periodOfStayExpiry": "2026-12-24"
+      }
+    },
+    {
+      "file": "gate-04.png",
+      "sha256": "6b18b7780650df63493a86edf12382fecdc9fedd0cb6b979c40eddaffa8b5598",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 0,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "OKAFOR CHINEDU EMEKA",
+        "residenceCardNumber": "GL99001122MN",
+        "periodOfStayExpiry": "2029-03-03"
+      }
+    },
+    {
+      "file": "gate-05.png",
+      "sha256": "8f30e7f8f466281f4607ee8517060c656197b05923f3cc70758a640c878f3397",
+      "conditions": {
+        "scale": 0.8,
+        "rotate": 0,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "TRAN THI HOA",
+        "residenceCardNumber": "GP31415926QR",
+        "periodOfStayExpiry": "2027-10-31"
+      }
+    },
+    {
+      "file": "gate-06.png",
+      "sha256": "660c383b7a7bde0e6946d3aa509bd6a6ecde3c0defeccde959b5afa9c7ddbf93",
+      "conditions": {
+        "scale": 0.8,
+        "rotate": 0,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "SILVA ANA PAULA",
+        "residenceCardNumber": "GS27182818TU",
+        "periodOfStayExpiry": "2028-07-14"
+      }
+    },
+    {
+      "file": "gate-07.png",
+      "sha256": "4c9708d5b33ada40ec5844d251c7b2ad5b126c56a34cac03303747bb077c5cd5",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 4,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "WANG JUNJIE",
+        "residenceCardNumber": "GV16180339WX",
+        "periodOfStayExpiry": "2027-02-28"
+      }
+    },
+    {
+      "file": "gate-08.png",
+      "sha256": "777d6508f19c94cfb4e8f3c388e74ec421cac5522998fe68b2420f1174d84ab6",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": -4,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "GUPTA PRIYA DEVI",
+        "residenceCardNumber": "GY14142135ZA",
+        "periodOfStayExpiry": "2029-09-09"
+      }
+    },
+    {
+      "file": "gate-09.png",
+      "sha256": "3572c1003881e0bfc868c2ae56cab17118075857eae2b5b30043e8d345a977c3",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 0,
+        "brightness": 0.6,
+        "contrast": 0.8
+      },
+      "groundTruth": {
+        "fullName": "MULLER JONAS",
+        "residenceCardNumber": "HB86753090CD",
+        "periodOfStayExpiry": "2026-11-30"
+      }
+    },
+    {
+      "file": "gate-10.png",
+      "sha256": "e068da7f20b50acf6523c47aede16f9a89d87512538c595943a70b41e9745023",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 0,
+        "brightness": 0.6,
+        "contrast": 0.8
+      },
+      "groundTruth": {
+        "fullName": "SANTOS JOAO PEDRO",
+        "residenceCardNumber": "HE24682468FG",
+        "periodOfStayExpiry": "2028-04-01"
+      }
+    },
+    {
+      "file": "gate-11.png",
+      "sha256": "19a90432d7d7af07c7592c4caecf4b07d4661309cebc6bbb621405fbca4a5489",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 0,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "IVANOVA OLGA",
+        "residenceCardNumber": "HH13579135JK",
+        "periodOfStayExpiry": null
+      }
+    },
+    {
+      "file": "gate-12.png",
+      "sha256": "e26291cea0063f7627b385bf948fee4a3af1dd2581d73db465016ad70b690a00",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 0,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "NAKAMURA ERIKA",
+        "residenceCardNumber": null,
+        "periodOfStayExpiry": "2027-06-15"
+      }
+    }
+  ]
+}
