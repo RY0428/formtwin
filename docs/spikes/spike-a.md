@@ -128,6 +128,29 @@ firebase 13.3.0, `npm run preview -w @formtwin/private-app` (production headers)
   (model already downloaded). This is real `initializeDeviceModel()` on a device, not the fake.
 - Extraction not run yet (no sample image at that point). Synthetic exploration cards added in `data/eval/explore/`.
 
+### 2026-11-12 — A-3 step 2: first real on-device extraction (explore-01)
+
+Same environment as step 1 (macOS Intel, Chrome 157.0.8103.79, `nano_v3`, firebase 13.3.0, local preview with
+production CSP `connect-src data:`). **Real Gemini Nano execution through Firebase AI Logic `ONLY_ON_DEVICE`.**
+
+- Image: `data/eval/explore/explore-01.png` (synthetic). Result accepted by the adapter, so
+  `inferenceSource` was `on_device` and the output passed Zod validation.
+- Fields (exploration only, not a gate result):
+  - fullName: `TANAKA HANAKO` — exact match.
+  - residenceCardNumber: `AB12345678CD` — exact match.
+  - periodOfStayExpiry: `2027年03月31日` — matches the printed original notation; ground truth is stored as ISO
+    `2027-03-31`. Normalization rule to be fixed before the gate (requirements.md §6: report original vs normalized).
+- Timing: prepare 38 ms (model already downloaded); **extract 17,689 ms** (one run; the 10 s target is not met yet).
+- DevTools Network (Keep log): only `blob:http://localhost:4174/…` (local preview image) and `data:image/png;base64…`
+  (the SDK's image conversion). No request to any network origin during prepare and extraction.
+- DevTools Console:
+  - CSP blocked `http://localhost:4174/.well-known/appspecific/com.chrome.devtools.json` — a request made by
+    DevTools itself when it is open, not by the page code. Blocked as intended by `connect-src data:`.
+  - Warnings from a browser extension's `contentscript.js` (EventEmitter / ObjectMultiplex). Extensions inject into
+    the page and are outside the app's guarantee (architecture.md §2.2). Evidence runs should use a profile
+    without extensions.
+  - Chrome's built-in AI feedback notice (LanguageModel in use).
+
 ## Open questions
 
 1. CSP for the image path: keep `'none'` (image extraction impossible) or allow `data:` only in
