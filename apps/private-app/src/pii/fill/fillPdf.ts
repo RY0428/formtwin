@@ -123,6 +123,8 @@ export async function fillPdf(input: FillInput): Promise<FillResult> {
 
   form.updateFieldAppearances(font);
   form.flatten();
+  // pdf-lib's getForm() creates an empty AcroForm when the template has none; do not leave it behind.
+  if (form.getFields().length === 0) doc.catalog.delete(PDFName.of('AcroForm'));
 
   // Fixed metadata: nothing derived from the person, the file or the time.
   doc.setTitle('');

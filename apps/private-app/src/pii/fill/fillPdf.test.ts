@@ -1,6 +1,6 @@
 import { pdfLayoutSchema } from '@formtwin/contracts';
 import { readFileSync } from 'node:fs';
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, PDFName } from 'pdf-lib';
 import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { describe, expect, it } from 'vitest';
 import { fillPdf, TemplateMismatchError } from './fillPdf.ts';
@@ -120,6 +120,8 @@ describe('fillPdf (official form 930004094, page 1)', () => {
     expect(notFilled).toEqual([]);
     const text = await pageText(bytes);
     for (const v of ['TANAKA', 'HANAKO', '2027', 'AB12345678CD']) expect(text).toContain(v);
-    expect((await PDFDocument.load(bytes)).getPageCount()).toBe(7);
+    const out = await PDFDocument.load(bytes);
+    expect(out.getPageCount()).toBe(7);
+    expect(out.catalog.has(PDFName.of('AcroForm'))).toBe(false);
   });
 });

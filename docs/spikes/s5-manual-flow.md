@@ -1,6 +1,6 @@
 # S5 — manual entry → confirmation → partial PDF (private-app)
 
-Status: **implemented and E2E-verified in the dev container** (2026-11-12, fake/no AI). Real-device check pending.
+Status: **implemented**, E2E-verified in the dev container, and run end-to-end on the real device (2026-11-12).
 
 ## What the screen does (apps/private-app/src/ui)
 0. Fixed assets: the official form (930004094.pdf), its layout and BIZ UDGothic are imported as bytes at build time
@@ -28,6 +28,17 @@ Footer: PDL1.0 source credit for the form.
 - AI candidates (fake model): nothing is written until chosen; two name-split options offered; applied values stay
   unchecked.
 - End session clears the fields.
+
+## Real device (2026-11-12, developer's Mac, Chrome 157, hosted https://formtwin-dev-private.web.app)
+- Prepare AI → explore-03 → extraction 20,242 ms. Candidates: name **`SANTOSTE MARIA CLARA`** (truth
+  `SANTOS MARIA CLARA`; an earlier run on the same image read `SATOS`), card number and expiry correct.
+- The developer chose the split `SANTOSTE | MARIA CLARA`, corrected the family name to `SANTOS`, applied the expiry
+  and number candidates, checked all six fields, created and saved the PDF.
+- Saved PDF (inspected): 7 pages, page 1 shows `SANTOS` / `MARIA CLARA`, `2026 年 12 月 01 日`, `JK24681357LM`
+  on the right lines; title/author empty, producer/creator `FormTwin`, dates 2000-01-01; BIZ UDGothic embedded.
+  It still carried an empty AcroForm dictionary created by pdf-lib — now removed after flattening.
+- Takeaway: the same image gives different wrong names across runs, so per-field confirmation is required
+  regardless of measured accuracy.
 
 ## Not done / next
 - Real-device run on the Mac (deploy and try the flow; print one PDF).
