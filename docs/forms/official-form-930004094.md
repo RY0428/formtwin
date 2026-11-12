@@ -11,7 +11,16 @@ Status: **analysis only. The PDF is NOT committed** until redistribution terms a
 - The dev container cannot fetch www.moj.go.jp (CloudFront 403), so the hash comes from the uploaded copy only.
 - Form identification printed on page 1: **「別記第三十号の二様式（第二十一条関係）」** (Annexed Form No. 30-2, Article 21).
   No revision date found in the PDF text or metadata (Info dictionary empty; XMP stream empty).
-- Redistribution terms: **not confirmed yet**.
+- Redistribution terms (read by the developer on 2026-11-12, screenshots):
+  - https://www.moj.go.jp/isa/copyright/index.html — site content is protected by copyright; use it under
+    「出入国在留管理庁ホームページのコンテンツの利用について」.
+  - https://www.moj.go.jp/isa/copyright/index2.html — content without a rights notice is under
+    **公共データ利用規約（第1.0版）(PDL1.0)**. Site-specific rules:
+    - 1.1 Attribution required, e.g. 「出典：出入国在留管理庁ホームページ（当該ページのURL）」. If edited/processed,
+      state that separately, and do not present edited information as if published by the government.
+    - 1.2 Respect third-party rights.
+    - 1.4 Not covered: symbols/logos/character designs, and the contents listed in the **別紙** (other rules apply).
+  - **Pending:** check that application forms are not listed in the 別紙. Until then the PDF stays out of the repo.
 
 ## Structure (pdfinfo / pypdf / pdffonts)
 - PDF 1.6, 7 pages, all A4 portrait 595.276 × 841.89 pt, MediaBox = CropBox, rotation 0.
