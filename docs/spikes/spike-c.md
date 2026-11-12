@@ -36,6 +36,10 @@ The official form 930004094.pdf (no AcroForm, A4, no rotation) is bundled under 
 (family/given), expiry (year/month/day) and card number was measured and rendered correctly
 (`official-p1.png`, test in `fillPdf.test.ts`). See `docs/forms/official-form-930004094.md`.
 
+Cross-viewer check (2026-11-12, developer's Mac): `official-p1.pdf` generated on macOS with
+`render-check.mjs official --pdf-only` and opened in macOS Preview (PDFKit). Name, expiry date parts and card number
+render clearly on their lines, the same as in pdf.js. Paper printing not done yet.
+
 ## Open / risks
 - Official form: rules for splitting a one-line Roman name into family/given (user-confirmed) and for the date parts.
 - Output size: consider a build-time character-set subset of the font (e.g. JIS X 0208 + needed symbols) with a
