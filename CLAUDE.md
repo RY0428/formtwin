@@ -26,7 +26,10 @@
 
 ## 現在の状況（2026-11-12時点）
 
-- 雛形・スパイクA の実装（A-1）と Fake LanguageModel による E2E（A-2）まで完了。**実機検証（A-3）は未実施。** 経過は `docs/spikes/spike-a.md`。
+- スパイクA: 実機（Mac・Chrome 157・`nano_v3`）で公開URL・本番CSP・通信断まで確認済み。Gemini Nano 4 の証拠は運営回答待ち。`docs/spikes/spike-a.md`
+- スパイクC: 公式様式 930004094.pdf（PDL1.0）1ページ目へ記入確認済み。フォント BIZ UDゴシック全体埋込み。`docs/spikes/spike-c.md`
+- S5: 手入力→確認→部分記入PDF の導線を実装、コンテナ E2E 済み（実機未確認）。`docs/spikes/s5-manual-flow.md`
+- 未着手: スパイクB（公開側クラウド・App Check）、評価データ分離と閾値固定
 - SDK 注意: `LanguageModel` global が無い環境では `ONLY_ON_DEVICE` でもクラウドへ送信される（@firebase/ai 3.1.0 のコードで確認）。`FirebaseOnDeviceLLM` のガードを外さない。
 - Node 24（`.nvmrc`）。@firebase/ai 3.x の要件。
 - 2026-11-12 Devpost Support の案内により、大会ページの「Email the hackathon manager」宛てに3点を再送・回答待ち（③は下記 Nano 4）:
