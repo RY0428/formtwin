@@ -176,6 +176,16 @@ use a Chrome profile without extensions.
 Implications: the wrong-but-plausible name on a rotated card confirms that per-field user confirmation is required
 regardless of accuracy (requirements.md §3 Must 4). The 10 s target is reachable for warm runs; the first run is not.
 
+### 2026-11-12 — A-3 step 4: offline on the same screen
+
+Wi-Fi turned off at the OS level (menu bar toggle off) after preparation; same page, AI status `ready`.
+explore-01 → all three fields match (name, number, expiry in original notation); extract 8,528 ms.
+New Network entries were only `blob:` and `data:`. **Extraction continues offline on an already-open, prepared page.**
+Offline first launch / reload remains out of scope (requirements.md §3 Must 9).
+
+Remaining for Spike A: same runs on the hosted URL (https://formtwin-dev-private.web.app) and in a Chrome profile
+without extensions; Gemini Nano 4 evidence (organizer answer pending).
+
 ## Open questions
 
 1. CSP for the image path: keep `'none'` (image extraction impossible) or allow `data:` only in
