@@ -16,7 +16,7 @@
     "build": "npm run build -w @formtwin/public-app && npm run build -w @formtwin/private-app",
     "check:bundle": "node scripts/check-private-bundle.mjs",
     "verify": "npm run lint && npm run typecheck && npm test && npm run build && npm run check:bundle && npm run test:e2e",
-    "test:e2e": "playwright test --trace off"
+    "test:e2e": "npm run build:e2e -w @formtwin/private-app && playwright test --trace off"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

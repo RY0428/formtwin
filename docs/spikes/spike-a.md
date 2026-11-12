@@ -37,6 +37,13 @@ Sources: [Hybrid Web get started](https://firebase.google.com/docs/ai-logic/hybr
 
 ## Code-read (@firebase/ai 3.1.0, `dist/esm/index.esm.js`)
 
+- **Cloud fallback hazard:** `chromeAdapterFactory` creates the on-device adapter only when
+  `globalThis.LanguageModel` exists. Without it, `callCloudOrDevice` receives no adapter and sends the request
+  **to the cloud, even with `ONLY_ON_DEVICE`**. Mitigation in `apps/private-app/src/ondevice/FirebaseOnDeviceLLM.ts`:
+  refuse to create the model or send any request without the Prompt API global (checked before every request),
+  reject any result whose `inferenceSource` is not `on_device`; CSP `connect-src data:` blocks network egress
+  as a further layer. Worth reporting upstream.
+
 - `ONLY_ON_DEVICE` never calls the cloud: `generateContent` throws `AIError(UNSUPPORTED)` when the
   on-device model is unavailable, and `API_NOT_ENABLED` when `LanguageModel.availability()` is `unavailable`.
 - **Image parts are converted with `fetch('data:<mime>;base64,<data>')` → `blob()` → `createImageBitmap()`.**
@@ -61,7 +68,26 @@ Environment: Linux container, Playwright Chromium 153.0.8010.12 (no Gemini Nano)
 - `connect-src data:`: the fetch is not blocked by CSP.
 
 Consequence: image extraction through Firebase AI Logic cannot work with `connect-src 'none'`.
-A decision is needed (spec change); see the open question below.
+**Decision (developer, 2026-11-12): private-app uses `connect-src data:`** (data: URLs only, no network
+origin, not even `'self'`). CLAUDE.md and the three specs were updated.
+
+### 2026-11-12 — A-2: SDK path with a FAKE `LanguageModel` (dev container)
+
+Environment: Linux container, Playwright Chromium 153.0.8010.12, firebase 13.3.0, production-like build
+(`dist-e2e`, dummy Firebase config), production private CSP via `vite preview`. Tests: `tests/e2e/spike-a-ondevice.spec.ts`.
+**These are wiring results with a fake model, not evidence of real Gemini Nano execution.**
+
+- Prepare → `initializeDeviceModel()` (with download progress) → extract through `generateContent` succeeds;
+  the fake receives `['text', image as ImageBitmap]` and a `responseConstraint`; result `inferenceSource` = `on_device`.
+- No CSP violations; no request to any non-page origin; canary value absent from all observed requests
+  (URL, headers, body). Scope: browser-context requests visible to Playwright.
+- Invalid model output (unknown key) → `invalid_output`, no candidate shown.
+- Prompt API global removed → `api_missing`, extraction disabled, no requests.
+- This Chromium build exposes its own `LanguageModel` global (no model installed): handled as not ready,
+  extraction disabled, no requests.
+- **IndexedDB:** after preparation, `indexedDB.databases()` = `["firebase-heartbeat-database"]`, created by
+  @firebase/app's heartbeat (`getAI()` → `_getProvider()` → `triggerHeartbeat()`). It holds SDK usage
+  metadata, not personal data. Treatment needs a decision (rule 5 forbids personal data persistence).
 
 ## Open questions
 
@@ -69,4 +95,6 @@ A decision is needed (spec change); see the open question below.
    `connect-src` (no network origin). Requires updating all three spec documents.
 2. Evidence that the on-device model is Gemini Nano 4.
 3. Whether the multimodal flag is still needed in the current Chrome stable for web pages.
-4. Heartbeat IndexedDB write: confirm on device and decide how to treat it (not personal data).
+4. Heartbeat IndexedDB write (measured): accept as non-personal SDK metadata and document, or find a
+   supported way to avoid it. Decision pending.
+5. Real-device run (A-3): see `spike-a-device-runbook.md`.

@@ -16,7 +16,7 @@
 1. **PIIは本人記入側（`apps/private-app`）から外へ出さない。** 画像・抽出値・手入力・派生値・記入済PDF・ファイル名・ハッシュも対象。
 2. **推論モードは固定。** 本人側は `InferenceMode.ONLY_ON_DEVICE`、公開側は `InferenceMode.ONLY_IN_CLOUD`。`PREFER_ON_DEVICE` / `PREFER_IN_CLOUD` は使わない。端末推論の失敗時は手入力へ。クラウドへ再試行しない。
 3. **アプリの全AI推論は Firebase AI Logic Web SDK 経由。** Chrome Prompt API での直接生成、Gemini REST API、他社AI APIを使わない（Prompt API は可用性・モデル情報の確認だけ可）。端末モデルは Gemini Nano 4 を対象。
-4. **本人側は通信しない設計。** CSP `connect-src 'none'`。App Check・Firestore・Analytics・Remote Config・外部ロガーを初期化しない。固定PDF・フォントはビルド時にバイト列として同梱し、実行時 fetch しない。
+4. **本人側は通信しない設計。** CSP `connect-src data:`（data: URL だけ許可、ネットワークオリジン・`'self'` 不可。SDK が画像 Part を `fetch('data:…')` で変換するため。2026-11-12 実測・決定）。App Check・Firestore・Analytics・Remote Config・外部ロガーを初期化しない。固定PDF・フォントはビルド時にバイト列として同梱し、実行時 fetch しない。
 5. **本人データは永続化しない。** IndexedDB / localStorage / sessionStorage / Cache Storage / OPFS 等に書かない。メモリのみ。
 6. **公開側のクラウド送信は承認済み公開原本のIDからだけ構築する。** 任意の File / Blob / URL / string を送るAPIを作らない。
 7. **秘密情報をリポジトリに入れない。** APIキーの本番値、App Checkデバッグトークン、管理資格情報、署名鍵、実在人物の個人情報。テスト・デモは架空データのみ。
@@ -26,7 +26,9 @@
 
 ## 現在の状況（2026-11-12時点）
 
-- 仕様書3本のみ存在。**コードは未着手。** 実機検証も未実施。
+- 雛形・スパイクA の実装（A-1）と Fake LanguageModel による E2E（A-2）まで完了。**実機検証（A-3）は未実施。** 経過は `docs/spikes/spike-a.md`。
+- SDK 注意: `LanguageModel` global が無い環境では `ONLY_ON_DEVICE` でもクラウドへ送信される（@firebase/ai 3.1.0 のコードで確認）。`FirebaseOnDeviceLLM` のガードを外さない。
+- Node 24（`.nvmrc`）。@firebase/ai 3.x の要件。
 - Devpost（support@devpost.com）へ2点問い合わせ中・回答待ち:
   1. 「公開様式のクラウド解析＋本人情報の端末抽出」の2経路分担でハイブリッド推論要件を満たすか（自動フォールバック必須か）
   2. 別オリジンの端末専用コンポーネントで App Check 初期化を省略できるか
@@ -36,7 +38,7 @@
 
 優先順:
 1. モノレポ雛形（npm workspaces: `apps/public-app`, `apps/private-app`, `packages/domain`, `packages/contracts`）、TypeScript strict、ESLint（boundaries）、Vitest
-2. **スパイクA（最重要）:** private-app で Firebase AI Logic `ONLY_ON_DEVICE` により架空在留カード画像から欄抽出。本番想定CSP（`connect-src 'none'`）・App Check未初期化で動くか、`initializeDeviceModel()`、`inferenceSource`、モデル世代の確認方法を記録
+2. **スパイクA（最重要）:** private-app で Firebase AI Logic `ONLY_ON_DEVICE` により架空在留カード画像から欄抽出。本番想定CSP（`connect-src data:`）・App Check未初期化で動くか、`initializeDeviceModel()`、`inferenceSource`、モデル世代の確認方法を記録
 3. スパイクB: public-app で App Check（reCAPTCHA Enterprise）付き `ONLY_IN_CLOUD` により公開原本PDFから欄定義候補を生成
 4. スパイクC: pdf-lib + fontkit で固定様式PDFへ日本語の最小転記
 5. 手入力のみで確認→PDF出力まで進める導線、通信断での継続

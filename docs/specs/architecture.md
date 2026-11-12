@@ -79,14 +79,14 @@ MVPの公開パッケージは、検収後に本人記入側の固定アセッ�
 | 領域 | 外部接続とデータ |
 | --- | --- |
 | 公開処理側 | 承認済み書式のクラウド推論、必要なFirebase/App Check通信のみ。本人書類の入力UIを持たない |
-| 本人記入側 | `connect-src 'none'` を基本とする。文書内容を外部へ送るAPI、外部ログ、Analytics、Firestore、Remote Config、App Checkの初期化を持たない |
+| 本人記入側 | `connect-src data:` とする（data: URL のみ。ネットワークオリジン・`'self'` は不可）。文書内容を外部へ送るAPI、外部ログ、Analytics、Firestore、Remote Config、App Checkの初期化を持たない |
 | ブラウザ管理の処理 | モデル取得・更新等はページの通信と区別して実機観測。CSPがブラウザ自身の全通信を止めるとは扱わない |
 
 本人記入側のSDKは端末専用アダプタだけから利用する。Firebase AI Logicの内部にクラウド用コードが含まれ得るため、「SDKからクラウド機能を物理的に除去できた」とは主張しない。要求モード固定、API非公開、CSPによる接続禁止、実通信試験を併用する。必要な初期化が外部通信を要求して動作しない場合は成立ゲート不合格とし、PII入力後に接続許可を広げない。手入力へ移行し、端末推論アダプタの変更は別途検証する。本人側App Check未初期化の大会適合は要件定義書9章の保留事項であり、SDKが動作するだけでは合格としない。
 
 本人記入側はリモートスクリプト・フォントを読み込まない。CSPには `default-src 'none'`、限定した `script-src` / `style-src` / `font-src`、ローカル画像に必要な `img-src`、PDF workerに必要な `worker-src`、`form-action 'none'`、`object-src 'none'`、`base-uri 'none'`、`frame-ancestors 'none'` を設定する。具体値はビルドしたアセットで確認する。PDF表示は外部ビューアを埋め込まず、ローカルのpdf.jsで描画する。
 
-`connect-src 'none'` は同一配信元への `fetch` も禁止する。固定PDF・マニフェスト・PDF埋込み用フォントはビルド時にバイト列としてモジュールへ組み込み、実行時にURLをfetchして取得しない。pdf.jsにはURLではなくメモリ内のバイト列を渡す。workerや補助フォントの追加取得が必要にならない設定を確認し、worker自身にも通信禁止のCSPを適用する。公開アセット取得のために本人側の `connect-src` を安易に `'self'` へ広げない。
+`connect-src data:` は同一配信元を含むネットワークへの `fetch` を禁止し、メモリ内の data: URL だけを許可する。data: の許可は、Firebase AI Logic Web SDK（firebase 13.3.0 / @firebase/ai 3.1.0）が端末推論の画像Partを `fetch('data:<mime>;base64,…')` で変換し、`connect-src 'none'` ではこの変換がブロックされるため（2026-11-12、Chromium 153で実測、SDKコードで確認）。data: 以外の許可へ広げない。固定PDF・マニフェスト・PDF埋込み用フォントはビルド時にバイト列としてモジュールへ組み込み、実行時にURLをfetchして取得しない。pdf.jsにはURLではなくメモリ内のバイト列を渡す。workerや補助フォントの追加取得が必要にならない設定を確認し、worker自身にも通信禁止のCSPを適用する。公開アセット取得のために本人側の `connect-src` を安易に `'self'` へ広げない。
 
 同一配信元の静的資産読込みもサーバーへの要求である。PIIをURLや資産名に使わず、セッション開始後に遅延ロードを必要としない構成にする。CSPの `connect-src` は画像読込みやトップレベル遷移を含む全経路の遮断ではない。より強い端末全体の通信遮断が必要な実演・運用では、準備後のOS側ネットワーク切断を併用する。
 
@@ -407,7 +407,7 @@ firestore.rules
 | 検証対象 | 必須ケース・合格条件 |
 | --- | --- |
 | 公開入口 | 任意File、URL、記入済PDF、未知ID、差替え原本を拒否。許可済みバイト列だけ送信 |
-| アプリ分離 | 相互import・本人側からの公開モデル呼出しをCIで拒否。別オリジン、opener、CSP、共有ストレージの実設定を確認 |
+| アプリ分離 | 相互import・本人側からの公開モデル呼出しをCIで拒否。別オリジン、opener、CSP、共有ストレージの実設定を確認。本人側 `connect-src` が `data:` だけであることを検査 |
 | SDK・推論 | 公開URLでGemini Nano 4の利用根拠、Firebase AI Logicの実呼出し、画像入力・初期化・ `ONLY_ON_DEVICE` ・ `inferenceSource` を確認。非対応、例外、取消し、タイムアウトでクラウド要求なし |
 | 通信 | context単位でURL、ヘッダー、本文、multipart、WebSocket、SDK再送を観測。ブラウザ外側の観測も併用し対象・限界を記録 |
 | カナリア | 未登録値、手入力途中、修正前後、部分値、Unicode変形、符号化、画像を使用。単純な本文検索だけを合格根拠にしない |

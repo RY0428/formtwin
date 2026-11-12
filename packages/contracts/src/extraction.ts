@@ -1,5 +1,6 @@
 import { SEMANTIC_KEYS } from '@formtwin/domain';
 import { z } from 'zod';
+import { EXTRACTION_VALUE_MAX_LENGTH } from './extractionJsonSchema.ts';
 
 /**
  * Output contract for on-device extraction candidates (provisional).
@@ -11,7 +12,7 @@ export const EXTRACTION_SCHEMA_VERSION = '0.0.0-provisional';
 export const extractionFieldSchema = z
   .object({
     key: z.enum(SEMANTIC_KEYS),
-    value: z.string().max(200).nullable(),
+    value: z.string().max(EXTRACTION_VALUE_MAX_LENGTH).nullable(),
   })
   .strict();
 

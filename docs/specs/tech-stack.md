@@ -26,7 +26,7 @@
 - ユーザー文書のハッシュ、ファイル名、抽出ラベル、自由記述、PDFメタデータも送信しない。
 - Firestoreにはレビュー済みの公開FormDefだけを保存する。本人のメモリ内データをURL、ログ、エラー報告、分析イベントに載せない。
 - 型、Zod、import制限は補助策とする。送信許可リストと通信テストで境界を検証する。
-- 公開側は実際のFirebase/App Check通信を検証して接続先を限定する。本人側は `connect-src 'none'` とし、外部スクリプト・フォント・ログを持たない。必要な固定資産をPII入力前に準備する。SDK端末初期化との両立は成立ゲートで実測し、動作しない場合に本人側の通信許可を広げない。
+- 公開側は実際のFirebase/App Check通信を検証して接続先を限定する。本人側は `connect-src data:`（data: URL のみ。SDKの画像変換に必要、アーキテクチャ3.2節）とし、外部スクリプト・フォント・ログを持たない。必要な固定資産をPII入力前に準備する。SDK端末初期化との両立は成立ゲートで実測し、動作しない場合に本人側の通信許可を広げない。
 
 ## 3. フロントエンドと状態の所有権
 
@@ -61,6 +61,8 @@ React + Vite + TypeScript strictで独立した2つのSPAを採用する。SSR�
 | 端末セッション設定 | `onDeviceParams.createOptions`。日本語・画像を含む実際の入力条件に合わせる |
 | 端末の出力制約 | `onDeviceParams.promptOptions.responseConstraint` |
 | クラウドの出力制約 | `inCloudParams.generationConfig.responseMimeType: 'application/json'`と`responseSchema` |
+| 端末の画像入力 | SDKが `inlineData` を `fetch('data:…')`→`createImageBitmap` で変換（13.3.0のコードで確認）。本人側CSPに `connect-src data:` が必要 |
+| 端末の中断 | 13.3.0の端末経路は要求ごとの `signal` をPrompt APIへ渡さない（コードで確認）。中断不可として結果無効化で扱う |
 | 推論元の観測 | `result.response.inferenceSource`の`ON_DEVICE` / `IN_CLOUD`。送信後の確認であり漏えい防止策ではない |
 
 アプリのAI推論にChrome Prompt APIの直接生成、Gemini REST API、他社AI API、Firebase AI Logicを迂回するSDKを使わない。実装補助に使うAIコーディングツールとは区別する。
@@ -92,7 +94,7 @@ Zodを契約の出発点とするが、`z.toJSONSchema()`の結果を無加工�
 
 ## 6. PDFと画像
 
-pdfjs-distで表示・読取り、pdf-lib + @pdf-lib/fontkitで記入と保存を行う。固定PDF・マニフェスト・PDF埋込み用フォントはビルド時にバイト列としてモジュールへ組み込み、実行時のfetchを使わない。pdf.jsにはメモリ内のバイト列を渡す。worker等の同一配信元の静的資産はPII入力前に準備し、追加取得・遅延ロードなしで動作させる。本人側の `connect-src 'none'` とworker自身の通信禁止CSPで動作することを検証する。生成・プレビュー・保存はアーキテクチャ7.4〜7.5節の版照合に従う。
+pdfjs-distで表示・読取り、pdf-lib + @pdf-lib/fontkitで記入と保存を行う。固定PDF・マニフェスト・PDF埋込み用フォントはビルド時にバイト列としてモジュールへ組み込み、実行時のfetchを使わない。pdf.jsにはメモリ内のバイト列を渡す。worker等の同一配信元の静的資産はPII入力前に準備し、追加取得・遅延ロードなしで動作させる。本人側の `connect-src data:` とworker自身の通信禁止CSPで動作することを検証する。生成・プレビュー・保存はアーキテクチャ7.4〜7.5節の版照合に従う。
 
 ### 日本語出力
 

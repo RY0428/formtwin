@@ -46,7 +46,7 @@ describe('firebase.json matches deploy/*/headers.mjs', () => {
 describe('private-app CSP invariants (architecture.md §3.2)', () => {
   const d = directives(privateCsp);
   it.each([
-    ['connect-src', "'none'"],
+    ['connect-src', 'data:'],
     ['default-src', "'none'"],
     ['form-action', "'none'"],
     ['object-src', "'none'"],
@@ -57,7 +57,13 @@ describe('private-app CSP invariants (architecture.md §3.2)', () => {
   });
 
   it('has no remote origins, inline or eval sources', () => {
-    expect(privateCsp).not.toMatch(/https?:|wss?:|\*|'unsafe-|data:/);
+    expect(privateCsp).not.toMatch(/https?:|wss?:|\*|'unsafe-/);
+  });
+
+  it('allows data: only in connect-src (SDK image conversion)', () => {
+    for (const [name, value] of d) {
+      if (name !== 'connect-src') expect(value).not.toContain('data:');
+    }
   });
 
   it('has no CSP reporting endpoint', () => {

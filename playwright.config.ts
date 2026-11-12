@@ -19,7 +19,7 @@ export default defineConfig({
       reuseExistingServer: false,
     },
     {
-      command: 'npm run preview -w @formtwin/private-app',
+      command: 'npm run preview:e2e -w @formtwin/private-app',
       url: 'http://localhost:4174',
       reuseExistingServer: false,
     },

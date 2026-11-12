@@ -1,0 +1,36 @@
+import { describe, expect, it } from 'vitest';
+import { aiReducer, canExtract, initialAiState, type AiEvent, type AiState } from './aiState.ts';
+
+const run = (events: AiEvent[], from: AiState = initialAiState) => events.reduce(aiReducer, from);
+
+describe('aiReducer', () => {
+  it('reaches ready only through start → succeeded', () => {
+    const s = run([{ type: 'start' }, { type: 'progress', attempt: 1, fraction: 0.5 }, { type: 'succeeded', attempt: 1 }]);
+    expect(s.status).toBe('ready');
+    expect(canExtract(s)).toBe(true);
+  });
+
+  it('ignores a late success after the user skipped AI', () => {
+    const s = run([{ type: 'start' }, { type: 'skip' }, { type: 'succeeded', attempt: 1 }]);
+    expect(s.status).toBe('skipped');
+    expect(canExtract(s)).toBe(false);
+  });
+
+  it('does not restart preparation in the same session', () => {
+    const failed = run([{ type: 'start' }, { type: 'failed', attempt: 1, reason: 'x' }]);
+    expect(run([{ type: 'start' }, { type: 'succeeded', attempt: 2 }], failed).status).toBe('failed');
+    const skipped = run([{ type: 'skip' }, { type: 'start' }]);
+    expect(skipped.status).toBe('skipped');
+  });
+
+  it('ignores events from another attempt', () => {
+    const s = run([{ type: 'start' }, { type: 'succeeded', attempt: 99 }]);
+    expect(s.status).toBe('preparing');
+  });
+
+  it('allows skipping from any state except ready', () => {
+    expect(run([{ type: 'start' }, { type: 'unavailable', attempt: 1, reason: 'x' }, { type: 'skip' }]).status).toBe('skipped');
+    const ready = run([{ type: 'start' }, { type: 'succeeded', attempt: 1 }]);
+    expect(aiReducer(ready, { type: 'skip' }).status).toBe('ready');
+  });
+});

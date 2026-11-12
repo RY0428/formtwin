@@ -49,3 +49,12 @@ test('private-app CSP blocks connections, including same-origin fetch', async ({
   expect(blocked).toBe(true);
   expect(seen.cspErrors.join('\n')).toMatch(/connect-src/);
 });
+
+test('private-app CSP allows fetch of in-memory data: URLs only', async ({ page }) => {
+  await page.goto('http://localhost:4174/');
+  const ok = await page.evaluate(async () => {
+    const r = await window.fetch('data:text/plain;base64,aGk=');
+    return r.text();
+  });
+  expect(ok).toBe('hi');
+});
