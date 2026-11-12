@@ -1,0 +1,67 @@
+import { readFileSync } from 'node:fs';
+import { describe, expect, it } from 'vitest';
+import { privateCsp, privateHeaders } from '../../deploy/private/headers.mjs';
+import { publicHeaders } from '../../deploy/public/headers.mjs';
+
+interface HostingSite {
+  target: string;
+  public: string;
+  headers: { source: string; headers: { key: string; value: string }[] }[];
+}
+
+const firebaseJson = JSON.parse(
+  readFileSync(new URL('../../firebase.json', import.meta.url), 'utf8'),
+) as { hosting: HostingSite[] };
+
+function siteHeaders(target: string): Record<string, string> {
+  const site = firebaseJson.hosting.find((s) => s.target === target);
+  if (site === undefined) throw new Error(`missing hosting target ${target}`);
+  const all = site.headers.find((h) => h.source === '**');
+  if (all === undefined) throw new Error(`missing ** headers for ${target}`);
+  return Object.fromEntries(all.headers.map((h) => [h.key, h.value]));
+}
+
+function directives(csp: string): Map<string, string> {
+  return new Map(
+    csp.split(';').map((d) => {
+      const [name = '', ...values] = d.trim().split(/\s+/);
+      return [name, values.join(' ')];
+    }),
+  );
+}
+
+describe('firebase.json matches deploy/*/headers.mjs', () => {
+  it('private-app', () => {
+    expect(siteHeaders('private')).toMatchObject(privateHeaders);
+  });
+  it('public-app', () => {
+    expect(siteHeaders('public')).toMatchObject(publicHeaders);
+  });
+  it('apps deploy from separate build outputs', () => {
+    const dirs = firebaseJson.hosting.map((s) => s.public);
+    expect(new Set(dirs).size).toBe(dirs.length);
+  });
+});
+
+describe('private-app CSP invariants (architecture.md §3.2)', () => {
+  const d = directives(privateCsp);
+  it.each([
+    ['connect-src', "'none'"],
+    ['default-src', "'none'"],
+    ['form-action', "'none'"],
+    ['object-src', "'none'"],
+    ['base-uri', "'none'"],
+    ['frame-ancestors', "'none'"],
+  ])('%s is %s', (name, value) => {
+    expect(d.get(name)).toBe(value);
+  });
+
+  it('has no remote origins, inline or eval sources', () => {
+    expect(privateCsp).not.toMatch(/https?:|wss?:|\*|'unsafe-|data:/);
+  });
+
+  it('has no CSP reporting endpoint', () => {
+    expect(d.has('report-uri')).toBe(false);
+    expect(d.has('report-to')).toBe(false);
+  });
+});
