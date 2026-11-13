@@ -1,0 +1,66 @@
+{
+  "startedAt": "2026-11-13T14:43:02.708Z",
+  "chrome": "157.0.8103.79",
+  "build": "0ff57cf",
+  "flags": {
+    "prompt-api-multimodal-input": "Enabled",
+    "gemma4-for-built-in-ai": "Enabled"
+  },
+  "steps": [
+    {
+      "name": "④ cancel AI preparation",
+      "ok": true,
+      "after": "failed",
+      "after60s": "failed",
+      "reason": "cancelled"
+    },
+    {
+      "name": "Prepare AI",
+      "ok": true,
+      "status": "ready",
+      "seconds": 1455
+    },
+    {
+      "name": "⑤ extract explore-01.png",
+      "ok": true,
+      "seconds": 4.9,
+      "candidates": 3,
+      "error": null
+    },
+    {
+      "name": "⑤ extract explore-02.png",
+      "ok": true,
+      "seconds": 5.4,
+      "candidates": 4,
+      "error": null
+    },
+    {
+      "name": "⑤ extract explore-03.png",
+      "ok": true,
+      "seconds": 5.4,
+      "candidates": 4,
+      "error": null
+    },
+    {
+      "name": "① hidden page locks; Resume keeps values",
+      "ok": false,
+      "locked": false,
+      "method": "window minimise"
+    },
+    {
+      "name": "② Save PDF without lock",
+      "ok": true
+    },
+    {
+      "name": "③ End session clears values",
+      "ok": true
+    },
+    {
+      "name": "page made no request outside its origin",
+      "ok": true,
+      "foreign": []
+    }
+  ],
+  "availabilityAtStart": "downloadable",
+  "finishedAt": "2026-11-13T15:09:04.731Z"
+}

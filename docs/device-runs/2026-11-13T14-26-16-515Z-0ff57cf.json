@@ -1,0 +1,19 @@
+{
+  "startedAt": "2026-11-13T14:26:16.515Z",
+  "chrome": "157.0.8103.79",
+  "build": "0ff57cf",
+  "flags": {
+    "prompt-api-multimodal-input": "Enabled",
+    "gemma4-for-built-in-ai": "Enabled"
+  },
+  "steps": [
+    {
+      "name": "AI availability",
+      "ok": false,
+      "availability": "checking"
+    }
+  ],
+  "availabilityAtStart": "checking",
+  "error": "on-device AI not usable here: checking",
+  "finishedAt": "2026-11-13T14:27:08.819Z"
+}
