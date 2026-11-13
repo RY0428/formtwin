@@ -19,3 +19,5 @@ docs/spikes/spike-c/*.pdf
 # Package signing keys: only public keys (forms/keys/*.pub.json) may be committed
 *.private.jwk.json
 formtwin-signing-*
+# macOS Finder metadata
+.DS_Store
