@@ -6,6 +6,8 @@
 export interface FakeOptions {
   availability: 'unavailable' | 'downloadable' | 'downloading' | 'available';
   response: string;
+  /** Optional delay before each prompt resolves (stale-response tests). */
+  delayMs?: number;
 }
 
 export function installFakeLanguageModel(opts: FakeOptions): void {
@@ -40,7 +42,7 @@ export function installFakeLanguageModel(opts: FakeOptions): void {
             m.content.map((c) => (c.type === 'image' && c.value instanceof ImageBitmap ? 'image:ImageBitmap' : c.type)),
           );
           log.prompts.push({ types, hasConstraint: promptOptions?.responseConstraint !== undefined });
-          return Promise.resolve(opts.response);
+          return new Promise((resolve) => setTimeout(() => resolve(opts.response), opts.delayMs ?? 0));
         },
         destroy: () => undefined,
       });

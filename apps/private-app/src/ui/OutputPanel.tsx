@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 import type { FixedAssets } from '../bootstrap/fixedAssets.ts';
 import { fillPdf } from '../pii/fill/fillPdf.ts';
 import { FIELD_LABELS, type FieldId } from '../pii/session/fields.ts';
-import { takeSnapshot, type SessionState } from '../pii/session/sessionState.ts';
+import type { SessionForm } from '../pii/session/useSessionForm.ts';
 import { Alert } from './components/alert.tsx';
 import { Button } from './components/button.tsx';
 
 interface Props {
   assets: FixedAssets;
-  state: SessionState;
+  session: SessionForm;
 }
 
 interface Generated {
@@ -27,7 +27,8 @@ const REASON: Record<string, string> = {
 };
 
 /** PDF generation from an immutable snapshot; stale results are discarded (architecture.md §7.5). */
-export function OutputPanel({ assets, state }: Props) {
+export function OutputPanel({ assets, session }: Props) {
+  const state = session.state;
   const [generated, setGenerated] = useState<Generated | undefined>();
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -48,7 +49,7 @@ export function OutputPanel({ assets, state }: Props) {
   );
 
   const onCreate = () => {
-    const snapshot = takeSnapshot(state);
+    const snapshot = session.snapshot();
     setBusy(true);
     setFailed(false);
     fillPdf({ template: assets.template, font: assets.font, layout: assets.layout, values: snapshot.values }).then(

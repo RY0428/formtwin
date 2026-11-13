@@ -1,25 +1,25 @@
-import type { Dispatch } from 'react';
-import { Alert } from './components/alert.tsx';
-import { Input } from './components/input.tsx';
-import { cn } from './components/cn.ts';
 import { dateProblem, FIELD_IDS, FIELD_LABELS, formatProblem } from '../pii/session/fields.ts';
-import { isConfirmed, type SessionEvent, type SessionState } from '../pii/session/sessionState.ts';
+import { isConfirmed } from '../pii/session/sessionState.ts';
+import type { SessionForm } from '../pii/session/useSessionForm.ts';
+import { Alert } from './components/alert.tsx';
+import { cn } from './components/cn.ts';
+import { Input } from './components/input.tsx';
 
 interface Props {
-  state: SessionState;
-  dispatch: Dispatch<SessionEvent>;
+  session: SessionForm;
 }
 
 /** Manual entry and per-field confirmation. Editing a value withdraws its confirmation. */
-export function FieldsForm({ state, dispatch }: Props) {
-  const f = state.fields;
-  const dateIssue = dateProblem(f.expiryYear.value, f.expiryMonth.value, f.expiryDay.value);
+export function FieldsForm({ session }: Props) {
+  const v = session.values;
+  const dateIssue = dateProblem(v.expiryYear, v.expiryMonth, v.expiryDay);
   return (
     <fieldset className="flex flex-col gap-3">
       <legend className="mb-2 text-sm font-medium text-muted-foreground">Values for the form (page 1)</legend>
       {FIELD_IDS.map((id) => {
-        const field = f[id];
-        const problem = formatProblem(id, field.value);
+        const field = session.state.fields[id];
+        const value = v[id];
+        const problem = formatProblem(id, value);
         const confirmed = isConfirmed(field);
         const inputId = `field-${id}`;
         return (
@@ -35,22 +35,20 @@ export function FieldsForm({ state, dispatch }: Props) {
             </label>
             <Input
               id={inputId}
-              value={field.value}
               autoComplete="off"
               spellCheck={false}
               aria-invalid={problem !== undefined}
               aria-describedby={problem === undefined ? undefined : `${inputId}-problem`}
-              onChange={(e) => {
-                dispatch({ type: 'edit', id, value: e.currentTarget.value });
-              }}
+              {...session.bind(id)}
             />
             <label className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
                 checked={confirmed}
-                disabled={field.value === ''}
+                disabled={!field.filled}
                 onChange={(e) => {
-                  dispatch({ type: e.currentTarget.checked ? 'confirm' : 'unconfirm', id });
+                  if (e.currentTarget.checked) session.confirm(id);
+                  else session.unconfirm(id);
                 }}
               />
               Checked against my card
@@ -68,7 +66,9 @@ export function FieldsForm({ state, dispatch }: Props) {
           Expiry date: {dateIssue}
         </Alert>
       )}
-      <p className="text-xs text-muted-foreground">Format checks only show obvious mistakes. They do not prove a value is correct.</p>
+      <p className="text-xs text-muted-foreground">
+        Format checks only show obvious mistakes. They do not prove a value is correct.
+      </p>
     </fieldset>
   );
 }

@@ -13,8 +13,10 @@ import {
   type DeviceAvailability,
 } from '../ondevice/index.ts';
 import { ImageRejectedError, prepareImage, type PreparedImage } from '../pii/extract/imageInput.ts';
+import { ExtractionRequests } from '../pii/extract/requests.ts';
 import { FIELD_IDS } from '../pii/session/fields.ts';
-import { initialSession, isConfirmed, sessionReducer } from '../pii/session/sessionState.ts';
+import { isConfirmed } from '../pii/session/sessionState.ts';
+import { useSessionForm } from '../pii/session/useSessionForm.ts';
 import { CandidatesPanel } from './CandidatesPanel.tsx';
 import { FieldsForm } from './FieldsForm.tsx';
 import { OutputPanel } from './OutputPanel.tsx';
@@ -60,7 +62,6 @@ function failureCode(e: unknown): string {
 export function App() {
   const [boot, setBoot] = useState<Bootstrap>({ status: 'preparing' });
   const [ai, dispatchAi] = useReducer(aiReducer, initialAiState);
-  const [session, dispatch] = useReducer(sessionReducer, undefined, initialSession);
   const [availability, setAvailability] = useState<DeviceAvailability | 'checking'>('checking');
   const [image, setImage] = useState<PreparedImage | undefined>();
   const [previewUrl, setPreviewUrl] = useState<string | undefined>();
@@ -69,18 +70,31 @@ export function App() {
   const [busy, setBusy] = useState(false);
   const [timing, setTiming] = useState<Timing>({});
   const [ended, setEnded] = useState(false);
-  const extractGeneration = useRef(0);
+  const requests = useRef(new ExtractionRequests());
   const fileInput = useRef<HTMLInputElement>(null);
   const confirmClock = useRef<ConfirmClock>(undefined);
+  const hasResult = useRef(false);
+  const onManualEdit = useCallback(() => {
+    setEnded(false);
+    if (confirmClock.current === undefined && !hasResult.current) {
+      confirmClock.current = { kind: 'manual', startedAt: performance.now() };
+      setTiming((t) => ({ ...t, manualMs: undefined }));
+    }
+  }, []);
+  const session = useSessionForm(onManualEdit);
+  useEffect(() => {
+    hasResult.current = result !== undefined;
+  }, [result]);
+  const sessionState = session.state;
 
   useEffect(() => {
     const clock = confirmClock.current;
     if (clock === undefined) return;
-    if (!FIELD_IDS.every((id) => isConfirmed(session.fields[id]))) return;
+    if (!FIELD_IDS.every((id) => isConfirmed(sessionState.fields[id]))) return;
     const ms = performance.now() - clock.startedAt;
     confirmClock.current = undefined;
     setTiming((t) => (clock.kind === 'candidates' ? { ...t, confirmMs: ms } : { ...t, manualMs: ms }));
-  }, [session]);
+  }, [sessionState]);
 
   useEffect(() => {
     let live = true;
@@ -139,7 +153,7 @@ export function App() {
   }, [ai.attempt]);
 
   const onFile = useCallback((file: File | undefined) => {
-    extractGeneration.current += 1;
+    requests.current.newDocument();
     setResult(undefined);
     setError(undefined);
     setImage(undefined);
@@ -152,39 +166,40 @@ export function App() {
 
   const onExtract = useCallback(() => {
     if (image === undefined) return;
-    const generation = ++extractGeneration.current;
+    const request = requests.current.begin();
     setBusy(true);
     setError(undefined);
     setResult(undefined);
     const started = performance.now();
     llm.extract(image).then(
       (r) => {
-        if (generation !== extractGeneration.current) return;
+        // The model call cannot be aborted; it occupies the queue until it returns (one at a time).
+        setBusy(false);
+        if (!requests.current.settle(request)) return;
         setTiming((t) => ({ ...t, extractMs: performance.now() - started, confirmMs: undefined }));
         confirmClock.current = { kind: 'candidates', startedAt: performance.now() };
         setResult(r);
-        setBusy(false);
       },
       (e: unknown) => {
-        if (generation !== extractGeneration.current) return;
-        setError(failureCode(e));
         setBusy(false);
+        if (!requests.current.settle(request)) return;
+        setError(failureCode(e));
       },
     );
   }, [image]);
 
+  const { reset: resetSession } = session;
   const onEnd = useCallback(() => {
-    extractGeneration.current += 1;
-    dispatch({ type: 'reset' });
+    requests.current.endSession();
+    resetSession();
     setResult(undefined);
     setImage(undefined);
     setPreviewUrl(undefined);
     setError(undefined);
-    setBusy(false);
     if (fileInput.current !== null) fileInput.current.value = '';
     confirmClock.current = undefined;
     setEnded(true);
-  }, []);
+  }, [resetSession]);
 
   const extractEnabled = canExtract(ai) && image !== undefined && !busy;
 
@@ -327,9 +342,7 @@ export function App() {
                 {result !== undefined && (
                   <CandidatesPanel
                     result={result}
-                    onApply={(values) => {
-                      dispatch({ type: 'applyCandidate', values });
-                    }}
+                    onApply={session.applyCandidate}
                   />
                 )}
               </CardContent>
@@ -341,17 +354,7 @@ export function App() {
                 <CardDescription>{COPY.steps.fields.description}</CardDescription>
               </CardHeader>
               <CardContent>
-                <FieldsForm
-                  state={session}
-                  dispatch={(e) => {
-                    setEnded(false);
-                    if (confirmClock.current === undefined && result === undefined && e.type === 'edit') {
-                      confirmClock.current = { kind: 'manual', startedAt: performance.now() };
-                      setTiming((t) => ({ ...t, manualMs: undefined }));
-                    }
-                    dispatch(e);
-                  }}
-                />
+                <FieldsForm session={session} />
               </CardContent>
             </Card>
 
@@ -361,7 +364,7 @@ export function App() {
                 <CardDescription>{COPY.steps.output.description}</CardDescription>
               </CardHeader>
               <CardContent>
-                <OutputPanel assets={boot.assets} state={session} />
+                <OutputPanel assets={boot.assets} session={session} />
               </CardContent>
             </Card>
 

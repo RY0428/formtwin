@@ -150,3 +150,36 @@ test('placeholder "null" is shown as not read; suspicious candidates carry warni
   await expect(page.getByTestId('name-warning')).toContainText('accented or non-Latin');
   await expect(page.getByTestId('number-warning')).toContainText('2 letters, 8 digits, 2 letters');
 });
+
+test('a late extraction result is discarded after the image changes; typed values are never overwritten', async ({
+  page,
+}) => {
+  const fake: FakeOptions = {
+    availability: 'available',
+    delayMs: 1500,
+    response: JSON.stringify({
+      fields: [
+        { key: 'fullName', value: 'LATE RESULT' },
+        { key: 'residenceCardNumber', value: 'ZZ00000000ZZ' },
+        { key: 'periodOfStayExpiry', value: null },
+      ],
+    }),
+  };
+  await page.addInitScript(installFakeLanguageModel, fake);
+  await open(page);
+  await page.getByRole('button', { name: 'Prepare AI' }).click();
+  await expect(page.getByTestId('ai-status')).toHaveText('ready');
+  await page.getByLabel('Residence card image (JPEG or PNG)').setInputFiles('data/eval/explore/explore-01.png');
+  await page.getByRole('button', { name: 'Extract on this device' }).click();
+  await page.getByLabel(/^Family name/).fill('TYPED');
+  // Replace the image while the first request is still running.
+  await page.getByLabel('Residence card image (JPEG or PNG)').setInputFiles('data/eval/explore/explore-02.png');
+  await page.waitForTimeout(2200);
+  await expect(page.getByTestId('result')).toHaveCount(0);
+  await expect(page.getByText('LATE RESULT')).toHaveCount(0);
+  await expect(page.getByLabel(/^Family name/)).toHaveValue('TYPED');
+  // A fresh request for the new image is accepted and still applies nothing by itself.
+  await page.getByRole('button', { name: 'Extract on this device' }).click();
+  await expect(page.getByTestId('result')).toContainText('LATE RESULT');
+  await expect(page.getByLabel(/^Family name/)).toHaveValue('TYPED');
+});

@@ -66,8 +66,8 @@ release evaluation (20 new cards), bundle-size reduction, video.
 ### M4 — private UI and state
 - [x] Tailwind + shadcn/ui (pinned, dependency-log)
 - [x] Central copy (`private-app/src/ui/copy.ts`)
-- [ ] React Hook Form wired to the session contract
-- [ ] Stale-request discard (`requestId`, `documentRevision`)
+- [x] React Hook Form wired to the session contract
+- [x] Stale-request discard (`requestId`, `documentRevision`)
 - [ ] pdf.js preview (bundled worker, CSP)
 - [ ] End-screen wording per architecture 9.3
 - [ ] E2E: manual, fake on-device, offline, edit invalidates PDF, late result discarded
@@ -86,3 +86,4 @@ release evaluation (20 new cards), bundle-size reduction, video.
 - 2026-11-13: M2 code done (contracts, scripts, rev 1, throwaway-key round trip). Waiting for the developer's key + signature; continuing with M3 (unsigned builds refuse to start).
 - 2026-11-13: M3 done. private-app verifies the signed package at start-up (virtual:form-package); E2E builds use a throwaway key; an unsigned production build refuses entry → the developer must sign before the next private deploy.
 - 2026-11-13: M4 step 1: Tailwind 4 + local shadcn/ui-pattern components in both apps, restyled screens, central copy; CSP unchanged.
+- 2026-11-13: M4 step 2: React Hook Form owns values (useSessionForm use cases; reducer keeps only revisions/confirmations); ExtractionRequests (session generation, request id, document revision) discards stale responses; E2E for a late result.
