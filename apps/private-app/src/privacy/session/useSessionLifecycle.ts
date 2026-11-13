@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { check, lock, recordActivity, resume as resumeLifecycle, startLifecycle, type Lifecycle } from './lifecycle.ts';
 
-export type EndReason = 'user' | 'inactivity' | 'restored' | 'expired_while_locked';
+export type EndReason = 'user' | 'inactivity' | 'restored' | 'expired_while_locked' | 'source_mismatch';
 
 interface Options {
   /** Clears all session state. Called once per end. */

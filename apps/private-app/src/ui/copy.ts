@@ -78,6 +78,8 @@ export const COPY = {
       inactivity: 'The session ended after 10 minutes without activity.',
       restored: 'This page was restored from the browser’s back/forward history, so a new session was started.',
       expired_while_locked: 'The session ended because it stayed locked for more than 10 minutes.',
+      source_mismatch:
+        'The session was stopped because an AI answer did not report this device as its source. AI extraction is off until you reload the page.',
     },
   },
   diagnostics: 'Diagnostics (no personal data)',

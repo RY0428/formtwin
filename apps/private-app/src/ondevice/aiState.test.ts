@@ -54,4 +54,13 @@ describe('aiReducer', () => {
     expect(aiReducer(cancelled, { type: 'succeeded', attempt: 1 })).toBe(cancelled);
     expect(aiReducer(initialAiState, { type: 'cancel' })).toBe(initialAiState);
   });
+
+  it('block: AI off for the page, kept across new sessions, late completion ignored', () => {
+    const ready = aiReducer(aiReducer(initialAiState, { type: 'start' }), { type: 'succeeded', attempt: 1 });
+    const blocked = aiReducer(ready, { type: 'block', reason: 'source_mismatch' });
+    expect(blocked).toMatchObject({ status: 'unavailable', reason: 'source_mismatch' });
+    expect(aiReducer(blocked, { type: 'newSession' })).toBe(blocked);
+    expect(aiReducer(blocked, { type: 'start' })).toBe(blocked);
+    expect(aiReducer(blocked, { type: 'succeeded', attempt: blocked.attempt })).toBe(blocked);
+  });
 });

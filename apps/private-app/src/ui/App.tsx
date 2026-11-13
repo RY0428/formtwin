@@ -75,6 +75,7 @@ export function App() {
   // the call cannot be aborted (SDK 13.3.0), so it is never reset by End session. One run at a time.
   const [deviceBusy, setDeviceBusy] = useState(false);
   const deviceRun = useRef(0);
+  const endSessionRef = useRef<(reason: EndReason) => void>(() => undefined);
   const [timing, setTiming] = useState<Timing>({});
   const [ended, setEnded] = useState<EndReason | null>(null);
   const requests = useRef(new ExtractionRequests());
@@ -210,9 +211,16 @@ export function App() {
         setResult(r);
       },
       (e: unknown) => {
+        const code = failureCode(e);
+        // Source mismatch stops the session even for a stale request (architecture.md §6.1).
+        if (code === 'source_mismatch') {
+          dispatchAi({ type: 'block', reason: code });
+          endSessionRef.current('source_mismatch');
+          return;
+        }
         if (!requests.current.settle(request)) return;
         setBusy(false);
-        setError(failureCode(e));
+        setError(code);
       },
     );
   }, [image]);
@@ -233,6 +241,7 @@ export function App() {
   }, [resetSession]);
   const lifecycle = useSessionLifecycle({ onEnd: clearSession });
   const { end: endLifecycle } = lifecycle;
+  endSessionRef.current = endLifecycle;
   const onEnd = useCallback(() => {
     endLifecycle('user');
   }, [endLifecycle]);
