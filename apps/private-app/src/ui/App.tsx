@@ -396,6 +396,9 @@ export function App() {
             {COPY.diagnostics}
           </summary>
           <ul className="mt-2 list-disc pl-5 text-muted-foreground">
+            <li>
+              Build: <output data-testid="build-commit">{__APP_COMMIT__}</output>
+            </li>
             <li>Firebase JS SDK: {FIREBASE_SDK_VERSION}</li>
             <li>Prompt version: {EXTRACTION_PROMPT_VERSION}</li>
             <li>Inference source required: on_device</li>
@@ -423,7 +426,7 @@ export function App() {
             <p data-testid="package-info">
               Form package {boot.assets.pkg.manifest.packageId} (FormDef revision {boot.assets.pkg.formDef.formDefRevision},
               signed by key {boot.assets.pkg.manifest.keyId}
-              {boot.assets.pkg.testKey ? `, ${COPY.testKey}` : ''}).
+              {boot.assets.pkg.testKey ? `, ${COPY.testKey}` : ''}). Build {__APP_COMMIT__}.
             </p>
           </>
         )}

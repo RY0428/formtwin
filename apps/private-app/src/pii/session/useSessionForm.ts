@@ -23,6 +23,9 @@ export interface SessionForm {
   readonly state: SessionState;
   /** Increases on every session end; UI parts keyed on it start fresh. */
   readonly generation: number;
+  /** A generated PDF was invalidated by an edit (cleared by a new PDF or by ending the session). */
+  readonly pdfInvalidated: boolean;
+  readonly setPdfInvalidated: (value: boolean) => void;
   readonly values: Readonly<FieldValues>;
   /** Props for an input bound to the form. */
   readonly bind: (id: FieldId) => ReturnType<ReturnType<typeof useForm<FieldValues>>['register']>;
@@ -38,6 +41,7 @@ export function useSessionForm(onManualEdit?: () => void): SessionForm {
   const [state, dispatch] = useReducer(sessionReducer, undefined, initialSession);
   const values = { ...EMPTY_VALUES, ...(useWatch({ control: form.control }) as Partial<FieldValues>) };
   const [generation, setGeneration] = useState(0);
+  const [pdfInvalidated, setPdfInvalidated] = useState(false);
   const seen = useRef<FieldValues>(EMPTY_VALUES);
   /** Fields whose next change comes from an explicitly chosen candidate. */
   const pendingCandidate = useRef(new Set<FieldId>());
@@ -63,6 +67,8 @@ export function useSessionForm(onManualEdit?: () => void): SessionForm {
     () => ({
       state,
       generation,
+      pdfInvalidated,
+      setPdfInvalidated,
       values,
       bind: (id: FieldId) => form.register(id),
       applyCandidate: (next: Partial<Record<FieldId, string>>) => {
@@ -87,6 +93,7 @@ export function useSessionForm(onManualEdit?: () => void): SessionForm {
         form.reset(EMPTY_VALUES);
         dispatch({ type: 'reset' });
         setGeneration((g) => g + 1);
+        setPdfInvalidated(false);
       },
       snapshot: () => {
         const current = { ...EMPTY_VALUES, ...form.getValues() };
@@ -96,7 +103,7 @@ export function useSessionForm(onManualEdit?: () => void): SessionForm {
       },
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `values` is derived from `key`
-    [state, key, form, generation],
+    [state, key, form, generation, pdfInvalidated],
   );
 }
 

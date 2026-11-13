@@ -60,7 +60,7 @@ export function App() {
             <h1 className="text-2xl font-bold tracking-tight text-primary">FormTwin — Public form analysis</h1>
             <p className="text-sm text-muted-foreground">Cloud analysis of approved blank forms only</p>
           </div>
-          <Badge variant="secondary">Firebase AI Logic · cloud only</Badge>
+          <Badge variant="secondary">Firebase AI Logic · cloud only · build {__APP_COMMIT__}</Badge>
         </div>
       </header>
       <main className="mx-auto flex max-w-6xl flex-col gap-5 px-4 py-6">

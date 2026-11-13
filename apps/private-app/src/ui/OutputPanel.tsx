@@ -34,8 +34,8 @@ export function OutputPanel({ assets, session }: Props) {
   const [generated, setGenerated] = useState<Generated | undefined>();
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
-  /** Set when a generated PDF was invalidated by an edit; cleared by the next Create PDF. */
-  const [invalidated, setInvalidated] = useState(false);
+  // Invalidation notice lives in the session so that ending the session always clears it.
+  const { pdfInvalidated: invalidated, setPdfInvalidated: setInvalidated } = session;
 
   const stale = generated !== undefined && generated.inputRevision !== state.inputRevision;
 
@@ -44,7 +44,7 @@ export function OutputPanel({ assets, session }: Props) {
     URL.revokeObjectURL(generated.url);
     setGenerated(undefined);
     setInvalidated(true);
-  }, [stale, generated]);
+  }, [stale, generated, setInvalidated]);
 
   useEffect(
     () => () => {

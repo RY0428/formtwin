@@ -84,4 +84,11 @@ Footer: PDL1.0 source credit for the form.
   `inputRevision` too.
   - Fixed: the output panel is keyed on a session generation that increases on every end, so it starts fresh.
   - Covered by E2E.
+- Second device report: the notice still showed after End session.
+  - An E2E test of the exact device flow passed in the container: AI candidates, all checked, PDF, edit while
+    focused, End session. So the device most likely ran a build made before the fix was pulled. This is unconfirmed.
+  - The notice state now lives in the session (`useSessionForm.pdfInvalidated`) and is cleared by every reset.
+    It no longer depends only on remounting the panel.
+  - Both apps now show the build commit (Diagnostics/footer; `+local` when built from uncommitted changes), so
+    device reports can name the exact build.
 
