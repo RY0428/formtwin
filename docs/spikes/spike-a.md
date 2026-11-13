@@ -87,7 +87,7 @@ Environment: Linux container, Playwright Chromium 153.0.8010.12, firebase 13.3.0
   extraction disabled, no requests.
 - **IndexedDB:** after preparation, `indexedDB.databases()` = `["firebase-heartbeat-database"]`, created by
   @firebase/app's heartbeat (`getAI()` → `_getProvider()` → `triggerHeartbeat()`). It holds SDK usage
-  metadata, not personal data. Treatment needs a decision (rule 5 forbids personal data persistence).
+  metadata, not personal data. Decided 2026-11-13: allowed and documented (docs/decisions.md); the M9 canary E2E checks its contents and shape.
 
 ### 2026-11-12 — Developer's Mac, `chrome://on-device-internals` (before running the app)
 
@@ -260,6 +260,6 @@ before Chrome fetched the Gemma 4 asset.
    `gemma4` (not installed, `prompt_api_gemma4` pending — also with the Gemma 4 flag enabled, 2026-11-13). Organizer:
    on-device via Firebase AI Logic is acceptable. Gemma 4 run on this device: not achieved.
 3. Whether the multimodal flag (`#prompt-api-multimodal-input`) is still needed in the current Chrome stable.
-4. Heartbeat IndexedDB write (measured): accept as non-personal SDK metadata and document, or find a
-   supported way to avoid it. Decision pending.
+4. Heartbeat IndexedDB write (measured): decided 2026-11-13 — accepted as non-personal SDK metadata
+   (docs/decisions.md, three specs); the canary E2E checks its row shape and contents.
 5. Real-device run (A-3): see `spike-a-device-runbook.md`.

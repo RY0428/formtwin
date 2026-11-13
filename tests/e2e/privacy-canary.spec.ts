@@ -41,33 +41,66 @@ function variants(value: string): string[] {
 
 const CANARIES = [FAMILY, GIVEN, CARD, TYPED_PARTIAL, EDITED_AFTER, JA].flatMap(variants);
 // A slice of the image bytes as base64: the image itself must not appear in any request either.
-const imageB64 = readFileSync(IMAGE).toString('base64');
-const IMAGE_SLICES = [imageB64.slice(200, 260), imageB64.slice(2000, 2060)];
+const imageBytes = readFileSync(IMAGE);
+// Base64 slices at all three 3-byte alignments, and raw byte slices for binary bodies.
+const IMAGE_SLICES = [200, 2000].flatMap((at) =>
+  [0, 1, 2].map((shift) => imageBytes.subarray(at + shift, at + shift + 45).toString('base64')),
+);
+const IMAGE_RAW = [imageBytes.subarray(300, 340), imageBytes.subarray(3000, 3040)];
 
 function findCanary(text: string): string | undefined {
   return [...CANARIES, ...IMAGE_SLICES].find((c) => text.includes(c));
 }
 
+/** Searches a request body as UTF-8 text, as Latin-1 text and as raw bytes. */
+function findInBody(body: Buffer): string | undefined {
+  return (
+    findCanary(body.toString('utf8')) ??
+    findCanary(body.toString('latin1')) ??
+    (IMAGE_RAW.some((raw) => body.includes(raw)) ? 'raw image bytes' : undefined)
+  );
+}
+
 interface Observed {
   readonly network: string[];
+  readonly bodies: { url: string; body: Buffer }[];
+  readonly bodyless: string[];
   readonly websocket: string[];
   readonly console: string[];
+  readonly failed: string[];
 }
 
 async function observe(page: Page): Promise<Observed> {
-  const seen: Observed = { network: [], websocket: [], console: [] };
+  await page.addInitScript(() => {
+    const list: string[] = [];
+    (window as unknown as { __csp: string[] }).__csp = list;
+    document.addEventListener('securitypolicyviolation', (e) => list.push(`${e.violatedDirective} ${e.blockedURI}`));
+  });
+  const seen: Observed = { network: [], bodies: [], bodyless: [], websocket: [], console: [], failed: [] };
   page.context().on('request', (req) => {
     const url = req.url();
     // data:/blob: never leave the page (the SDK converts the image with fetch('data:…')).
     if (url.startsWith('data:') || url.startsWith('blob:')) return;
     const body = req.postDataBuffer();
-    seen.network.push(`${req.method()} ${url}\n${JSON.stringify(req.headers())}\n${body === null ? '' : body.toString('latin1')}`);
+    seen.network.push(`${req.method()} ${url}\n${JSON.stringify(req.headers())}`);
+    if (body !== null) seen.bodies.push({ url, body });
+    // A request with a method that carries a body but none visible to Playwright (File/Blob) fails loudly.
+    else if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method())) seen.bodyless.push(`${req.method()} ${url}`);
+  });
+  page.context().on('requestfailed', (req) => {
+    if (!req.url().startsWith('data:') && !req.url().startsWith('blob:')) seen.failed.push(req.url());
   });
   page.on('websocket', (ws) => {
     seen.websocket.push(`open ${ws.url()}`);
     ws.on('framesent', (f) => seen.websocket.push(String(f.payload)));
   });
-  page.on('console', (m) => seen.console.push(m.text()));
+  // Console: the text preview is shallow, so also serialise every argument in full.
+  page.on('console', (m) => {
+    seen.console.push(m.text());
+    void Promise.all(m.args().map((a) => a.jsonValue().catch(() => '')))
+      .then((vals) => seen.console.push(JSON.stringify(vals)))
+      .catch(() => undefined);
+  });
   page.on('pageerror', (e) => seen.console.push(String(e)));
   return seen;
 }
@@ -76,6 +109,7 @@ async function observe(page: Page): Promise<Observed> {
 async function dumpStorage(page: Page) {
   return page.evaluate(async () => {
     const out: { area: string; text: string }[] = [];
+    if (document.cookie !== '') out.push({ area: 'cookie', text: document.cookie });
     for (const [area, s] of [
       ['localStorage', localStorage],
       ['sessionStorage', sessionStorage],
@@ -115,7 +149,12 @@ async function dumpStorage(page: Page) {
           r.onsuccess = () => resolve(r.result);
           r.onerror = () => reject(r.error);
         });
-        out.push({ area: `indexedDB:${name}/${store}`, text: JSON.stringify(rows) });
+        const keys = await new Promise<IDBValidKey[]>((resolve, reject) => {
+          const r = db.transaction(store, 'readonly').objectStore(store).getAllKeys();
+          r.onsuccess = () => resolve(r.result);
+          r.onerror = () => reject(r.error);
+        });
+        out.push({ area: `indexedDB:${name}/${store}`, text: JSON.stringify({ keys, rows }) });
       }
       db.close();
     }
@@ -130,15 +169,35 @@ async function expectCleanStorage(page: Page, when: string) {
   const { out, dbs } = await dumpStorage(page);
   for (const name of dbs) expect(ALLOWED_DATABASES, `${when}: unexpected IndexedDB ${name}`).toContain(name);
   const areas = out.filter((o) => !o.area.startsWith('indexedDB:')).map((o) => o.area);
-  expect(areas, `${when}: Web Storage, Cache Storage and OPFS must be empty`).toEqual([]);
+  expect(areas, `${when}: cookies, Web Storage, Cache Storage and OPFS must be empty`).toEqual([]);
+  // The allowed heartbeat database must hold only its recorded shape (date + SDK user agent).
+  for (const o of out.filter((x) => x.area.startsWith('indexedDB:firebase-heartbeat-database/'))) {
+    const { rows } = JSON.parse(o.text) as { rows: unknown[] };
+    for (const row of rows) {
+      const r = row as { heartbeats?: { agent?: unknown; date?: unknown }[]; lastSentHeartbeatDate?: unknown };
+      expect(Object.keys(r).every((k) => k === 'heartbeats' || k === 'lastSentHeartbeatDate'), `${when}: heartbeat row keys`).toBe(true);
+      for (const h of r.heartbeats ?? []) {
+        expect(Object.keys(h).sort(), `${when}: heartbeat entry keys`).toEqual(['agent', 'date']);
+        expect(String(h.date)).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      }
+    }
+  }
   for (const o of out) expect(findCanary(o.text), `${when}: canary in ${o.area}`).toBeUndefined();
 }
 
-function expectClean(seen: Observed) {
+async function expectClean(page: Page, seen: Observed) {
+  // Best-effort end (pagehide) and pending timers run while the listeners are still recording.
+  await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pagehide', { persisted: false })));
+  await page.waitForTimeout(300);
+  const violations = await page.evaluate(() => (window as unknown as { __csp: string[] }).__csp);
+  expect(violations, 'no CSP violation: no code path tried to reach a blocked destination').toEqual([]);
+  expect(seen.failed, 'no failed request').toEqual([]);
+  expect(seen.bodyless, 'every request body is visible to the scan').toEqual([]);
   for (const n of seen.network) expect(findCanary(n), `canary in request:\n${n.slice(0, 300)}`).toBeUndefined();
+  for (const b of seen.bodies) expect(findInBody(b.body), `canary in request body: ${b.url}`).toBeUndefined();
   expect(seen.websocket, 'no WebSocket').toEqual([]);
   for (const c of seen.console) expect(findCanary(c), `canary in console: ${c}`).toBeUndefined();
-  const foreign = seen.network.filter((n) => !n.split(' ')[1]?.startsWith(ORIGIN));
+  const foreign = seen.network.filter((n) => new URL(n.split(/\s/)[1] ?? 'about:blank').origin !== ORIGIN);
   expect(foreign, 'no request leaves the private origin').toEqual([]);
 }
 
@@ -194,7 +253,7 @@ test('canary values never appear in requests, WebSocket, console or storage (ful
   await page.getByRole('button', { name: 'End session and clear data' }).click();
   await expect(family).toHaveValue('');
   await expectCleanStorage(page, 'after End session');
-  expectClean(seen);
+  await expectClean(page, seen);
 });
 
 test('canary values stay local on failure paths (time-out, invalid output twice)', async ({ page }) => {
@@ -216,7 +275,7 @@ test('canary values stay local on failure paths (time-out, invalid output twice)
     await p.clock.fastForward('01:30');
     await expect(p.getByTestId('error')).toHaveText(/timeout|invalid_output/);
     await expectCleanStorage(p, 'after a failure');
-    expectClean(seen);
+    await expectClean(p, seen);
     await p.close();
   }
 });

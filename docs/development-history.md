@@ -52,3 +52,4 @@ Submission period: 2026-11-11 13:30 PT – 2026-11-30 14:00 PT (JST 2026-11-12 0
 | 2026-11-13 | M8 review fixes (no retry on stale requests; one device-call gate across sessions) and inferenceSource mismatch now stops the session and turns AI off for the page (architecture §6.1). | |
 | 2026-11-13 | Hosted Build 4353e73 deployed (both apps); hidden-tab lock verified on the developer's Mac (Chrome). | |
 | 2026-11-13 | Day 8–12 M9: canary E2E across requests, WebSocket, console and browser storage (during the session, after End session, after failures); Firebase heartbeat database allowed and recorded. | |
+| 2026-11-13 | M9 review fixes: canary scan decodes bodies as UTF-8 and bytes, serialises console arguments, requires no CSP violation; it found Zod 4's eval probe, now disabled (jitless). | |
