@@ -60,7 +60,9 @@ Name split: for `PEREZ GARCIA LUCIA` the developer chose family `PEREZ` / given 
 card alone does not show where the family name ends — this is why the app offers all splits and never chooses.
 
 
-## Findings to act on after the gate (do not change the recorded result)
-1. Treat a literal `"null"` / empty string from the model as "not read" before showing candidates.
-2. Consider the extraction prompt: no diacritics or characters that are not printed.
-3. Card-number format warning helps catch Q→0; keep it visible next to candidates as well.
+## Findings acted on after the gate (the recorded result is unchanged; it belongs to prompt `spike-a-0`)
+1. Placeholder text such as `"null"` / `N/A` / empty is turned into "not read" (`normalizeExtraction`).
+2. Prompt `spike-a-1`: copy character by character; no added diacritics, no spelling correction, no letter↔digit swaps;
+   blank fields as JSON null. Names with non-ASCII letters show a warning.
+3. Candidate list shows format warnings next to "Use card number" and for accented names.
+Effect on accuracy is not measured yet: re-check on the exploration set and new data only (the gate set is used).

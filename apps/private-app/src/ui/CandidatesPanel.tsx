@@ -1,6 +1,6 @@
 import type { ExtractionResult } from '@formtwin/contracts';
 import { nameSplitOptions, splitDate } from '../pii/session/candidates.ts';
-import type { FieldId } from '../pii/session/fields.ts';
+import { formatProblem, type FieldId } from '../pii/session/fields.ts';
 
 interface Props {
   result: ExtractionResult;
@@ -15,6 +15,8 @@ export function CandidatesPanel({ result, onApply }: Props) {
   const expiry = get('periodOfStayExpiry');
   const date = expiry === null ? undefined : splitDate(expiry);
   const splits = name === null ? [] : nameSplitOptions(name);
+  const nameIssue = splits.length > 0 ? formatProblem('familyName', name ?? '') : undefined;
+  const numberIssue = number === null ? undefined : formatProblem('residenceCardNumber', number);
 
   return (
     <div>
@@ -31,6 +33,11 @@ export function CandidatesPanel({ result, onApply }: Props) {
       <ul>
         {name !== null && splits.length === 0 && (
           <li>Name “{name}” has no space. Enter family and given name yourself.</li>
+        )}
+        {nameIssue !== undefined && (
+          <li role="note" data-testid="name-warning">
+            Name: {nameIssue}
+          </li>
         )}
         {splits.map((s) => (
           <li key={s.family}>
@@ -55,6 +62,12 @@ export function CandidatesPanel({ result, onApply }: Props) {
             <button type="button" onClick={() => onApply({ residenceCardNumber: number })}>
               Use card number: {number}
             </button>
+            {numberIssue !== undefined && (
+              <span role="note" data-testid="number-warning">
+                {' '}
+                Check: {numberIssue}
+              </span>
+            )}
           </li>
         )}
       </ul>

@@ -72,5 +72,7 @@ describe('format checks', () => {
     expect(formatProblem('expiryMonth', '13')).toBeDefined();
     expect(dateProblem('2027', '02', '30')).toBeDefined();
     expect(dateProblem('2028', '02', '29')).toBeUndefined();
+    expect(formatProblem('givenName', 'JOÃO PEDRO')).toBeDefined();
+    expect(formatProblem('givenName', 'JOAO PEDRO')).toBeUndefined();
   });
 });

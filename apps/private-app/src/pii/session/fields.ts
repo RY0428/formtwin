@@ -25,7 +25,10 @@ export function formatProblem(id: FieldId, value: string): string | undefined {
   switch (id) {
     case 'familyName':
     case 'givenName':
-      return value.length > 40 ? 'Too long for this field.' : undefined;
+      if (value.length > 40) return 'Too long for this field.';
+      return /[^\x20-\x7E]/.test(value)
+        ? 'Contains accented or non-Latin letters; check against the card.'
+        : undefined;
     case 'expiryYear':
       return /^\d{4}$/.test(value) ? undefined : 'Use 4 digits, e.g. 2027.';
     case 'expiryMonth': {

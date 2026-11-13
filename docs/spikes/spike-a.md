@@ -214,6 +214,10 @@ chrome://flags and search for Gemma 4 on built-in AI and enable it." (seen by th
 ⇒ On-device inference through Firebase AI Logic is the requirement; to be safe, also verify with the
 `#gemma4-for-built-in-ai` flag enabled and record which model serves `prompt_api`.
 
+### 2026-11-13 — Prompt `spike-a-1` and output normalization (after the gate)
+Prompt now asks for character-by-character copying (no diacritics added, no spelling correction, no letter↔digit
+swaps, JSON null for blanks). Placeholder strings are normalized to null in the adapter. Not yet run on a device.
+
 ## Open questions
 
 1. CSP for the image path: keep `'none'` (image extraction impossible) or allow `data:` only in

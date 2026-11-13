@@ -67,6 +67,10 @@ N は各欄10（欄欠落カードを除く）。
 `data/eval/results/explore-2026-11-12-mac.json`（6実行）: fullName 原表記一致 4/6（傾いたカードで別の誤読2回）、
 番号 6/6、満了日（正規化後）6/6、未読 0。ページ初回の抽出 p50 18.3 秒、準備済み p50 6.4 秒 / 最大 6.9 秒。
 
+## 版との対応
+判定結果は判定時のプロンプト版（`spike-a-0`）に紐づく。以降の版（`spike-a-1` 以降）の評価は探索用データと新規データで行い、
+使用済みの `gate` セットを未使用として再利用しない。
+
 ## 凍結記録
 - 凍結日・コミット: 2026-11-12、`fe793c2`（"Freeze the key-field gate protocol; add correction-time timers"）。
 - `gate` セット: 凍結後のコミットで生成（`data/eval/gate/`、12枚、manifest に SHA-256）。生成確認のため gate-11 の画像1枚だけを

@@ -32,3 +32,20 @@ export const extractionResultSchema = z
   });
 
 export type ExtractionResult = z.infer<typeof extractionResultSchema>;
+
+const NOT_READ = new Set(['', 'null', 'none', 'n/a', 'na', 'undefined', '-', '--', 'unknown']);
+
+/**
+ * Turns "not read" placeholders the model sometimes writes as text (e.g. the string "null",
+ * measured at the gate 2026-11-12) into JSON null, and trims values. Values are otherwise kept
+ * exactly as returned: no case changes, no character substitution.
+ */
+export function normalizeExtraction(result: ExtractionResult): ExtractionResult {
+  return {
+    fields: result.fields.map((f) => {
+      if (f.value === null) return f;
+      const v = f.value.trim();
+      return { key: f.key, value: NOT_READ.has(v.toLowerCase()) ? null : v };
+    }),
+  };
+}
