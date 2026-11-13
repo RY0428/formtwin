@@ -181,6 +181,13 @@
       "confirmMs": 12691,
       "manualMs": 52805,
       "note": "Extraction after an idle period took 16.5 s (model likely reloaded). An earlier manual attempt on gate-01 showed 99,471 ms; the recorded manual time is the final attempt."
+    },
+    {
+      "file": "gate-02.png",
+      "extractMs": 16317,
+      "confirmMs": 30112,
+      "manualMs": 45533,
+      "note": "Name split chosen: family PEREZ / given GARCIA LUCIA (the card does not say which part is the family name). The manual-entry screenshot shows the gate-03 values (KIM MINJUN …) typed; manual time is a 6-field typing sample, not tied to gate-02."
     }
   ],
   "pdfCheck": {

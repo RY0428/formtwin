@@ -48,9 +48,13 @@ exactly (pdftotext); 7 pages, no AcroForm left, producer FormTwin. **0 mis-fills
 | Card | With candidates (Confirm time) | Manual entry | Note |
 |---|---|---|---|
 | gate-01 | 12.7 s | 52.8 s | extraction after idle took 16.5 s |
+| gate-02 | 30.1 s | 45.5 s* | *typed values were gate-03's (6-field typing sample) |
+
+Name split: for `PEREZ GARCIA LUCIA` the developer chose family `PEREZ` / given `GARCIA LUCIA`. With two surnames the
+card alone does not show where the family name ends — this is why the app offers all splits and never chooses.
 
 ## Pending in this gate row
-- Correction time for gate-02 and gate-03 (step E).
+- Correction time for gate-03 (step E).
 
 ## Findings to act on after the gate (do not change the recorded result)
 1. Treat a literal `"null"` / empty string from the model as "not read" before showing candidates.
