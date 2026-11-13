@@ -80,6 +80,16 @@ Status: **implemented, fake-tested; NOT yet verified against the real service.**
   - `connect-src`: `firebasevertexai.googleapis.com`, `content-firebaseappcheck.googleapis.com`
   - These are provisional until the hosted run.
 
+## Review view (M5, 2026-11-13)
+- The approved original's page 1 is rendered with pdf.js inside public-app; the worker is bundled.
+- Overlays: the adopted FormDef boxes (solid green) and the live candidate boxes (dashed amber).
+- Comparison by semantic key: found at the adopted position / different position / missing / only in the
+  candidate. This is layout agreement only, not proof of correctness.
+- Adoption history of the adopted revision.
+- "Export candidate for review": a JSON file with the formId, source hash, run ID, model, prompt version and
+  candidate. It is the input to `scripts/forms/promote-forms.mjs`; see forms/README.md.
+- Screenshot with the fake analyzer (not a real model output): `docs/spikes/spike-b-review-fake.png`.
+
 ## Tests (container, 2026-11-13)
 - Unit: gateway rejections (unknown ID, file-like object, URL, bytes, undefined, tampered hash);
   `on_device`/missing source; broken JSON; schema violation; field off the target pages; thrown request

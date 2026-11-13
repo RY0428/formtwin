@@ -1,7 +1,9 @@
 import type { FormDefCandidate } from '@formtwin/contracts';
 import { createCloudFormAnalyzer } from '#cloud-impl';
 import { useMemo, useState } from 'react';
+import { adoptedRevisionFor } from '../catalog/adopted.ts';
 import { APPROVED_FORM_IDS, resolveApprovedSource } from '../catalog/approvedSources.ts';
+import { ReviewPanel } from '../review/ReviewPanel.tsx';
 import { EgressGateway, FORM_ANALYSIS_PROMPT_VERSION, type RequestLogEntry } from '../egress/gateway.ts';
 import { Alert } from './components/alert.tsx';
 import { Badge } from './components/badge.tsx';
@@ -10,6 +12,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './com
 
 interface CandidateView {
   readonly analysisRunId: string;
+  readonly model: string;
+  readonly promptVersion: string;
   readonly candidate: FormDefCandidate;
 }
 
@@ -30,13 +34,20 @@ export function App() {
   const [view, setView] = useState<CandidateView | null>(null);
   const formId = APPROVED_FORM_IDS[0];
   const source = resolveApprovedSource(formId);
+  const adopted = formId === undefined ? undefined : adoptedRevisionFor(formId);
 
   async function analyze() {
     setBusy(true);
     setError(null);
     setView(null);
     const out = await gateway.analyzeApprovedForm(formId);
-    if (out.ok) setView({ analysisRunId: out.analysisRunId, candidate: out.candidate });
+    if (out.ok)
+      setView({
+        analysisRunId: out.analysisRunId,
+        model: out.model,
+        promptVersion: out.promptVersion,
+        candidate: out.candidate,
+      });
     else setError(REASON_TEXT[out.reason] ?? 'Analysis failed.');
     setBusy(false);
   }
@@ -143,6 +154,21 @@ export function App() {
                   ))}
                 </tbody>
               </table>
+            </CardContent>
+          </Card>
+        )}
+
+        {source && adopted && (
+          <Card aria-labelledby="review-h">
+            <CardHeader>
+              <CardTitle id="review-h">Review: original, adopted revision and live candidate</CardTitle>
+              <CardDescription>
+                The personal-entry app bundles only the adopted, signed revision. A live candidate becomes part of it
+                only after human review, a new revision and a new signature.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ReviewPanel source={source} adopted={adopted} live={view ?? undefined} />
             </CardContent>
           </Card>
         )}

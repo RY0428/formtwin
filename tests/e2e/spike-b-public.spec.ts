@@ -24,3 +24,24 @@ test('the public app offers no way to provide a file or URL', async ({ page }) =
   await expect(page.locator('input[type="file"]')).toHaveCount(0);
   await expect(page.locator('input, textarea, [contenteditable="true"]')).toHaveCount(0);
 });
+
+test('review shows the original with adopted boxes, then live boxes, the comparison and history', async ({ page }) => {
+  const csp: string[] = [];
+  page.on('console', (m) => {
+    if (/Content Security Policy|violates/i.test(m.text())) csp.push(m.text().slice(0, 200));
+  });
+  await page.goto(`${ORIGIN}/`);
+  await expect(page.getByTestId('review-canvas')).toHaveAttribute('data-state', 'done');
+  await expect(page.getByTestId('overlay-adopted')).toHaveCount(6);
+  await expect(page.getByTestId('overlay-live')).toHaveCount(0);
+  await expect(page.getByTestId('history')).toContainText('manual-layout');
+  await page.getByRole('button', { name: 'Analyze in the cloud' }).click();
+  await expect(page.getByTestId('overlay-live')).toHaveCount(4);
+  await expect(page.getByTestId('comparison').locator('[data-key="fullName"]')).toHaveAttribute('data-status', 'both');
+  const [download] = await Promise.all([
+    page.waitForEvent('download'),
+    page.getByRole('link', { name: 'Export candidate for review' }).click(),
+  ]);
+  expect(download.suggestedFilename()).toMatch(/^candidate-run-.*\.json$/);
+  expect(csp).toEqual([]);
+});

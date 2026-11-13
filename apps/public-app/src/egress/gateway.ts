@@ -41,7 +41,14 @@ export interface RequestLogEntry {
 }
 
 export type AnalysisOutcome =
-  | { readonly ok: true; readonly analysisRunId: string; readonly candidate: FormDefCandidate; readonly source: ApprovedSource }
+  | {
+      readonly ok: true;
+      readonly analysisRunId: string;
+      readonly candidate: FormDefCandidate;
+      readonly source: ApprovedSource;
+      readonly model: string;
+      readonly promptVersion: string;
+    }
   | { readonly ok: false; readonly reason: GatewayError };
 
 export type GatewayError =
@@ -141,7 +148,14 @@ export class EgressGateway {
         return { ok: false, reason: 'invalid_output' };
       }
       this.record('completed', source, null);
-      return { ok: true, analysisRunId: newRunId(), candidate: parsed.data, source };
+      return {
+        ok: true,
+        analysisRunId: newRunId(),
+        candidate: parsed.data,
+        source,
+        model: this.analyzer.model,
+        promptVersion: FORM_ANALYSIS_PROMPT_VERSION,
+      };
     } finally {
       this.inFlight = false;
     }

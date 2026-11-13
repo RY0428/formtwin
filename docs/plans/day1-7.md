@@ -73,7 +73,7 @@ release evaluation (20 new cards), bundle-size reduction, video.
 - [x] E2E: manual, fake on-device, offline, edit invalidates PDF, late result discarded
 
 ### M5 — public review screen and adoption history
-- [ ] Candidate boxes over the original (pdf.js); diff vs adopted; history vs live candidate
+- [x] Candidate boxes over the original (pdf.js); diff vs adopted; history vs live candidate
 
 ### M6 — wrap-up
 - [ ] E2E both apps, basic a11y (keyboard, labels)
@@ -88,3 +88,4 @@ release evaluation (20 new cards), bundle-size reduction, video.
 - 2026-11-13: M4 step 1: Tailwind 4 + local shadcn/ui-pattern components in both apps, restyled screens, central copy; CSP unchanged.
 - 2026-11-13: M4 step 2: React Hook Form owns values (useSessionForm use cases; reducer keeps only revisions/confirmations); ExtractionRequests (session generation, request id, document revision) discards stale responses; E2E for a late result.
 - 2026-11-13: M4 done: pdf.js page-1 preview (worker bundled and started at bootstrap before PII, font faces disabled, no CSP change); screenshot docs/spikes/s5-preview-fictional.png (fictional values). Removed `bluetooth` from Permissions-Policy (unrecognized by Chrome). Real-device check of the hosted worker (.mjs MIME on Firebase Hosting) pending.
+- 2026-11-13: M5 done: public review view (pdf.js original, adopted boxes solid green, live candidate dashed amber, comparison by semantic key, adoption history, candidate export JSON for promote-forms). Screenshot with the FAKE analyzer: docs/spikes/spike-b-review-fake.png.
