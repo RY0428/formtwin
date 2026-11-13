@@ -224,7 +224,14 @@ async function main() {
     }
     await page.bringToFront();
     if (locked) await page.getByRole('button', { name: 'Resume' }).click();
-    step('① hidden page locks; Resume keeps values', locked && (await page.getByLabel(/^Family name/).inputValue()) === 'TANAKA', { locked, method });
+    if (locked) {
+      step('① hidden page locks; Resume keeps values', (await page.getByLabel(/^Family name/).inputValue()) === 'TANAKA', { method });
+    } else {
+      // Playwright keeps automated pages "visible" (tab switch and minimise did not hide it on the Mac,
+      // 2026-11-13). Not a failure of the app: this step stays a manual device check.
+      report.notMeasured = [...(report.notMeasured ?? []), '① hidden page lock (automation keeps the page visible)'];
+      log('--   ① hidden page lock: not measurable under automation (manual device check instead)');
+    }
 
     const values = [[/^Given name/, 'HANAKO'], [/^Expiry year/, '2027'], [/^Expiry month/, '3'], [/^Expiry day/, '31'], [/^Residence card number/, 'AB12345678CD']];
     for (const [l, v] of values) await page.getByLabel(l).fill(v);
@@ -251,7 +258,7 @@ async function main() {
   const file = join('docs/device-runs', `${report.startedAt.replace(/[:.]/g, '-')}-${report.build}.json`);
   writeFileSync(file, `${JSON.stringify(report, null, 2)}\n`);
   log(`report: ${file}`);
-  log(`summary: ${report.steps.map((s) => `${s.name.split(' ')[0]} ${s.ok ? 'OK' : 'NG'}`).join(' / ')}`);
+  log(`summary: ${report.steps.map((s) => `${s.name.split(' ')[0]} ${s.ok ? 'OK' : 'NG'}`).join(' / ')}${report.notMeasured ? ` (not measured: ${report.notMeasured.length})` : ''}`);
   process.exitCode = report.error || report.steps.some((s) => !s.ok) ? 1 : 0;
 }
 

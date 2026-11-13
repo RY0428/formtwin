@@ -55,3 +55,4 @@ Submission period: 2026-11-11 13:30 PT – 2026-11-30 14:00 PT (JST 2026-11-12 0
 | 2026-11-13 | M9 review fixes: canary scan decodes bodies as UTF-8 and bytes, serialises console arguments, requires no CSP violation; it found Zod 4's eval probe, now disabled (jitless). | |
 | 2026-11-13 | Hosted checks automated with Playwright against the deployed apps (lock/resume, Save PDF, End session); they confirmed the Zod eval probe on the deployed build (fix pending deploy). | |
 | 2026-11-13 | Hosted Build 0ff57cf: automated hosted checks pass with no CSP violation (lock/resume, Save PDF, End session). | |
+| 2026-11-13 | Automated device check on the developer's Mac (real Chrome and on-device model, hosted 0ff57cf): model download 1455 s, extraction about 5 s per fictional sample with candidates, Save PDF and End session OK, no foreign requests. | |
