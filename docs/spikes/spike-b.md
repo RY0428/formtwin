@@ -206,3 +206,20 @@ Status: **implemented, fake-tested; NOT yet verified against the real service.**
 
 **Status:** the Day 1–2 gate row "公開側クラウド経路" is **verified on a real device**.
 
+## 2026-11-13 — Candidate adopted as FormDef revision 2
+
+The exported candidate `run-6dcda61f…` was validated (contract, formId, source hash) and committed under
+`forms/candidates/`, then promoted with `scripts/forms/promote-forms.mjs`. The run metadata comes from the exported
+file itself, and the candidate SHA-256 is recorded in the history.
+
+**Box comparison** (normalized 0–1000, top edge)
+| Field | Candidate | Rev 1 (device-verified) |
+|---|---|---|
+| Expiry | 485 | 449 |
+| Card number | 515 | 477 |
+
+- The candidate is about 30 pt low, and its boxes start at the label column.
+- So rev 2 keeps the rev 1 placements and records every correction in the history.
+- The chain cloud candidate → human review → revision → signature → bundle now holds real data. Signing
+  `isa-930004094-r2` is pending with the maintainer.
+

@@ -103,7 +103,7 @@ describe('fillPdf (official form 930004094, page 1)', () => {
   const officialLayout = toPdfLayout(
     formDefSchema.parse(
       JSON.parse(
-        readFileSync(new URL('../../../../../forms/defs/isa-930004094/rev-1.formdef.json', import.meta.url), 'utf8'),
+        readFileSync(new URL('../../../../../forms/defs/isa-930004094/rev-2.formdef.json', import.meta.url), 'utf8'),
       ),
     ),
   );

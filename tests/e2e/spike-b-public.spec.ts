@@ -34,7 +34,7 @@ test('review shows the original with adopted boxes, then live boxes, the compari
   await expect(page.getByTestId('review-canvas')).toHaveAttribute('data-state', 'done');
   await expect(page.getByTestId('overlay-adopted')).toHaveCount(6);
   await expect(page.getByTestId('overlay-live')).toHaveCount(0);
-  await expect(page.getByTestId('history')).toContainText('manual-layout');
+  await expect(page.getByTestId('history')).toContainText('cloud-candidate');
   await page.getByRole('button', { name: 'Analyze in the cloud' }).click();
   await expect(page.getByTestId('overlay-live')).toHaveCount(4);
   await expect(page.getByTestId('comparison').locator('[data-key="fullName"]')).toHaveAttribute('data-status', 'both');

@@ -13,18 +13,22 @@ if (!reviewPath) {
   process.exit(2);
 }
 const review = readJson(reviewPath);
+const def = formDefSchema.parse(review.formDef);
 let candidateInfo = { analysisRunId: null, model: null, promptVersion: null, candidateSha256: null };
 if (review.candidate) {
+  // Run metadata comes from the exported candidate file itself, not from the review file.
   const raw = readFileSync(join(dirname(reviewPath), review.candidate.path));
-  formDefCandidateSchema.parse(JSON.parse(raw.toString('utf8')).candidate);
+  const exported = JSON.parse(raw.toString('utf8'));
+  formDefCandidateSchema.parse(exported.candidate);
+  if (exported.formId !== def.formId) throw new Error(`candidate formId ${exported.formId} != ${def.formId}`);
+  if (exported.sourceSha256 !== def.sourcePdfSha256) throw new Error('candidate was made from a different source PDF');
   candidateInfo = {
-    analysisRunId: review.candidate.analysisRunId,
-    model: review.candidate.model,
-    promptVersion: review.candidate.promptVersion,
+    analysisRunId: exported.analysisRunId,
+    model: exported.model,
+    promptVersion: exported.promptVersion,
     candidateSha256: sha256Hex(raw),
   };
 }
-const def = formDefSchema.parse(review.formDef);
 const history = adoptionHistorySchema.parse({
   formId: def.formId,
   formDefRevision: def.formDefRevision,

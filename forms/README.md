@@ -34,8 +34,17 @@ A production build without `manifest.sig.json` and a matching public key still b
 refuses entry (`unsigned`). Sign the package before deploying private-app. E2E builds sign an in-memory
 manifest with a throwaway key, and the page labels it "TEST KEY".
 
-Revision 1 of `isa-930004094` comes from the hand-measured Spike C layout (`origin: manual-layout`).
-No cloud candidate has been adopted yet.
+- Revision 1 of `isa-930004094` comes from the hand-measured Spike C layout (`origin: manual-layout`).
+- **Revision 2 (current)** was adopted on 2026-11-13 from the hosted cloud candidate
+  `run-6dcda61f-dfa7-4ff3-8da9-0028b3406edb`.
+  - Model `gemini-3.5-flash-lite`, prompt `spike-b-1`. The exported file is in `forms/candidates/`.
+  - Review: `forms/reviews/isa-930004094/rev-2.review.json`.
+  - Adopted from the candidate: labels and the three resolved mappings.
+  - Corrected: boxes. The candidate's boxes were about 30 pt low and included the label column, so the
+    device-verified rev 1 placements were kept. Name and date were split into parts.
+  - Rejected: the 17 unsupported fields.
+- `forms/current.json` names the revision private-app bundles. A new current revision needs a signed package
+  before the next private deploy. `npm run check:package` reports an unsigned current package.
 
 ## One-time key setup (maintainer's machine)
 

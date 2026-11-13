@@ -1,0 +1,291 @@
+{
+  "formId": "isa-930004094",
+  "sourceSha256": "f4a84e52db12074d9e007d0228fc8116c9f522dd6d4ad3dde920c6ee2bbecab3",
+  "analysisRunId": "run-6dcda61f-dfa7-4ff3-8da9-0028b3406edb",
+  "model": "gemini-3.5-flash-lite",
+  "promptVersion": "spike-b-1",
+  "candidate": {
+    "fields": [
+      {
+        "labelJa": "国籍・地域",
+        "labelEn": "Nationality/Region",
+        "kind": "text",
+        "semanticKey": null,
+        "status": "unsupported",
+        "page": 0,
+        "box": [
+          217,
+          103,
+          240,
+          424
+        ]
+      },
+      {
+        "labelJa": "生年月日",
+        "labelEn": "Date of birth",
+        "kind": "date",
+        "semanticKey": null,
+        "status": "unsupported",
+        "page": 0,
+        "box": [
+          218,
+          664,
+          238,
+          875
+        ]
+      },
+      {
+        "labelJa": "氏名",
+        "labelEn": "Name",
+        "kind": "text",
+        "semanticKey": "fullName",
+        "status": "resolved",
+        "page": 0,
+        "box": [
+          260,
+          185,
+          289,
+          899
+        ]
+      },
+      {
+        "labelJa": "性別",
+        "labelEn": "Sex",
+        "kind": "checkbox",
+        "semanticKey": null,
+        "status": "unsupported",
+        "page": 0,
+        "box": [
+          300,
+          138,
+          318,
+          239
+        ]
+      },
+      {
+        "labelJa": "配偶者の有無",
+        "labelEn": "Marital status",
+        "kind": "checkbox",
+        "semanticKey": null,
+        "status": "unsupported",
+        "page": 0,
+        "box": [
+          300,
+          620,
+          318,
+          715
+        ]
+      },
+      {
+        "labelJa": "職業",
+        "labelEn": "Occupation",
+        "kind": "text",
+        "semanticKey": null,
+        "status": "unsupported",
+        "page": 0,
+        "box": [
+          322,
+          100,
+          339,
+          344
+        ]
+      },
+      {
+        "labelJa": "本国における居住地",
+        "labelEn": "Home town/city",
+        "kind": "text",
+        "semanticKey": null,
+        "status": "unsupported",
+        "page": 0,
+        "box": [
+          323,
+          363,
+          338,
+          508
+        ]
+      },
+      {
+        "labelJa": "住居地",
+        "labelEn": "Address in Japan",
+        "kind": "text",
+        "semanticKey": null,
+        "status": "unsupported",
+        "page": 0,
+        "box": [
+          353,
+          102,
+          371,
+          345
+        ]
+      },
+      {
+        "labelJa": "電話番号",
+        "labelEn": "Telephone No.",
+        "kind": "text",
+        "semanticKey": null,
+        "status": "unsupported",
+        "page": 0,
+        "box": [
+          392,
+          104,
+          408,
+          472
+        ]
+      },
+      {
+        "labelJa": "携帯電話番号",
+        "labelEn": "Cellular phone No.",
+        "kind": "text",
+        "semanticKey": null,
+        "status": "unsupported",
+        "page": 0,
+        "box": [
+          392,
+          499,
+          408,
+          867
+        ]
+      },
+      {
+        "labelJa": "旅券番号",
+        "labelEn": "Passport Number",
+        "kind": "text",
+        "semanticKey": null,
+        "status": "unsupported",
+        "page": 0,
+        "box": [
+          423,
+          143,
+          441,
+          268
+        ]
+      },
+      {
+        "labelJa": "旅券有効期限",
+        "labelEn": "Date of expiration",
+        "kind": "date",
+        "semanticKey": null,
+        "status": "unsupported",
+        "page": 0,
+        "box": [
+          424,
+          499,
+          443,
+          899
+        ]
+      },
+      {
+        "labelJa": "現に有する在留資格",
+        "labelEn": "Status of residence",
+        "kind": "text",
+        "semanticKey": null,
+        "status": "unsupported",
+        "page": 0,
+        "box": [
+          454,
+          106,
+          474,
+          521
+        ]
+      },
+      {
+        "labelJa": "在留期間",
+        "labelEn": "Period of stay",
+        "kind": "text",
+        "semanticKey": null,
+        "status": "unsupported",
+        "page": 0,
+        "box": [
+          455,
+          541,
+          473,
+          899
+        ]
+      },
+      {
+        "labelJa": "在留期間の満了日",
+        "labelEn": "Date of expiration",
+        "kind": "date",
+        "semanticKey": "periodOfStayExpiry",
+        "status": "resolved",
+        "page": 0,
+        "box": [
+          485,
+          105,
+          506,
+          545
+        ]
+      },
+      {
+        "labelJa": "在留カード番号",
+        "labelEn": "Residence card number",
+        "kind": "text",
+        "semanticKey": "residenceCardNumber",
+        "status": "resolved",
+        "page": 0,
+        "box": [
+          515,
+          147,
+          535,
+          289
+        ]
+      },
+      {
+        "labelJa": "希望する在留期間",
+        "labelEn": "Desired length of extension",
+        "kind": "text",
+        "semanticKey": null,
+        "status": "unsupported",
+        "page": 0,
+        "box": [
+          547,
+          106,
+          566,
+          462
+        ]
+      },
+      {
+        "labelJa": "更新の理由",
+        "labelEn": "Reason for extension",
+        "kind": "text",
+        "semanticKey": null,
+        "status": "unsupported",
+        "page": 0,
+        "box": [
+          576,
+          106,
+          597,
+          342
+        ]
+      },
+      {
+        "labelJa": "犯罪を理由とする処分を受けたことの有無",
+        "labelEn": "Criminal record",
+        "kind": "checkbox",
+        "semanticKey": null,
+        "status": "unsupported",
+        "page": 0,
+        "box": [
+          606,
+          105,
+          641,
+          875
+        ]
+      },
+      {
+        "labelJa": "在日親族及び同居者",
+        "labelEn": "Family in Japan and anyone you currently reside with",
+        "kind": "checkbox",
+        "semanticKey": null,
+        "status": "unsupported",
+        "page": 0,
+        "box": [
+          647,
+          106,
+          684,
+          857
+        ]
+      }
+    ]
+  }
+}

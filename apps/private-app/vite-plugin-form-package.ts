@@ -14,12 +14,21 @@ import type { Plugin } from 'vite';
  *   That key is never written anywhere; the E2E bundle is never deployed.
  */
 const ROOT = fileURLToPath(new URL('../../', import.meta.url));
-const PACKAGE_ID = 'isa-930004094-r1';
+const FORM_ID = 'isa-930004094';
+/** forms/current.json names the revision this app bundles; changing it needs a signed package. */
+const CURRENT = (JSON.parse(readFileSync(fileURLToPath(new URL('../../forms/current.json', import.meta.url)), 'utf8')) as Record<
+  string,
+  { revision: number; packageId: string }
+>)[FORM_ID];
+if (!CURRENT || !Number.isInteger(CURRENT.revision) || CURRENT.packageId !== `${FORM_ID}-r${CURRENT.revision}`) {
+  throw new Error('forms/current.json: invalid entry for ' + FORM_ID);
+}
+const PACKAGE_ID = CURRENT.packageId;
 const DEFAULT_FILES = {
   sourcePdf: 'forms/sources/930004094.pdf',
-  formDef: 'forms/defs/isa-930004094/rev-1.formdef.json',
+  formDef: `forms/defs/${FORM_ID}/rev-${CURRENT.revision}.formdef.json`,
   font: 'apps/private-app/assets/fonts/BIZUDGothic-Regular.ttf',
-  history: 'forms/history/isa-930004094/rev-1.history.json',
+  history: `forms/history/${FORM_ID}/rev-${CURRENT.revision}.history.json`,
 } as const;
 type Role = keyof typeof DEFAULT_FILES;
 

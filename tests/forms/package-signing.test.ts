@@ -87,3 +87,17 @@ describe('private key location guard', () => {
     expect(() => assertOutsideRepo(join(tmpdir(), 'formtwin-signing-test.json'))).not.toThrow();
   });
 });
+
+describe('committed form revision 2 (adopted from a cloud candidate)', () => {
+  it('history links the exported candidate by hash and run id; placements equal rev 1', () => {
+    const def2 = formDefSchema.parse(JSON.parse(read('forms/defs/isa-930004094/rev-2.formdef.json').toString()));
+    const def1 = formDefSchema.parse(JSON.parse(read('forms/defs/isa-930004094/rev-1.formdef.json').toString()));
+    const h = adoptionHistorySchema.parse(JSON.parse(read('forms/history/isa-930004094/rev-2.history.json').toString()));
+    const raw = read('forms/candidates/isa-930004094/run-6dcda61f-dfa7-4ff3-8da9-0028b3406edb.json');
+    expect(h.origin).toBe('cloud-candidate');
+    expect(h.candidateSha256).toBe(sha256Hex(raw));
+    expect(h.analysisRunId).toBe(JSON.parse(raw.toString()).analysisRunId);
+    expect(def2.fields.map((f) => f.placement)).toEqual(def1.fields.map((f) => f.placement));
+    expect(JSON.parse(read('forms/current.json').toString())['isa-930004094'].revision).toBe(2);
+  });
+});

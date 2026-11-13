@@ -1,0 +1,56 @@
+{
+  "formId": "isa-930004094",
+  "formDefRevision": 2,
+  "origin": "cloud-candidate",
+  "analysisRunId": "run-6dcda61f-dfa7-4ff3-8da9-0028b3406edb",
+  "model": "gemini-3.5-flash-lite",
+  "promptVersion": "spike-b-1",
+  "candidateSha256": "e8d84bf3f2591875593c194e6522f9e235cc47a86b9dba489bf8921f43e8d519",
+  "changes": [
+    {
+      "fieldId": "familyName",
+      "action": "edited",
+      "note": "From candidate 氏名 → fullName (resolved). One candidate box split into family/given; placement kept from rev 1 (device-verified). Candidate box [260,185,289,899] also covered the label column."
+    },
+    {
+      "fieldId": "givenName",
+      "action": "edited",
+      "note": "From candidate 氏名 → fullName (resolved); given-name part of the split. Placement kept from rev 1."
+    },
+    {
+      "fieldId": "expiryYear",
+      "action": "edited",
+      "note": "From candidate 在留期間の満了日 → periodOfStayExpiry (resolved). One candidate box split into year/month/day. Candidate box [485,105,506,545] was about 36/1000 (~30 pt) below the line and included the label; placement kept from rev 1."
+    },
+    {
+      "fieldId": "expiryMonth",
+      "action": "edited",
+      "note": "Month part of the split; placement kept from rev 1."
+    },
+    {
+      "fieldId": "expiryDay",
+      "action": "edited",
+      "note": "Day part of the split; placement kept from rev 1."
+    },
+    {
+      "fieldId": "residenceCardNumber",
+      "action": "edited",
+      "note": "From candidate 在留カード番号 → residenceCardNumber (resolved). Candidate box [515,147,535,289] was about 38/1000 (~32 pt) below the line; placement kept from rev 1."
+    },
+    {
+      "fieldId": "unsupportedFields",
+      "action": "rejected",
+      "note": "17 candidate fields marked unsupported (国籍・地域, 生年月日, 性別, 配偶者の有無, 職業, 本国における居住地, 住居地, 電話番号, 携帯電話番号, 旅券番号, 旅券有効期限, 現に有する在留資格, 在留期間, 希望する在留期間, 更新の理由, 犯罪を理由とする処分…, 在日親族及び同居者): outside the MVP keys, not adopted."
+    }
+  ],
+  "review": {
+    "reviewedOn": "2026-11-13",
+    "reviewerRole": "project maintainer (approval = package signature)",
+    "checks": [
+      "Candidate passes the FormDef candidate contract; formId and source SHA-256 match the approved original.",
+      "Semantic mapping of the three resolved fields compared with rev 1 and the printed labels.",
+      "Candidate boxes compared with rev 1 placements, which were verified on the device (hosted preview, Build ac0c241); placements kept from rev 1.",
+      "Rendered fill check of rev 2 placements in the container (fillPdf official-form test)."
+    ]
+  }
+}

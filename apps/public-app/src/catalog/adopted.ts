@@ -1,6 +1,6 @@
 import { adoptionHistorySchema, formDefSchema, type AdoptionHistory, type FormDef } from '@formtwin/contracts';
-import history1 from '../../../../forms/history/isa-930004094/rev-1.history.json';
-import def1 from '../../../../forms/defs/isa-930004094/rev-1.formdef.json';
+import history2 from '../../../../forms/history/isa-930004094/rev-2.history.json';
+import def2 from '../../../../forms/defs/isa-930004094/rev-2.formdef.json';
 
 /**
  * The adopted (reviewed) FormDef revision and its adoption history, bundled read-only for display
@@ -13,7 +13,7 @@ export interface AdoptedRevision {
 }
 
 const ADOPTED: Record<string, AdoptedRevision> = {
-  'isa-930004094': { formDef: formDefSchema.parse(def1), history: adoptionHistorySchema.parse(history1) },
+  'isa-930004094': { formDef: formDefSchema.parse(def2), history: adoptionHistorySchema.parse(history2) },
 };
 
 export function adoptedRevisionFor(formId: string): AdoptedRevision | undefined {
