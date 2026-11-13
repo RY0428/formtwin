@@ -60,3 +60,5 @@
 - 期間中の開発内容は `docs/development-history.md` に追記する（R07: 期間前の仕様書と期間中の開発を区別して開示）。
 - 依存は版を固定し lockfile をコミット。CIは `npm ci`。
 - 大きな変更の前に計画を示し、確認を取る。
+- ループ作業は `.claude/skills/formtwin-verify/SKILL.md` の手順で検証する（編集成功＝完了ではない。同一項目3回失敗で停止・報告）。マイルストーン末に `formtwin-reviewer` サブエージェントでレビュー。実装前に固定する値は `docs/decisions.md`。
+- `npm run verify` は check:secrets・check:invariants・check:package を含む。commit/push 前に `.claude/hooks/pre-commit-secrets.mjs` が秘密情報を走査する。

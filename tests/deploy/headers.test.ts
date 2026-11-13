@@ -80,3 +80,15 @@ describe('public-app HTML caching', () => {
     for (const h of html) expect(h.headers).toContainEqual({ key: 'Cache-Control', value: 'no-cache' });
   });
 });
+
+describe('public-app CSP host list is pinned (only documented/observed hosts, docs/spikes/spike-b.md)', () => {
+  it('connect-src, script-src and frame-src match exactly', () => {
+    const d = directives(siteHeaders('public')['Content-Security-Policy'] ?? '');
+    expect(d.get('connect-src')).toBe(
+      "'self' https://firebasevertexai.googleapis.com https://content-firebaseappcheck.googleapis.com https://www.google.com/recaptcha/",
+    );
+    expect(d.get('script-src')).toBe("'self' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/");
+    expect(d.get('frame-src')).toBe('https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/');
+    expect(d.get('default-src')).toBe("'none'");
+  });
+});

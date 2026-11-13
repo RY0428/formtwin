@@ -15,9 +15,12 @@
     "test": "vitest run",
     "build": "npm run build -w @formtwin/public-app && npm run build -w @formtwin/private-app",
     "check:bundle": "node scripts/check-private-bundle.mjs && node scripts/check-public-bundle.mjs",
-    "verify": "npm run lint && npm run typecheck && npm test && npm run build && npm run check:bundle && npm run check:package && npm run test:e2e",
+    "verify": "npm run check:secrets && npm run check:invariants && npm run lint && npm run typecheck && npm test && npm run build && npm run check:bundle && npm run check:package && npm run test:e2e",
     "test:e2e": "npm run build:e2e -w @formtwin/private-app && npm run build:e2e -w @formtwin/public-app && playwright test --trace off",
-    "check:package": "node scripts/forms/check-current-package.mjs"
+    "check:package": "node scripts/forms/check-current-package.mjs",
+    "check:invariants": "node scripts/check-invariants.mjs",
+    "check:secrets": "node scripts/check-secrets.mjs",
+    "ui:snapshots": "npm run build:e2e -w @formtwin/private-app && npm run build:e2e -w @formtwin/public-app && node scripts/ui-snapshots.mjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

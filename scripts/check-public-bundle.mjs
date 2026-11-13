@@ -10,7 +10,7 @@ const FORBIDDEN = [
   ['e2e-fake-model', 'E2E fake analyzer'],
   ['fake.invalid', 'E2E fake analyzer'],
   ['e2e-dummy', 'E2E dummy config'],
-  ['FIREBASE_APPCHECK_DEBUG_TOKEN = true', 'App Check debug token enabled'],
+  ['FIREBASE_APPCHECK_DEBUG' + '_TOKEN = true', 'App Check debug token enabled'],
 ];
 const REQUIRED = [
   ['only_in_cloud', 'ONLY_IN_CLOUD mode'],

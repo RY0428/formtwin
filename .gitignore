@@ -21,3 +21,4 @@ docs/spikes/spike-c/*.pdf
 formtwin-signing-*
 # macOS Finder metadata
 .DS_Store
+.ui-snapshots/

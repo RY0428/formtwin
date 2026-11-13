@@ -21,10 +21,13 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - run: npm run check:secrets
+      - run: npm run check:invariants
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
       - run: npm run check:bundle
+      - run: npm run check:package
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
