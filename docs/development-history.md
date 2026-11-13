@@ -50,3 +50,4 @@ Submission period: 2026-11-11 13:30 PT – 2026-11-30 14:00 PT (JST 2026-11-12 0
 | 2026-11-13 | M7 review fixes (stale image decode and late PDF after end dropped; E2E for ending during extraction and for the wall-clock recheck) and session decisions recorded in the three specs (two states, AI state across sessions, input-only activity). | |
 | 2026-11-13 | Day 8–12 M8: on-device failure paths — 30 s extraction limit with the late result dropped and no stacked request, one on-device retry for invalid output, cancellable AI preparation, English failure reasons; E2E with a fake clock. | |
 | 2026-11-13 | M8 review fixes (no retry on stale requests; one device-call gate across sessions) and inferenceSource mismatch now stops the session and turns AI off for the page (architecture §6.1). | |
+| 2026-11-13 | Hosted Build 4353e73 deployed (both apps); hidden-tab lock verified on the developer's Mac (Chrome). | |
