@@ -205,6 +205,15 @@ Firebase AI Logic + App Check not initialized + no page-initiated external conne
 same screen — all observed on this device. **Open:** Gemini Nano 4 evidence (organizer answer pending); the gate row
 is therefore not marked passed yet.
 
+### 2026-11-13 — Organizer answer on the model (Discord)
+
+Devpost Discord, #hackathon-help thread "Help with model for BuildHybridAI" (another participant: Chrome 156/157,
+`nano_v3_gpu_high_tier_model`, asked whether Nano 4 is specifically required). Devpost staff relayed from Firebase:
+"Yes that would be fine as long as the model is being accessed via the Firebase AI Logic SDK. You may need to go to
+chrome://flags and search for Gemma 4 on built-in AI and enable it." (seen by the developer, screenshot.)
+⇒ On-device inference through Firebase AI Logic is the requirement; to be safe, also verify with the
+`#gemma4-for-built-in-ai` flag enabled and record which model serves `prompt_api`.
+
 ## Open questions
 
 1. CSP for the image path: keep `'none'` (image extraction impossible) or allow `data:` only in

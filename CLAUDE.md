@@ -36,7 +36,7 @@
 - 2026-11-12 hackathon manager へ3点を再送 → 2026-11-13 返信「技術的質問は Discord #hackathon-help（#BuildHybridAI タグ）で技術チームへ」。Discord で質問・回答待ち:
   1. 「公開様式のクラウド解析＋本人情報の端末抽出」の2経路分担でハイブリッド推論要件を満たすか（自動フォールバック必須か）
   2. 別オリジンの端末専用コンポーネントで App Check 初期化を省略できるか
-  3. 「Gemini Nano 4」は Chrome 157 の `nano_v3`（現行 Prompt API）と `#gemma4-for-built-in-ai`（Gemma 4）のどちらか、証拠に何を示すか
+  3. 「Gemini Nano 4」→ 2026-11-13 Discord 既存スレッドで運営が Firebase チーム回答を転記:「Firebase AI Logic SDK 経由ならよい。chrome://flags の Gemma 4 for built-in AI 有効化が必要な場合あり」。Gemma 4 有効時も検証する
   - 承認済み・規約違反確定のどちらとしても扱わない。回答待ちでも実装・実機検証は進める。本人情報のクラウドフォールバックは回答にかかわらず導入しない。
 
 ## 現フェーズ: Day 1–2 成立ゲート（requirements.md 6章）
