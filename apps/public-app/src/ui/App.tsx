@@ -29,6 +29,7 @@ const REASON_TEXT: Record<string, string> = {
   request_failed: 'The cloud request failed. It may or may not have reached the service.',
   source_mismatch: 'The response did not come from cloud inference and was discarded.',
   invalid_output: 'The response did not match the expected structure and was discarded.',
+  rate_limited: 'Too many requests. Wait a minute, then try again. This app does not retry automatically.',
 };
 
 export function App() {

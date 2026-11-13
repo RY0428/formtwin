@@ -56,3 +56,16 @@ test('diagnostics run each fixed output variant once and report the outcome (fak
   await expect(page.locator('[data-testid="diag-row"][data-variant="none"]')).toContainText('yes');
   await expect(page.locator('[data-testid="diag-row"][data-variant="schema-full"]')).toHaveAttribute('data-outcome', 'ok');
 });
+
+test('429 from the service: English reason, no automatic retry, nothing sent during the cooldown', async ({ page }) => {
+  await page.goto(`${ORIGIN}/?fake=429`);
+  await page.getByRole('button', { name: 'Analyze in the cloud' }).click();
+  await expect(page.getByTestId('analysis-error')).toContainText('Too many requests. Wait a minute');
+  await page.getByRole('button', { name: 'Analyze in the cloud' }).click();
+  await expect(page.getByTestId('request-log').locator('li[data-status]').last()).toHaveAttribute('data-status', 'rejected');
+  const statuses = await page.getByTestId('request-log').locator('li[data-status]').evaluateAll((els) =>
+    els.map((e) => e.getAttribute('data-status')),
+  );
+  // One request reached the (fake) service; the second click was refused locally.
+  expect(statuses).toEqual(['planned', 'started', 'unknown', 'rejected']);
+});

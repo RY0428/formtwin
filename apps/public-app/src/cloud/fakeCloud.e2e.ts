@@ -12,6 +12,10 @@ export function createCloudFormAnalyzer(): CloudFormAnalyzer {
       const pdf = atob(request.pdfBase64.slice(0, 12));
       if (!pdf.startsWith('%PDF')) throw new Error('not a pdf');
       await new Promise((r) => setTimeout(r, 150));
+      // Quota exercise: `?fake=429` answers like an exhausted per-user rate limit (AIError status 429).
+      if (new URLSearchParams(location.search).get('fake') === '429') {
+        throw Object.assign(new Error('[429 ] Resource exhausted. (fake)'), { customErrorData: { status: 429 } });
+      }
       // Diagnostics exercise: one variant fails like the hosted 400; 'none' answers in a code fence.
       if (request.variant === 'schema-s3') throw new Error('[400 ] Request contains an invalid argument. (fake)');
       const fence = request.variant === 'none' ? '```json\n' : '';

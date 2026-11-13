@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { CloudFormAnalyzer } from '../cloud/CloudFormAnalyzer.ts';
-import { EgressGateway } from './gateway.ts';
+import { EgressGateway, RATE_LIMIT_COOLDOWN_MS, isRateLimited } from './gateway.ts';
 
 vi.mock('../catalog/approvedSources.ts', async () => {
   const bytes = new TextEncoder().encode('%PDF-approved');
@@ -121,5 +121,41 @@ describe('diagnoseApprovedForm', () => {
     const variants = a.analyze.mock.calls.map((c) => (c[0] as { variant: string }).variant);
     expect(variants).toEqual(['none', 'json', 'schema-s1', 'schema-s2', 'schema-s3', 'schema-full']);
     for (const c of a.analyze.mock.calls) expect(atob((c[0] as { pdfBase64: string }).pdfBase64)).toBe('%PDF-approved');
+  });
+});
+
+describe('rate limits (429)', () => {
+  const err429 = Object.assign(new Error('[429 ] Resource exhausted. (fake)'), { customErrorData: { status: 429 } });
+
+  it('detects 429 from the SDK status or message only', () => {
+    expect(isRateLimited(err429)).toBe(true);
+    expect(isRateLimited(new Error('RESOURCE_EXHAUSTED: quota'))).toBe(true);
+    expect(isRateLimited(new Error('[400 ] invalid argument'))).toBe(false);
+    expect(isRateLimited(new Error('field 4290 missing'))).toBe(false);
+  });
+
+  it('reports rate_limited, never retries, and sends nothing during the cooldown', async () => {
+    let t = 1_000;
+    const a = analyzer(err429);
+    const g = new EgressGateway(a, () => undefined, () => t);
+    expect(await g.analyzeApprovedForm('ok')).toMatchObject({ ok: false, reason: 'rate_limited' });
+    expect(a.analyze).toHaveBeenCalledTimes(1);
+    t += RATE_LIMIT_COOLDOWN_MS - 1;
+    expect(await g.analyzeApprovedForm('ok')).toMatchObject({ ok: false, reason: 'rate_limited' });
+    expect(await g.diagnoseApprovedForm('ok')).toBe('rate_limited');
+    expect(a.analyze).toHaveBeenCalledTimes(1);
+    expect(g.entries().at(-1)).toMatchObject({ status: 'rejected', reason: 'rate_limited' });
+    t += 1;
+    expect(g.cooldownMs()).toBe(0);
+    await g.analyzeApprovedForm('ok');
+    expect(a.analyze).toHaveBeenCalledTimes(2);
+  });
+
+  it('diagnostics stop at the first 429', async () => {
+    const a = analyzer(err429);
+    const g = new EgressGateway(a);
+    const r = await g.diagnoseApprovedForm('ok');
+    expect(Array.isArray(r) && r.length).toBe(1);
+    expect(a.analyze).toHaveBeenCalledTimes(1);
   });
 });

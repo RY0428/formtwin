@@ -71,7 +71,22 @@ export type GatewayError =
   | 'busy'
   | 'request_failed'
   | 'source_mismatch'
-  | 'invalid_output';
+  | 'invalid_output'
+  | 'rate_limited';
+
+/** After a 429 the gateway sends nothing for this long (no automatic retry; docs/decisions.md). */
+export const RATE_LIMIT_COOLDOWN_MS = 60_000;
+
+/**
+ * True when the service refused the request for quota/rate reasons: HTTP 429 in the SDK's
+ * `customErrorData.status` (AIError, firebase 13.3.0), or a 429 / RESOURCE_EXHAUSTED message.
+ */
+export function isRateLimited(e: unknown): boolean {
+  const status = (e as { customErrorData?: { status?: unknown } } | null)?.customErrorData?.status;
+  if (status === 429) return true;
+  const text = e instanceof Error ? e.message : String(e);
+  return /\[429\b|\b429 Too Many Requests|RESOURCE_EXHAUSTED/i.test(text);
+}
 
 function toBase64(bytes: Uint8Array): string {
   let s = '';
@@ -96,11 +111,31 @@ export class EgressGateway {
   private readonly log: RequestLogEntry[] = [];
   private seq = 0;
   private inFlight = false;
+  private blockedUntil = 0;
 
   constructor(
     private readonly analyzer: CloudFormAnalyzer,
     private readonly onLog: (entries: readonly RequestLogEntry[]) => void = () => undefined,
+    private readonly now: () => number = Date.now,
   ) {}
+
+  /** Milliseconds left in the cooldown after a 429 (0 when requests are allowed). */
+  cooldownMs(): number {
+    return Math.max(0, this.blockedUntil - this.now());
+  }
+
+  /** Rejects locally, without sending, while the cooldown after a 429 runs. */
+  private coolingDown(source: ApprovedSource): boolean {
+    if (this.cooldownMs() === 0) return false;
+    this.record('rejected', source, 'rate_limited');
+    return true;
+  }
+
+  private noteRateLimit(e: unknown): boolean {
+    if (!isRateLimited(e)) return false;
+    this.blockedUntil = this.now() + RATE_LIMIT_COOLDOWN_MS;
+    return true;
+  }
 
   entries(): readonly RequestLogEntry[] {
     return [...this.log];
@@ -142,6 +177,7 @@ export class EgressGateway {
       this.record('rejected', source, 'busy');
       return { ok: false, reason: 'busy' };
     }
+    if (this.coolingDown(source)) return { ok: false, reason: 'rate_limited' };
     this.inFlight = true;
     try {
       this.record('planned', source, null);
@@ -157,6 +193,11 @@ export class EgressGateway {
       } catch (e: unknown) {
         // Once started, a failure is not "not sent": the request may have reached the service.
         const detail = errorDetail(e);
+        if (this.noteRateLimit(e)) {
+          // The service refused it: rejected by the quota, but still logged as possibly received.
+          this.record('unknown', source, 'rate_limited', detail);
+          return { ok: false, reason: 'rate_limited', detail };
+        }
         this.record('unknown', source, 'request_failed', detail);
         return { ok: false, reason: 'request_failed', detail };
       }
@@ -208,6 +249,7 @@ export class EgressGateway {
       this.record('rejected', source, 'busy');
       return 'busy';
     }
+    if (this.coolingDown(source)) return 'rate_limited';
     this.inFlight = true;
     const results: DiagnosticResult[] = [];
     try {
@@ -242,6 +284,12 @@ export class EgressGateway {
           });
         } catch (e: unknown) {
           const detail = errorDetail(e);
+          if (this.noteRateLimit(e)) {
+            // Stop the run: the remaining variants would only add load to an exhausted quota.
+            this.record('unknown', source, `diagnostic:${variant}:rate_limited`, detail);
+            results.push({ variant, outcome: 'request_failed', validCandidate: null, fieldCount: null, detail, ms: Math.round(performance.now() - t0) });
+            break;
+          }
           this.record('unknown', source, `diagnostic:${variant}:request_failed`, detail);
           results.push({
             variant,
