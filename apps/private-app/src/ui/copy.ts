@@ -31,9 +31,34 @@ export const COPY = {
     prepare: 'Prepare AI',
     skip: 'Continue without AI',
     off: 'AI extraction is off for this session. You can enter values manually.',
+    cancel: 'Cancel',
+    cancelNote: 'The browser may continue downloading the model in the background; this app no longer waits for it.',
   },
   image: { label: 'Residence card image (JPEG or PNG)', alt: 'Selected sample', extract: 'Extract on this device' },
-  candidates: { failed: 'Failed', extracting: 'Extracting…' },
+  candidates: {
+    failed: 'Failed',
+    extracting: 'Extracting…',
+    finishing: 'The previous extraction is still finishing on this device. You can type the values meanwhile.',
+    manual: 'Type the values instead.',
+  },
+  /** Failure codes → English reasons. No inputs, outputs or file details. */
+  reasons: {
+    api_missing: 'This browser does not offer built-in AI.',
+    unavailable: 'Built-in AI is not available on this device.',
+    not_prepared: 'AI is not prepared.',
+    prepare_failed: 'AI could not be prepared.',
+    inference_failed: 'The on-device model could not read the image.',
+    invalid_output: 'The model’s answer could not be used, even after one retry.',
+    source_mismatch: 'The answer did not come from this device, so it was discarded.',
+    timeout: 'Extraction took longer than 30 seconds, so its result will not be used.',
+    cancelled: 'AI preparation was cancelled.',
+    config_missing: 'The app configuration is incomplete.',
+    image_type: 'Use a JPEG or PNG image.',
+    image_too_large: 'The image file is too large.',
+    image_decode_failed: 'The image could not be opened.',
+    image_dimensions: 'The image size is not supported.',
+    unknown: 'Something went wrong.',
+  },
   end: {
     button: 'End session and clear data',
     cleared:
@@ -58,3 +83,9 @@ export const COPY = {
   diagnostics: 'Diagnostics (no personal data)',
   testKey: 'TEST KEY — not for real use',
 } as const;
+
+/** English reason for a fixed failure code (unknown codes get a generic text). */
+export function reasonText(code: string): string {
+  const reasons: Readonly<Record<string, string | undefined>> = COPY.reasons;
+  return reasons[code] ?? COPY.reasons.unknown;
+}

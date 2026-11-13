@@ -8,6 +8,10 @@ export interface FakeOptions {
   response: string;
   /** Optional delay before each prompt resolves (stale-response tests). */
   delayMs?: number;
+  /** Optional per-prompt responses (n-th prompt gets the n-th, the last repeats); overrides `response`. */
+  responses?: string[];
+  /** Optional delay before `create` resolves (preparation cancel tests). */
+  createDelayMs?: number;
 }
 
 export function installFakeLanguageModel(opts: FakeOptions): void {
@@ -35,17 +39,24 @@ export function installFakeLanguageModel(opts: FakeOptions): void {
           target.dispatchEvent(e);
         }
       }
-      state = 'available';
-      return Promise.resolve({
+      const session = {
         prompt: (messages: { content: { type: string; value: unknown }[] }[], promptOptions?: { responseConstraint?: unknown }) => {
           const types = messages.flatMap((m) =>
             m.content.map((c) => (c.type === 'image' && c.value instanceof ImageBitmap ? 'image:ImageBitmap' : c.type)),
           );
           log.prompts.push({ types, hasConstraint: promptOptions?.responseConstraint !== undefined });
-          return new Promise((resolve) => setTimeout(() => resolve(opts.response), opts.delayMs ?? 0));
+          const list = opts.responses;
+          const answer = list === undefined ? opts.response : list[Math.min(log.prompts.length - 1, list.length - 1)];
+          return new Promise((resolve) => setTimeout(() => resolve(answer), opts.delayMs ?? 0));
         },
         destroy: () => undefined,
-      });
+      };
+      return new Promise((resolve) =>
+        setTimeout(() => {
+          state = 'available';
+          resolve(session);
+        }, opts.createDelayMs ?? 0),
+      );
     },
   };
 }

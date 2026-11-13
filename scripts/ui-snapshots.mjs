@@ -93,6 +93,34 @@ try {
   await life.getByTestId('ended-reason').waitFor();
   await lifeShot('private-07-inactivity-ended');
   await life.close();
+  // Failure path (M8): extraction time-out, with a minimal fake model.
+  const fail = await browser.newPage({ viewport: { width: 1100, height: 900 }, deviceScaleFactor: 1 });
+  await fail.clock.install();
+  await fail.addInitScript(() => {
+    let state = 'available';
+    window.LanguageModel = {
+      availability: () => Promise.resolve(state),
+      create: () =>
+        new Promise((resolve) =>
+          setTimeout(() => {
+            state = 'available';
+            resolve({ prompt: () => new Promise((r) => setTimeout(() => r('{}'), 40_000)), destroy: () => undefined });
+          }, 0),
+        ),
+    };
+  });
+  await open(fail, 'http://localhost:4174/');
+  await fail.getByTestId('boot-status').filter({ hasText: 'ready' }).waitFor();
+  await fail.getByRole('button', { name: 'Prepare AI' }).click();
+  await fail.getByTestId('ai-status').filter({ hasText: 'ready' }).waitFor();
+  await fail.getByLabel('Residence card image (JPEG or PNG)').setInputFiles('data/eval/explore/explore-03.png');
+  await fail.getByRole('button', { name: 'Extract on this device' }).click();
+  await fail.clock.fastForward('00:31');
+  await fail.getByTestId('extract-finishing').waitFor();
+  await fail.getByTestId('extract-finishing').scrollIntoViewIfNeeded();
+  await fail.screenshot({ path: join(OUT, 'private-08-timeout.png') });
+  shots.push(join(OUT, 'private-08-timeout.png'));
+  await fail.close();
 
   // public-app
   await open(page, 'http://localhost:4173/');

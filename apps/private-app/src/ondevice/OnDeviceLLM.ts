@@ -14,7 +14,9 @@ export type OnDeviceFailure =
   | 'prepare_failed'
   | 'inference_failed'
   | 'invalid_output'
-  | 'source_mismatch';
+  | 'source_mismatch'
+  | 'timeout'
+  | 'cancelled';
 
 export class OnDeviceError extends Error {
   readonly code: OnDeviceFailure;

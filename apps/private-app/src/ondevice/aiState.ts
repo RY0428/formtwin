@@ -20,6 +20,7 @@ export type AiEvent =
   | { type: 'unavailable'; attempt: number; reason: string }
   | { type: 'failed'; attempt: number; reason: string }
   | { type: 'skip' }
+  | { type: 'cancel' }
   | { type: 'newSession' };
 
 export const initialAiState: AiState = { status: 'not_started', attempt: 0, progress: 0 };
@@ -35,6 +36,11 @@ export function aiReducer(state: AiState, event: AiEvent): AiState {
     case 'start':
       if (state.status !== 'not_started') return state;
       return { status: 'preparing', attempt: state.attempt + 1, progress: 0 };
+    // Cancelling preparation: the browser may keep downloading, but this app stops waiting and a late
+    // completion (same attempt, no longer `preparing`) is ignored (architecture.md §6.2-2).
+    case 'cancel':
+      if (state.status !== 'preparing') return state;
+      return { status: 'failed', attempt: state.attempt, progress: state.progress, reason: 'cancelled' };
     case 'skip':
       if (state.status === 'ready') return state;
       return { status: 'skipped', attempt: state.attempt, progress: state.progress };

@@ -46,4 +46,12 @@ describe('aiReducer', () => {
     expect(aiReducer(ready, { type: 'newSession' })).toBe(ready);
     expect(aiReducer(preparing, { type: 'newSession' })).toBe(preparing);
   });
+
+  it('cancel: preparing → failed (cancelled); a late completion is ignored', () => {
+    const preparing = aiReducer(initialAiState, { type: 'start' });
+    const cancelled = aiReducer(preparing, { type: 'cancel' });
+    expect(cancelled).toMatchObject({ status: 'failed', reason: 'cancelled' });
+    expect(aiReducer(cancelled, { type: 'succeeded', attempt: 1 })).toBe(cancelled);
+    expect(aiReducer(initialAiState, { type: 'cancel' })).toBe(initialAiState);
+  });
 });

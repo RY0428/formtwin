@@ -11,6 +11,7 @@ import {
   aiReducer,
   canExtract,
   initialAiState,
+  runExtraction,
   type DeviceAvailability,
 } from '../ondevice/index.ts';
 import { ImageRejectedError, prepareImage, type PreparedImage } from '../pii/extract/imageInput.ts';
@@ -26,7 +27,7 @@ import { Badge } from './components/badge.tsx';
 import { Button } from './components/button.tsx';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/card.tsx';
 import { Input } from './components/input.tsx';
-import { COPY } from './copy.ts';
+import { COPY, reasonText } from './copy.ts';
 
 /**
  * Applicant screen (S5 working flow). Personal data lives in React state only:
@@ -69,6 +70,8 @@ export function App() {
   const [result, setResult] = useState<ExtractionResult | undefined>();
   const [error, setError] = useState<string | undefined>();
   const [busy, setBusy] = useState(false);
+  // A timed-out device call that has not returned yet (it cannot be aborted): no new request meanwhile.
+  const [finishing, setFinishing] = useState(false);
   const [timing, setTiming] = useState<Timing>({});
   const [ended, setEnded] = useState<EndReason | null>(null);
   const requests = useRef(new ExtractionRequests());
@@ -180,9 +183,16 @@ export function App() {
     setError(undefined);
     setResult(undefined);
     const started = performance.now();
-    llm.extract(image).then(
+    // 30 s limit and at most one retry for invalid output (docs/decisions.md). On-device only.
+    const run = runExtraction(() => llm.extract(image));
+    run.idle.then(
+      () => {
+        setFinishing(false);
+      },
+      () => undefined,
+    );
+    run.result.then(
       (r) => {
-        // The model call cannot be aborted; it occupies the queue until it returns (one at a time).
         setBusy(false);
         if (!requests.current.settle(request)) return;
         setTiming((t) => ({ ...t, extractMs: performance.now() - started, confirmMs: undefined }));
@@ -191,8 +201,11 @@ export function App() {
       },
       (e: unknown) => {
         setBusy(false);
+        const code = failureCode(e);
+        // The device call keeps running after a time-out; block new requests until it returns.
+        if (code === 'timeout') setFinishing(true);
         if (!requests.current.settle(request)) return;
-        setError(failureCode(e));
+        setError(code);
       },
     );
   }, [image]);
@@ -217,7 +230,7 @@ export function App() {
     endLifecycle('user');
   }, [endLifecycle]);
 
-  const extractEnabled = canExtract(ai) && image !== undefined && !busy;
+  const extractEnabled = canExtract(ai) && image !== undefined && !busy && !finishing;
 
   const ms = (v: number | undefined) => (v === undefined ? '-' : `${Math.round(v)} ms`);
   const title = boot.status === 'ready' ? boot.assets.pkg.formDef.title : FORM_TITLE;
@@ -307,14 +320,29 @@ export function App() {
                 {ai.reason !== undefined && (
                   <>
                     {' '}
-                    ({COPY.ai.reason}: <output data-testid="ai-reason">{ai.reason}</output>)
+                    ({COPY.ai.reason}: <output data-testid="ai-reason">{ai.reason}</output>
+                    {' — '}
+                    {reasonText(ai.reason)})
                   </>
                 )}
               </dd>
             </dl>
             {ai.status === 'preparing' && (
-              <progress className="w-full" aria-label={COPY.ai.progress} max={1} value={ai.progress} />
+              <div className="flex items-center gap-2">
+                <progress className="w-full" aria-label={COPY.ai.progress} max={1} value={ai.progress} />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    dispatchAi({ type: 'cancel' });
+                  }}
+                >
+                  {COPY.ai.cancel}
+                </Button>
+              </div>
             )}
+            {ai.reason === 'cancelled' && <p className="text-xs text-muted-foreground">{COPY.ai.cancelNote}</p>}
             <div className="flex flex-wrap gap-2">
               <Button type="button" onClick={onPrepare} disabled={ai.status !== 'not_started'}>
                 {COPY.ai.prepare}
@@ -382,10 +410,19 @@ export function App() {
               <CardContent aria-live="polite">
                 {error !== undefined && (
                   <Alert variant="destructive" role="alert">
-                    {COPY.candidates.failed}: <output data-testid="error">{error}</output>
+                    <p>
+                      {COPY.candidates.failed}: <span data-testid="error-reason">{reasonText(error)}</span>{' '}
+                      (<output data-testid="error">{error}</output>)
+                    </p>
+                    <p className="mt-1">{COPY.candidates.manual}</p>
                   </Alert>
                 )}
                 {busy && <p role="status">{COPY.candidates.extracting}</p>}
+                {finishing && !busy && (
+                  <p role="status" data-testid="extract-finishing" className="text-sm text-muted-foreground">
+                    {COPY.candidates.finishing}
+                  </p>
+                )}
                 {result !== undefined && (
                   <CandidatesPanel
                     result={result}
