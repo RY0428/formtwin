@@ -14,7 +14,7 @@ const out = new URL('../../docs/spikes/spike-c/', import.meta.url);
 const official = process.argv.includes('official');
 const pdfOnly = process.argv.includes('--pdf-only');
 const template = new Uint8Array(
-  readFileSync(new URL(official ? 'forms/official/930004094.pdf' : 'forms/dummy-form.pdf', assets)),
+  readFileSync(official ? new URL('../../forms/sources/930004094.pdf', import.meta.url) : new URL('forms/dummy-form.pdf', assets)),
 );
 const font = new Uint8Array(readFileSync(new URL('fonts/BIZUDGothic-Regular.ttf', assets)));
 const layout = JSON.parse(

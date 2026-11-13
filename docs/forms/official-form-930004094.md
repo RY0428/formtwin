@@ -1,6 +1,6 @@
 # Official form candidate: 在留期間更新許可申請書 (930004094.pdf)
 
-Status: **approved for bundling (2026-11-12).** Unmodified copy at `apps/private-app/assets/forms/official/930004094.pdf`.
+Status: **approved for bundling (2026-11-12).** Unmodified copy at `forms/sources/930004094.pdf`.
 
 ## Source (recorded 2026-11-12)
 - Page: https://www.moj.go.jp/isa/applications/procedures/16-3-1.html

@@ -14,7 +14,7 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: 'npm run preview -w @formtwin/public-app',
+      command: 'npm run preview:e2e -w @formtwin/public-app',
       url: 'http://localhost:4173',
       reuseExistingServer: false,
     },

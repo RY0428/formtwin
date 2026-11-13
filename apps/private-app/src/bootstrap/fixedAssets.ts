@@ -1,6 +1,6 @@
 import { pdfLayoutSchema, type PdfLayout } from '@formtwin/contracts';
 import font from '../../assets/fonts/BIZUDGothic-Regular.ttf?bytes';
-import template from '../../assets/forms/official/930004094.pdf?bytes';
+import template from '../../../../forms/sources/930004094.pdf?bytes';
 import layoutJson from '../../assets/forms/official/930004094.layout.json';
 
 /**
