@@ -15,8 +15,9 @@
     "test": "vitest run",
     "build": "npm run build -w @formtwin/public-app && npm run build -w @formtwin/private-app",
     "check:bundle": "node scripts/check-private-bundle.mjs && node scripts/check-public-bundle.mjs",
-    "verify": "npm run lint && npm run typecheck && npm test && npm run build && npm run check:bundle && npm run test:e2e",
-    "test:e2e": "npm run build:e2e -w @formtwin/private-app && npm run build:e2e -w @formtwin/public-app && playwright test --trace off"
+    "verify": "npm run lint && npm run typecheck && npm test && npm run build && npm run check:bundle && npm run check:package && npm run test:e2e",
+    "test:e2e": "npm run build:e2e -w @formtwin/private-app && npm run build:e2e -w @formtwin/public-app && playwright test --trace off",
+    "check:package": "node scripts/forms/verify-package.mjs isa-930004094-r1"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

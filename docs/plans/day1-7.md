@@ -94,3 +94,4 @@ release evaluation (20 new cards), bundle-size reduction, video.
   - Implemented and container-verified (fake models, throwaway key): all G2 items, G3 verify.
   - Not verified yet (needs developer): G1 public cloud path with real App Check; G1 data separation on the real
     device; G2 end-to-end on hosted URLs; production package signature; CI run of the latest commit.
+- 2026-11-13: Developer signed the package (`ft-d27d442d1434e11c`); hosted private run recorded in docs/spikes/s5-manual-flow.md; two UI-state bugs found on the device and fixed (re-check pending).

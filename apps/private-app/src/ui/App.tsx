@@ -140,6 +140,7 @@ export function App() {
         () => {
           setTiming((t) => ({ ...t, prepareMs: performance.now() - started }));
           dispatchAi({ type: 'succeeded', attempt });
+          llm.availability().then(setAvailability, () => undefined);
         },
         (e: unknown) => {
           const code = failureCode(e);

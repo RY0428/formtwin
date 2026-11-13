@@ -81,6 +81,8 @@ test('editing after PDF creation withdraws the confirmation and invalidates the 
 
   await page.getByLabel(/^Family name/).fill('TANAKAA');
   await expect(page.getByRole('link', { name: 'Save PDF' })).toHaveCount(0);
+  await expect(page.getByTestId('pdf-preview')).toHaveCount(0);
+  await expect(page.getByText('Values changed. Create the PDF again.')).toBeVisible();
   const row = page.locator('div', { has: page.getByLabel(/^Family name/) }).last();
   await expect(row.getByLabel('Checked against my card')).not.toBeChecked();
 });
@@ -184,3 +186,52 @@ test('a late extraction result is discarded after the image changes; typed value
   await expect(page.getByTestId('result')).toContainText('LATE RESULT');
   await expect(page.getByLabel(/^Family name/)).toHaveValue('TYPED');
 });
+
+for (const how of ['select-last-and-type', 'insertText', 'backspace-then-type', 'ime-composition'] as const) {
+  test(`editing a candidate-filled, checked field withdraws its check (${how})`, async ({ page }) => {
+    const fake: FakeOptions = {
+      availability: 'available',
+      response: JSON.stringify({
+        fields: [
+          { key: 'fullName', value: 'SANTOS MARIA CLARA' },
+          { key: 'residenceCardNumber', value: 'JK24681357LM' },
+          { key: 'periodOfStayExpiry', value: '2026年12月01日' },
+        ],
+      }),
+    };
+    await page.addInitScript(installFakeLanguageModel, fake);
+    await open(page);
+    await page.getByRole('button', { name: 'Prepare AI' }).click();
+    await expect(page.getByTestId('ai-status')).toHaveText('ready');
+    await page.getByLabel('Residence card image (JPEG or PNG)').setInputFiles('data/eval/explore/explore-03.png');
+    await page.getByRole('button', { name: 'Extract on this device' }).click();
+    await page.getByRole('button', { name: 'Use name: family “SANTOS”, given “MARIA CLARA”' }).click();
+    const input = page.getByLabel(/^Given name/);
+    const row = page.locator('div', { has: input }).last();
+    const check = row.getByLabel('Checked against my card');
+    await check.check();
+    await expect(check).toBeChecked();
+    await input.click();
+    await page.keyboard.press('End');
+    if (how === 'select-last-and-type') {
+      await page.keyboard.press('Shift+ArrowLeft');
+      await page.keyboard.type('e');
+    } else if (how === 'insertText') {
+      await page.keyboard.insertText('e');
+    } else if (how === 'backspace-then-type') {
+      await page.keyboard.press('Backspace');
+      await page.keyboard.type('e');
+    } else {
+      await input.evaluate((el) => {
+        const i = el as HTMLInputElement;
+        i.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true }));
+      });
+      await page.keyboard.insertText('e');
+      await input.evaluate((el) => {
+        el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, data: 'e' }));
+      });
+    }
+    await expect(input).not.toHaveValue('MARIA CLARA');
+    await expect(check).not.toBeChecked();
+  });
+}

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useReducer } from 'react';
+import { useEffect, useMemo, useReducer, useRef } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { FIELD_IDS, type FieldId } from './fields.ts';
 import {
@@ -12,14 +12,17 @@ import {
 } from './sessionState.ts';
 
 /**
- * Session use cases (tech-stack.md §3): React Hook Form owns the values; every update goes
- * through these functions so revisions, confirmations and PDF validity stay consistent.
- * Values live in memory only (no persistence, no logging).
+ * Session use cases (tech-stack.md §3): React Hook Form owns the values; this hook keeps the
+ * revision/confirmation state consistent with them.
+ *
+ * Every value change is detected by comparing the watched values with the last values seen, not
+ * only through input event callbacks, so no input path (IME, paste, autofill, programmatic set) can
+ * change a value without withdrawing its confirmation (architecture.md §7.4). Values live in memory only.
  */
 export interface SessionForm {
   readonly state: SessionState;
   readonly values: Readonly<FieldValues>;
-  /** Props for an input bound to the form; typing withdraws that field's confirmation. */
+  /** Props for an input bound to the form. */
   readonly bind: (id: FieldId) => ReturnType<ReturnType<typeof useForm<FieldValues>>['register']>;
   readonly applyCandidate: (values: Partial<Record<FieldId, string>>) => void;
   readonly confirm: (id: FieldId) => void;
@@ -29,52 +32,75 @@ export interface SessionForm {
 }
 
 export function useSessionForm(onManualEdit?: () => void): SessionForm {
-  const form = useForm<FieldValues>({ defaultValues: EMPTY_VALUES, mode: 'onChange', shouldUnregister: false });
+  const form = useForm<FieldValues>({ defaultValues: EMPTY_VALUES, shouldUnregister: false });
   const [state, dispatch] = useReducer(sessionReducer, undefined, initialSession);
-  const values = useWatch({ control: form.control }) as FieldValues;
+  const values = { ...EMPTY_VALUES, ...(useWatch({ control: form.control }) as Partial<FieldValues>) };
+  const seen = useRef<FieldValues>(EMPTY_VALUES);
+  /** Fields whose next change comes from an explicitly chosen candidate. */
+  const pendingCandidate = useRef(new Set<FieldId>());
+  const manualEdit = useRef(onManualEdit);
+  manualEdit.current = onManualEdit;
 
-  const bind = useCallback(
-    (id: FieldId) =>
-      form.register(id, {
-        onChange: (e: { target: { value: string } }) => {
-          onManualEdit?.();
-          dispatch({ type: 'changed', id, filled: e.target.value !== '', source: 'manual' });
-        },
-      }),
-    [form, onManualEdit],
-  );
-
-  const applyCandidate = useCallback(
-    (next: Partial<Record<FieldId, string>>) => {
-      for (const id of FIELD_IDS) {
-        const v = next[id];
-        if (v === undefined) continue;
-        if (form.getValues(id) === v && state.fields[id].source === 'candidate') continue;
-        form.setValue(id, v, { shouldDirty: true });
-        dispatch({ type: 'changed', id, filled: v !== '', source: 'candidate' });
-      }
-    },
-    [form, state.fields],
-  );
+  const key = FIELD_IDS.map((id) => values[id]).join('\u0000');
+  useEffect(() => {
+    const current = form.getValues();
+    let manual = false;
+    for (const id of FIELD_IDS) {
+      const v = current[id] ?? '';
+      if (v === seen.current[id]) continue;
+      const source = pendingCandidate.current.delete(id) ? 'candidate' : 'manual';
+      if (source === 'manual') manual = true;
+      dispatch({ type: 'changed', id, filled: v !== '', source });
+    }
+    seen.current = { ...EMPTY_VALUES, ...current };
+    if (manual) manualEdit.current?.();
+  }, [key, form]);
 
   return useMemo(
     () => ({
       state,
       values,
-      bind,
-      applyCandidate,
+      bind: (id: FieldId) => form.register(id),
+      applyCandidate: (next: Partial<Record<FieldId, string>>) => {
+        for (const id of FIELD_IDS) {
+          const v = next[id];
+          if (v === undefined || form.getValues(id) === v) continue;
+          pendingCandidate.current.add(id);
+          form.setValue(id, v, { shouldDirty: true });
+        }
+      },
       confirm: (id: FieldId) => {
-        if (form.getValues(id) !== '') dispatch({ type: 'confirm', id });
+        // Confirm only the value the reducer has already registered (same revision as on screen).
+        if (form.getValues(id) !== '' && form.getValues(id) === seen.current[id]) dispatch({ type: 'confirm', id });
       },
       unconfirm: (id: FieldId) => {
         dispatch({ type: 'unconfirm', id });
       },
       reset: () => {
+        // The reducer reset below already covers the cleared values; do not report them as edits.
+        seen.current = EMPTY_VALUES;
+        pendingCandidate.current.clear();
         form.reset(EMPTY_VALUES);
         dispatch({ type: 'reset' });
       },
-      snapshot: () => takeSnapshot(state, form.getValues()),
+      snapshot: () => {
+        const current = { ...EMPTY_VALUES, ...form.getValues() };
+        // A value not yet registered by the reducer is treated as unconfirmed.
+        const settled = FIELD_IDS.every((id) => current[id] === seen.current[id]);
+        return settled ? takeSnapshot(state, current) : takeSnapshot(initialSessionLike(state), current);
+      },
     }),
-    [state, values, bind, applyCandidate, form],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `values` is derived from `key`
+    [state, key, form],
   );
+}
+
+/** Same revisions with every confirmation withdrawn (used only for a not-yet-settled snapshot). */
+function initialSessionLike(state: SessionState): SessionState {
+  return {
+    inputRevision: state.inputRevision,
+    fields: Object.fromEntries(
+      FIELD_IDS.map((id) => [id, { ...state.fields[id], confirmedRevision: null }]),
+    ) as SessionState['fields'],
+  };
 }

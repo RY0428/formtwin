@@ -34,6 +34,8 @@ export function OutputPanel({ assets, session }: Props) {
   const [generated, setGenerated] = useState<Generated | undefined>();
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
+  /** Set when a generated PDF was invalidated by an edit; cleared by the next Create PDF. */
+  const [invalidated, setInvalidated] = useState(false);
 
   const stale = generated !== undefined && generated.inputRevision !== state.inputRevision;
 
@@ -41,6 +43,7 @@ export function OutputPanel({ assets, session }: Props) {
     if (!stale || generated === undefined) return;
     URL.revokeObjectURL(generated.url);
     setGenerated(undefined);
+    setInvalidated(true);
   }, [stale, generated]);
 
   useEffect(
@@ -54,6 +57,7 @@ export function OutputPanel({ assets, session }: Props) {
     const snapshot = session.snapshot();
     setBusy(true);
     setFailed(false);
+    setInvalidated(false);
     fillPdf({ template: assets.template, font: assets.font, layout: assets.layout, values: snapshot.values }).then(
       (r) => {
         setBusy(false);
@@ -84,7 +88,7 @@ export function OutputPanel({ assets, session }: Props) {
           The PDF could not be created.
         </Alert>
       )}
-      {stale && (
+      {(stale || invalidated) && (
         <Alert variant="warning" role="status">
           Values changed. Create the PDF again.
         </Alert>

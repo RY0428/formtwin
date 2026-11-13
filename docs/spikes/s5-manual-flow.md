@@ -44,3 +44,35 @@ Footer: PDL1.0 source credit for the form.
 - Real-device run on the Mac (deploy and try the flow; print one PDF).
 - PDF preview inside the app (pdf.js viewer + worker under the private CSP), the full UI/UX pass (Day 3–7),
   inactivity lock and `visibilitychange` handling (architecture.md §9.1), bundle size reduction.
+
+## 2026-11-13 — Hosted run after the Day 1–7 loop (developer's Mac, Chrome 157.0.8103.79, TEST profile)
+
+**Setup**
+- Signed package `isa-930004094-r1` (key `ft-d27d442d1434e11c`) verified at start-up. The footer shows the key and
+  no TEST KEY label.
+- Gemma 4 flag still enabled.
+
+**Results**
+- Prepare AI: 1,390,548 ms (about 23 min), including a model download. Availability was `downloadable` before.
+  The model that served the request is not recorded yet (Use Cases screenshot pending).
+- explore-03 extraction (prompt `spike-a-1`): 5,567 ms. All three fields correct: SANTOS MARIA CLARA,
+  JK24681357LM, 2026年12月01日.
+- Candidates → all fields checked → Create PDF: the page-1 preview was drawn with the values in the right places.
+- Network (7 requests): same-origin document, script, stylesheet, pdf.worker `.mjs` (200) and favicon; plus
+  `blob:` and `data:`. No other origin.
+- Console: no CSP errors. pdf.js warning `TT: undefined function: 0` (font hinting; rendering unaffected).
+
+**Problems found, and fixes (commit after this entry)**
+1. After an edit, the PDF and preview were removed, but the notice "Values changed. Create the PDF again." was
+   not shown. The invalidation effect cleared the stale state in the same pass. Fixed with a separate
+   `invalidated` state; covered by E2E.
+2. A candidate-filled, checked Given name was edited ("MARIA CLARe") and stayed checked. The developer did not
+   re-check it.
+   - Not reproduced in the container with select-and-type, insertText, Backspace+type or a composition sequence.
+   - Fix: value changes are now detected by comparing the watched values with the last values seen. Before, it
+     relied only on the input callback. Any input path now bumps the revision and withdraws the check.
+   - Confirming is accepted only for the value already registered. A PDF snapshot taken before a change is
+     registered treats every field as unchecked.
+   - To re-check on the device.
+3. Availability is refreshed after Prepare. A favicon is added (same-origin SVG).
+
