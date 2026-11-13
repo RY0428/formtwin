@@ -1,11 +1,16 @@
 {
-  "note": "In progress. Steps B, C and D (gate-01..10) of docs/eval/gate-runbook.md, transcribed from screenshots. gate-05 card number confirmed by a zoomed screenshot; gate-10 name diacritic pending confirmation.",
+  "set": "gate",
+  "run": "gate-2026-11-12-mac",
+  "note": "Gate judgement run per docs/eval/protocol.md (frozen fe793c2). Transcribed from screenshots; gate-05 number and gate-10 name confirmed with zoomed screenshots. Page was not reloaded during D.",
   "environment": {
     "url": "https://formtwin-dev-private.web.app",
     "profile": "TEST (no extensions)",
     "chrome": "157.0.8103.79",
     "sdk": "firebase 13.3.0",
-    "promptVersion": "spike-a-0"
+    "promptVersion": "spike-a-0",
+    "device": "developer MacBook (macOS, Intel per UA)",
+    "model": "nano_v3 (Gemma 4 flag Default)",
+    "schemaVersion": "0.0.0-provisional"
   },
   "pageFirstRun": [
     {
@@ -34,7 +39,7 @@
     "extractMs": 5528
   },
   "network": "Each reload: document, index-*.js (≈3.7 MB), favicon.ico, then blob: and data: only. No other origin.",
-  "gate": [
+  "runs": [
     {
       "file": "gate-01.png",
       "extractMs": 5088,
@@ -43,7 +48,8 @@
         "fullName": "SUZUKI KENTA",
         "residenceCardNumber": "GA10293847BC",
         "periodOfStayExpiry": "2027年05月20日"
-      }
+      },
+      "pageFirstRun": false
     },
     {
       "file": "gate-02.png",
@@ -53,7 +59,8 @@
         "fullName": "PEREZ GARCIA LUCIA",
         "residenceCardNumber": "GD56473829EF",
         "periodOfStayExpiry": "2028年01月09日"
-      }
+      },
+      "pageFirstRun": false
     },
     {
       "file": "gate-03.png",
@@ -63,7 +70,8 @@
         "fullName": "KIM MINJUN",
         "residenceCardNumber": "GH11223344JK",
         "periodOfStayExpiry": "2026年12月24日"
-      }
+      },
+      "pageFirstRun": false
     },
     {
       "file": "gate-04.png",
@@ -73,7 +81,8 @@
         "fullName": "OKAFOR CHINEDU EMEKA",
         "residenceCardNumber": "GL99001122MN",
         "periodOfStayExpiry": "2029年03月03日"
-      }
+      },
+      "pageFirstRun": false
     },
     {
       "file": "gate-05.png",
@@ -83,7 +92,8 @@
         "fullName": "TRAN THI HOA",
         "residenceCardNumber": "GP314159260R",
         "periodOfStayExpiry": "2027年10月31日"
-      }
+      },
+      "pageFirstRun": false
     },
     {
       "file": "gate-06.png",
@@ -93,7 +103,8 @@
         "fullName": "SILVA ANA PAULA",
         "residenceCardNumber": "GS27182818TU",
         "periodOfStayExpiry": "2028年07月14日"
-      }
+      },
+      "pageFirstRun": false
     },
     {
       "file": "gate-07.png",
@@ -103,7 +114,8 @@
         "fullName": "WANG JUNJIE",
         "residenceCardNumber": "GV16180339WX",
         "periodOfStayExpiry": "2027年02月28日"
-      }
+      },
+      "pageFirstRun": false
     },
     {
       "file": "gate-08.png",
@@ -113,7 +125,8 @@
         "fullName": "GUPTA PRIYA DEVI",
         "residenceCardNumber": "GY14142135ZA",
         "periodOfStayExpiry": "2029年09月09日"
-      }
+      },
+      "pageFirstRun": false
     },
     {
       "file": "gate-09.png",
@@ -123,7 +136,8 @@
         "fullName": "MULLER JONAS",
         "residenceCardNumber": "HB86753090CD",
         "periodOfStayExpiry": "2026年11月30日"
-      }
+      },
+      "pageFirstRun": false
     },
     {
       "file": "gate-10.png",
@@ -133,7 +147,31 @@
         "fullName": "SANTOS JOÃO PEDRO",
         "residenceCardNumber": "HE24682468FG",
         "periodOfStayExpiry": "2028年04月01日"
-      }
+      },
+      "pageFirstRun": false
+    },
+    {
+      "file": "gate-11.png",
+      "extractMs": 4665,
+      "timedOut": false,
+      "fields": {
+        "fullName": "IVANOVA OLGA",
+        "residenceCardNumber": "HH13579135JK",
+        "periodOfStayExpiry": "null"
+      },
+      "note": "Expiry shown as the literal string \"null\" (not a JSON null): the UI printed `null`, not `(not read)`.",
+      "pageFirstRun": false
+    },
+    {
+      "file": "gate-12.png",
+      "extractMs": 5316,
+      "timedOut": false,
+      "fields": {
+        "fullName": "NAKAMURA ERIKA",
+        "residenceCardNumber": null,
+        "periodOfStayExpiry": "2027年06月15日"
+      },
+      "pageFirstRun": false
     }
   ]
 }
