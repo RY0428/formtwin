@@ -91,4 +91,8 @@ Footer: PDL1.0 source credit for the form.
     It no longer depends only on remounting the panel.
   - Both apps now show the build commit (Diagnostics/footer; `+local` when built from uncommitted changes), so
     device reports can name the exact build.
+- **Verified on the device with Build ac0c241** (footer), 2026-11-13. The flow was: candidates, all checked, PDF
+  with preview, edit ("SANTO TEST") so the check is withdrawn and "Values changed" is shown, then End session.
+  Inputs and the notice were cleared. The network showed only the same origin, `blob:` and `data:` (7 requests).
+  The earlier report is attributed to a build made before the fix.
 

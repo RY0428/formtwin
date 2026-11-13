@@ -15,7 +15,7 @@ tests use throwaway keys generated at run time). Loop stops only when needed.
 - **G1 — close the Day 1–2 gate**
   - [ ] Public cloud path: hosted URL, production App Check (reCAPTCHA Enterprise), `ONLY_IN_CLOUD`, candidates
         from the approved original 930004094.pdf, `inferenceSource = IN_CLOUD` — verified on a real device
-  - [ ] Data separation: filled PDFs / arbitrary File / URL / unknown IDs rejected at the public entry (unit + E2E);
+  - [x] Data separation (private side verified on the hosted URL with Build ac0c241; public entry rejections unit/E2E): filled PDFs / arbitrary File / URL / unknown IDs rejected at the public entry (unit + E2E);
         no fictional personal data in private-side traffic (E2E; real-device Network check)
   - [x] Contest fit: recorded as pending (requirements §9, CLAUDE.md); answers still awaited
 - **G2 — the Day 3–7 scope works end to end**
@@ -95,3 +95,4 @@ release evaluation (20 new cards), bundle-size reduction, video.
   - Not verified yet (needs developer): G1 public cloud path with real App Check; G1 data separation on the real
     device; G2 end-to-end on hosted URLs; production package signature; CI run of the latest commit.
 - 2026-11-13: Developer signed the package (`ft-d27d442d1434e11c`); hosted private run recorded in docs/spikes/s5-manual-flow.md; two UI-state bugs found on the device and fixed (re-check pending).
+- 2026-11-13: B done on the device (Build ac0c241): signed package, extraction, preview, confirmation withdrawal, invalidation notice, end session, network same-origin only. Remaining: C (public cloud with real App Check).
