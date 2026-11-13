@@ -33,6 +33,10 @@ describe('formDefCandidateSchema', () => {
     expect(formDefCandidateSchema.safeParse({ fields: [] }).success).toBe(false);
   });
 
+  it('response schema avoids keywords the service rejected (minItems/maxItems, measured 2026-11-13)', () => {
+    expect(JSON.stringify(formDefCandidateResponseSchema)).not.toMatch(/minItems|maxItems|minimum|maximum|propertyOrdering/);
+  });
+
   it('response schema lists the same required properties as the Zod schema', () => {
     const items = formDefCandidateResponseSchema.properties.fields.items;
     expect([...items.required].sort()).toEqual(Object.keys(field).sort());

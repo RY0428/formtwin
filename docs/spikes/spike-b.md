@@ -160,3 +160,25 @@ Status: **implemented, fake-tested; NOT yet verified against the real service.**
   and the error detail.
 - No response body is kept, and variants are chosen by name only; no caller-supplied schema is accepted.
 
+## 2026-11-13 — Diagnostics result (build 011f7cb) and fix
+
+| Variant | Outcome | Valid candidate | Fields | ms |
+|---|---|---|---|---|
+| none | ok | no (own shape `document`/`pages`) | — | 8,901 |
+| json | ok | no (array instead of object) | — | 8,961 |
+| schema-s1 (enums only) | ok | no (semanticKey outside the enum, because there is no `nullable`) | — | 6,271 |
+| **schema-s2 (+ nullable)** | **ok** | **yes** | **20** | **5,819** |
+| schema-s3 (+ array minItems/maxItems) | 400 invalid argument | — | — | 3,577 |
+| schema-full (+ minimum/maximum/propertyOrdering) | 400 invalid argument | — | — | 2,482 |
+
+**Findings**
+- First successful hosted cloud analysis: `schema-s2`, with App Check (reCAPTCHA Enterprise) and `ONLY_IN_CLOUD`,
+  returned a valid 20-field candidate.
+- Cause of the 400: array `minItems`/`maxItems` in `responseSchema` are rejected by `gemini-3.5-flash-lite` through
+  AI Logic (measured). `minimum`/`maximum`/`propertyOrdering` were not isolated, so they are not used either.
+
+**Fix**
+- `formDefCandidateResponseSchema` now has the s2 shape: types, enums, `nullable` and `required`.
+- Counts, ranges and box order stay enforced by Zod on every response.
+- Prompt version `spike-b-1`.
+

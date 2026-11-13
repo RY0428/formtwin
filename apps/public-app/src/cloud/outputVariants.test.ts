@@ -11,6 +11,7 @@ describe('generationConfigFor', () => {
     expect(s('schema-s2')).not.toMatch(/minItems|minimum/);
     expect(s('schema-s3')).toContain('minItems');
     expect(s('schema-s3')).not.toMatch(/minimum|propertyOrdering/);
-    expect(s('schema-full')).toMatch(/minimum.*propertyOrdering|propertyOrdering.*minimum/s);
+    expect(s('schema-full')).toContain('nullable');
+    expect(s('schema-full')).not.toMatch(/minItems|maxItems/);
   });
 });

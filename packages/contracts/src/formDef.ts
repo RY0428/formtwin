@@ -56,15 +56,17 @@ export type FormDefCandidateField = FormDefCandidate['fields'][number];
 /**
  * The same shape as an OpenAPI-subset schema for `generationConfig.responseSchema`
  * (Firebase AI Logic `SchemaRequest`, firebase 13.3.0). Plain data: contracts has no SDK dependency.
- * The Zod schema above is still applied to every response.
+ *
+ * Measured 2026-11-13 (hosted diagnostics, gemini-3.5-flash-lite via AI Logic): adding array
+ * `minItems`/`maxItems` makes the service answer 400 "invalid argument", so the schema carries only
+ * types, enums, `nullable` and `required`. Counts, ranges and box order are enforced by the Zod schema
+ * above, which is applied to every response.
  */
 export const formDefCandidateResponseSchema = {
   type: 'object',
   properties: {
     fields: {
       type: 'array',
-      minItems: 1,
-      maxItems: FORM_DEF_CANDIDATE_MAX_FIELDS,
       items: {
         type: 'object',
         properties: {
@@ -73,11 +75,10 @@ export const formDefCandidateResponseSchema = {
           kind: { type: 'string', enum: [...FIELD_KINDS] },
           semanticKey: { type: 'string', enum: [...SEMANTIC_KEYS], nullable: true },
           status: { type: 'string', enum: [...MAPPING_STATUSES] },
-          page: { type: 'integer', minimum: 0, maximum: 50 },
-          box: { type: 'array', minItems: 4, maxItems: 4, items: { type: 'integer', minimum: 0, maximum: 1000 } },
+          page: { type: 'integer' },
+          box: { type: 'array', items: { type: 'integer' } },
         },
         required: ['labelJa', 'labelEn', 'kind', 'semanticKey', 'status', 'page', 'box'],
-        propertyOrdering: ['labelJa', 'labelEn', 'kind', 'semanticKey', 'status', 'page', 'box'],
       },
     },
   },

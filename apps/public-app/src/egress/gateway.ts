@@ -10,7 +10,7 @@ import { OUTPUT_VARIANTS, PRODUCTION_VARIANT, type OutputVariant } from '../clou
  * an approved catalog entry whose bundled bytes still match the approved SHA-256. There is no
  * API that accepts a File, Blob, URL, or arbitrary string.
  */
-export const FORM_ANALYSIS_PROMPT_VERSION = 'spike-b-0';
+export const FORM_ANALYSIS_PROMPT_VERSION = 'spike-b-1';
 
 function buildPrompt(source: ApprovedSource): string {
   return [

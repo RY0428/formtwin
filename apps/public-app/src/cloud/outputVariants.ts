@@ -7,7 +7,8 @@ import { SEMANTIC_KEYS } from '@formtwin/domain';
  * - none: no responseMimeType / schema
  * - json: responseMimeType application/json only
  * - schema-s1..s3: the candidate schema with constraints added step by step
- * - schema-full: the production schema (formDefCandidateResponseSchema)
+ * - schema-full: the production schema (formDefCandidateResponseSchema; same shape as s2 since
+ *   the 2026-11-13 diagnostics showed that s3's minItems/maxItems are rejected)
  */
 export const OUTPUT_VARIANTS = ['none', 'json', 'schema-s1', 'schema-s2', 'schema-s3', 'schema-full'] as const;
 export type OutputVariant = (typeof OUTPUT_VARIANTS)[number];
