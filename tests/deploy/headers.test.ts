@@ -71,3 +71,12 @@ describe('private-app CSP invariants (architecture.md §3.2)', () => {
     expect(d.has('report-to')).toBe(false);
   });
 });
+
+describe('public-app HTML caching', () => {
+  it('revalidates the HTML entry so a new deploy is picked up (assets are content-hashed)', () => {
+    const site = firebaseJson.hosting.find((s) => s.target === 'public');
+    const html = site?.headers.filter((h) => h.source === '/index.html' || h.source === '/') ?? [];
+    expect(html).toHaveLength(2);
+    for (const h of html) expect(h.headers).toContainEqual({ key: 'Cache-Control', value: 'no-cache' });
+  });
+});

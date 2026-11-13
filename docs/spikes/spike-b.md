@@ -223,3 +223,19 @@ file itself, and the candidate SHA-256 is recorded in the history.
 - The chain cloud candidate → human review → revision → signature → bundle now holds real data. Signing
   `isa-930004094-r2` is pending with the maintainer.
 
+## 2026-11-13 — Revision 2 signed and deployed (build 075e665)
+
+**Signing**
+- The maintainer signed `isa-930004094-r2` with `ft-d27d442d1434e11c`.
+- `npm run check:package` reports r1 and r2 ok and the current package signed. CI is green.
+
+**Hosted private app**
+- The footer shows `Form package isa-930004094-r2 (FormDef revision 2, signed by key ft-d27d442d1434e11c). Build 075e665.`
+- A manual-entry PDF preview places the values exactly as rev 1 did.
+
+**Hosted public app**
+- Review shows "adopted rev 2" with history `cloud-candidate — run-6dcda61f…, gemini-3.5-flash-lite, prompt spike-b-1`,
+  7 changes, and the green boxes at the same positions.
+- The first look showed the previous build (cached HTML). Fix: the public `/` and `/index.html` now send
+  `Cache-Control: no-cache` (assets are content-hashed). The private site already sends `no-store` for everything.
+
