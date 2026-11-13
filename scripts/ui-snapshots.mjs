@@ -68,6 +68,31 @@ try {
   shots.push(join(OUT, 'private-03-preview.png'));
   await page.getByRole('button', { name: 'End session and clear data' }).click();
   await snap('private-04-ended');
+  // Session lifecycle (M7): warning, lock, inactivity end. Uses Playwright's fake clock.
+  const life = await browser.newPage({ viewport: { width: 1100, height: 900 }, deviceScaleFactor: 1 });
+  await life.clock.install();
+  await open(life, 'http://localhost:4174/');
+  await life.getByTestId('boot-status').filter({ hasText: 'ready' }).waitFor();
+  await life.getByLabel(/^Family name/).fill('TANAKA');
+  await life.clock.fastForward('09:01');
+  await life.getByTestId('inactivity-warning').waitFor();
+  const lifeShot = async (name) => {
+    const path = join(OUT, `${name}.png`);
+    await life.screenshot({ path });
+    shots.push(path);
+  };
+  await lifeShot('private-05-warning');
+  await life.evaluate(() => {
+    Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  await life.getByTestId('lock-screen').waitFor();
+  await lifeShot('private-06-locked');
+  await life.getByRole('button', { name: 'Resume' }).click();
+  await life.clock.fastForward('10:01');
+  await life.getByTestId('ended-reason').waitFor();
+  await lifeShot('private-07-inactivity-ended');
+  await life.close();
 
   // public-app
   await open(page, 'http://localhost:4173/');

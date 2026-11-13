@@ -2,6 +2,7 @@ import type { ExtractionResult } from '@formtwin/contracts';
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { prepareFixedAssets, type FixedAssets } from '../bootstrap/fixedAssets.ts';
 import { PackageError } from '../packages/verifyPackage.ts';
+import { useSessionLifecycle, type EndReason } from '../privacy/session/useSessionLifecycle.ts';
 import {
   EXTRACTION_PROMPT_VERSION,
   FIREBASE_SDK_VERSION,
@@ -69,13 +70,13 @@ export function App() {
   const [error, setError] = useState<string | undefined>();
   const [busy, setBusy] = useState(false);
   const [timing, setTiming] = useState<Timing>({});
-  const [ended, setEnded] = useState(false);
+  const [ended, setEnded] = useState<EndReason | null>(null);
   const requests = useRef(new ExtractionRequests());
   const fileInput = useRef<HTMLInputElement>(null);
   const confirmClock = useRef<ConfirmClock>(undefined);
   const hasResult = useRef(false);
   const onManualEdit = useCallback(() => {
-    setEnded(false);
+    setEnded(null);
     if (confirmClock.current === undefined && !hasResult.current) {
       confirmClock.current = { kind: 'manual', startedAt: performance.now() };
       setTiming((t) => ({ ...t, manualMs: undefined }));
@@ -190,7 +191,7 @@ export function App() {
   }, [image]);
 
   const { reset: resetSession } = session;
-  const onEnd = useCallback(() => {
+  const clearSession = useCallback((reason: EndReason) => {
     requests.current.endSession();
     resetSession();
     setResult(undefined);
@@ -199,8 +200,13 @@ export function App() {
     setError(undefined);
     if (fileInput.current !== null) fileInput.current.value = '';
     confirmClock.current = undefined;
-    setEnded(true);
+    setEnded(reason);
   }, [resetSession]);
+  const lifecycle = useSessionLifecycle({ onEnd: clearSession });
+  const { end: endLifecycle } = lifecycle;
+  const onEnd = useCallback(() => {
+    endLifecycle('user');
+  }, [endLifecycle]);
 
   const extractEnabled = canExtract(ai) && image !== undefined && !busy;
 
@@ -222,6 +228,36 @@ export function App() {
       </header>
 
       <main className="mx-auto flex max-w-5xl flex-col gap-5 px-4 py-6">
+        {lifecycle.locked && (
+          <Card aria-labelledby="lock-heading" data-testid="lock-screen">
+            <CardHeader>
+              <CardTitle id="lock-heading">{COPY.lifecycle.lockedTitle}</CardTitle>
+              <CardDescription>{COPY.lifecycle.locked}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div>
+                <Button type="button" onClick={lifecycle.resume}>
+                  {COPY.lifecycle.resume}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        {lifecycle.warning && !lifecycle.locked && (
+          <Alert variant="warning" role="alert" data-testid="inactivity-warning" className="sticky top-2 z-20 shadow-md">
+            {COPY.lifecycle.warning}{' '}
+            <Button type="button" variant="link" size="sm" className="h-auto p-0">
+              {COPY.lifecycle.stay}
+            </Button>
+          </Alert>
+        )}
+        {ended !== null && ended !== 'user' && (
+          <Alert variant="info" role="status" data-testid="ended-reason">
+            <p>{COPY.lifecycle.endedBecause[ended]}</p>
+            <p className="mt-1">{COPY.end.cleared}</p>
+          </Alert>
+        )}
+        <div hidden={lifecycle.locked} className="flex flex-col gap-5" data-testid="session-content">
         <Alert variant="info">
           <p>{COPY.intro(title)}</p>
           <p className="mt-2 text-xs">{COPY.privacyNote}</p>
@@ -307,7 +343,7 @@ export function App() {
                     type="file"
                     accept="image/png,image/jpeg"
                     onChange={(e) => {
-                      setEnded(false);
+                      setEnded(null);
                       onFile(e.currentTarget.files?.[0]);
                     }}
                   />
@@ -380,7 +416,7 @@ export function App() {
                     {COPY.end.button}
                   </Button>
                 </div>
-                {ended && (
+                {ended === 'user' && (
                   <Alert variant="success" role="status">
                     <p>{COPY.end.cleared}</p>
                     <p className="mt-1">{COPY.end.limits}</p>
@@ -391,6 +427,7 @@ export function App() {
           </>
         )}
 
+        </div>
         <details className="rounded-xl border bg-white p-4 text-sm">
           <summary className="cursor-pointer font-medium" id="diag-heading">
             {COPY.diagnostics}

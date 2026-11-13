@@ -41,6 +41,20 @@ export const COPY = {
     limits:
       'This app cannot guarantee deletion of browser or operating-system history, memory, synced files, or backups.',
   },
+  lifecycle: {
+    lockedTitle: 'Session locked',
+    locked:
+      'This page was hidden, so its contents are covered. Select Resume to continue. Your inputs stay in this page’s memory until the session ends.',
+    resume: 'Resume',
+    warning: 'No activity for 9 minutes. The session will end in 1 minute and clear your inputs.',
+    stay: 'Keep working',
+    endedBecause: {
+      user: '',
+      inactivity: 'The session ended after 10 minutes without activity.',
+      restored: 'This page was restored from the browser’s back/forward history, so a new session was started.',
+      expired_while_locked: 'The session ended because it stayed locked for more than 10 minutes.',
+    },
+  },
   diagnostics: 'Diagnostics (no personal data)',
   testKey: 'TEST KEY — not for real use',
 } as const;
