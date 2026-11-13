@@ -40,8 +40,17 @@ Blank-field cards (reported only):
 Across the run: the document, `index-*.js`, `favicon.ico` (same origin), and `blob:` / `data:` entries only.
 No other origin.
 
+## PDF mis-fills after confirmation
+gate-01: the six checked values (SUZUKI / KENTA / 2027 / 05 / 20 / GA10293847BC) appear on page 1 of the saved PDF
+exactly (pdftotext); 7 pages, no AcroForm left, producer FormTwin. **0 mis-fills — pass.**
+
+## Correction time (report only)
+| Card | With candidates (Confirm time) | Manual entry | Note |
+|---|---|---|---|
+| gate-01 | 12.7 s | 52.8 s | extraction after idle took 16.5 s |
+
 ## Pending in this gate row
-- Correction time vs manual entry (gate-01…03) and the PDF mis-fill check (gate-01) — step E.
+- Correction time for gate-02 and gate-03 (step E).
 
 ## Findings to act on after the gate (do not change the recorded result)
 1. Treat a literal `"null"` / empty string from the model as "not read" before showing candidates.

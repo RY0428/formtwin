@@ -173,5 +173,28 @@
       },
       "pageFirstRun": false
     }
-  ]
+  ],
+  "correction": [
+    {
+      "file": "gate-01.png",
+      "extractMs": 16458,
+      "confirmMs": 12691,
+      "manualMs": 52805,
+      "note": "Extraction after an idle period took 16.5 s (model likely reloaded). An earlier manual attempt on gate-01 showed 99,471 ms; the recorded manual time is the final attempt."
+    }
+  ],
+  "pdfCheck": {
+    "file": "gate-01.png",
+    "checkedValues": {
+      "familyName": "SUZUKI",
+      "givenName": "KENTA",
+      "expiryYear": "2027",
+      "expiryMonth": "05",
+      "expiryDay": "20",
+      "residenceCardNumber": "GA10293847BC"
+    },
+    "pdfText": "SUZUKI / KENTA / 2027 年 05 月 20 日 / GA10293847BC",
+    "misfills": 0,
+    "pdfinfo": "7 pages, Form: none, producer FormTwin"
+  }
 }
