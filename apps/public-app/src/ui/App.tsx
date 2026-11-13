@@ -190,7 +190,7 @@ export function App() {
           <summary className="cursor-pointer font-medium">Diagnostics (cloud request variants)</summary>
           <p className="mt-2 text-muted-foreground">
             Sends the same approved original and prompt once per fixed output configuration (6 requests), to find which
-            configuration the service rejects. Nothing else can be sent.
+            configuration the service rejects. Only the approved original is sent.
           </p>
           <div className="mt-2">
             <Button type="button" variant="outline" size="sm" onClick={() => void runDiagnostics()} disabled={busy}>
