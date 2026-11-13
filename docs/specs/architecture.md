@@ -286,7 +286,7 @@ MVPで利用者の投稿領域（`submissions/`）は設けない。クラウド
 
 本人データをメモリだけで扱う。Dexie、IndexedDB、localStorage、sessionStorage、Cache Storage、OPFS、Query永続化、ブラウザ履歴にPIIを書かない。永続暗号化を前提にしないため、MVPでは保管庫用の鍵も作らない。公開アセットの通常HTTPキャッシュと本人データを混同しない。
 
-セッション状態は `preparing → active → locked / ending → ended` とする。`preparing` から `active` への必須条件は固定資産・パッケージ・PDF機能の準備成功であり、AI準備成功は必須条件にしない。AI状態は `not_started / preparing / ready / unavailable / failed / skipped` として別管理し、`ready` の場合だけ抽出を許可する。手入力で開始した後は同じセッション内でAI準備を再開しない。終了処理の最初に世代番号を無効化して追加処理を禁止する。続いて入力・ストア・モデルセッション・キュー・worker・画像・生成PDF・Object URLへの参照を破棄し、DOMをクリアする。Canvasの再初期化やバッファの上書きは可能な範囲で行うが、GC、GPU、OS領域の物理消去を保証しない。
+起動準備（固定資産・パッケージ・PDF機能の準備成功）の後、セッション状態は `active / locked` の2つとする（2026-11-13決定、M7実装に合わせた）。終了（本人操作・無操作期限・ロック中の期限切れ・bfcache復帰）は破棄処理を同期的に行い、直ちに新しい `active` セッションを開始する。独立した `ended` 状態は持たず、終了理由の表示だけを残す。無操作は入力操作（キー・ポインタ・入力イベント）だけで判定し、スクロールは数えない。AI準備成功は起動準備の必須条件にしない。AI状態は `not_started / preparing / ready / unavailable / failed / skipped` として別管理し、`ready` の場合だけ抽出を許可する。手入力で開始した後は同じセッション内でAI準備を再開しない。新セッションでは端末の事実（`ready`・`unavailable`・準備中）を引き継ぎ、前セッションの選択・失敗（`skipped`・`failed`）は `not_started` に戻してAI準備をやり直せるようにする。終了処理の最初に世代番号を無効化して追加処理を禁止する。続いて入力・ストア・モデルセッション・キュー・worker・画像・生成PDF・Object URLへの参照を破棄し、DOMをクリアする。Canvasの再初期化やバッファの上書きは可能な範囲で行うが、GC、GPU、OS領域の物理消去を保証しない。
 
 終了ボタンと無操作期限を用意する。`visibilitychange` で非表示になったら画面をロックし、復帰時に実時刻で期限を再評価する。タイマーだけを信用しない。`pagehide` ではベストエフォートで終了し、`pageshow` のbfcache復帰は新規セッションへ戻す。イベントが発火しないクラッシュでも、終了時に永続データを削除することへ安全性を依存させない。
 

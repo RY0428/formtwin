@@ -201,6 +201,7 @@ export function App() {
   const clearSession = useCallback((reason: EndReason) => {
     requests.current.endSession();
     resetSession();
+    dispatchAi({ type: 'newSession' });
     setBusy(false);
     setResult(undefined);
     setImage(undefined);

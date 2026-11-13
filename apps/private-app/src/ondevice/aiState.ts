@@ -19,12 +19,19 @@ export type AiEvent =
   | { type: 'succeeded'; attempt: number }
   | { type: 'unavailable'; attempt: number; reason: string }
   | { type: 'failed'; attempt: number; reason: string }
-  | { type: 'skip' };
+  | { type: 'skip' }
+  | { type: 'newSession' };
 
 export const initialAiState: AiState = { status: 'not_started', attempt: 0, progress: 0 };
 
 export function aiReducer(state: AiState, event: AiEvent): AiState {
   switch (event.type) {
+    // A new session keeps what is true of the device (ready, unavailable, a download in progress) and
+    // forgets the previous session's choice (skipped) or failure, so AI can be prepared again
+    // (requirements.md MVP 7). The attempt counter is kept, so late completions stay ignored.
+    case 'newSession':
+      if (state.status !== 'skipped' && state.status !== 'failed') return state;
+      return { status: 'not_started', attempt: state.attempt, progress: 0 };
     case 'start':
       if (state.status !== 'not_started') return state;
       return { status: 'preparing', attempt: state.attempt + 1, progress: 0 };

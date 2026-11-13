@@ -148,3 +148,12 @@ test('restore from back/forward cache starts a new session', async ({
   await expect(page.getByTestId('ended-reason')).toContainText('back/forward');
   await expect(family(page)).toHaveValue('');
 });
+
+test('a new session can prepare AI again after Continue without AI', async ({ page }) => {
+  await open(page);
+  await page.getByRole('button', { name: 'Continue without AI' }).click();
+  await expect(page.getByTestId('ai-status')).toHaveText('skipped');
+  await page.getByRole('button', { name: 'End session and clear data' }).click();
+  await expect(page.getByTestId('ai-status')).toHaveText('not_started');
+  await expect(page.getByRole('button', { name: 'Prepare AI' })).toBeEnabled();
+});
