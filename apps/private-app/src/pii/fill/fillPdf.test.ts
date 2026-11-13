@@ -1,4 +1,5 @@
-import { pdfLayoutSchema } from '@formtwin/contracts';
+import { formDefSchema, pdfLayoutSchema } from '@formtwin/contracts';
+import { toPdfLayout } from '../../packages/verifyPackage.ts';
 import { readFileSync } from 'node:fs';
 import { PDFDocument, PDFName } from 'pdf-lib';
 import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
@@ -99,8 +100,12 @@ describe('fillPdf (dummy form)', () => {
 
 describe('fillPdf (official form 930004094, page 1)', () => {
   const officialTemplate = new Uint8Array(readFileSync(new URL('../../../../../forms/sources/930004094.pdf', import.meta.url)));
-  const officialLayout = pdfLayoutSchema.parse(
-    JSON.parse(readFileSync(new URL('forms/official/930004094.layout.json', assets), 'utf8')),
+  const officialLayout = toPdfLayout(
+    formDefSchema.parse(
+      JSON.parse(
+        readFileSync(new URL('../../../../../forms/defs/isa-930004094/rev-1.formdef.json', import.meta.url), 'utf8'),
+      ),
+    ),
   );
 
   it('fills name, expiry date parts and card number (fictional values)', async () => {

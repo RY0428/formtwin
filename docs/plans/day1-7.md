@@ -59,9 +59,9 @@ release evaluation (20 new cards), bundle-size reduction, video.
 - [ ] Developer (Mac): keygen → sign → commit public key + signature
 
 ### M3 — private-app on the signed package
-- [ ] `private-app/src/packages` verification (signature, hashes, compatibility) replacing `bootstrap/fixedAssets.ts`
-- [ ] Field bindings drive `fillPdf`
-- [ ] Rejection tests: bad signature, forged hash, incompatible, revoked, out-of-range coordinates
+- [x] `private-app/src/packages` verification (signature, hashes, compatibility) replacing `bootstrap/fixedAssets.ts`
+- [x] Field bindings drive `fillPdf`
+- [x] Rejection tests: bad signature, forged hash, incompatible, revoked, out-of-range coordinates
 
 ### M4 — private UI and state
 - [ ] Tailwind + shadcn/ui (pinned, dependency-log)
@@ -83,3 +83,4 @@ release evaluation (20 new cards), bundle-size reduction, video.
 - 2026-11-13: plan approved; loop started.
 - 2026-11-13: M1 code done (fake-tested, docs/spikes/spike-b.md). Waiting for the developer's reCAPTCHA/App Check setup; continuing with M2.
 - 2026-11-13: M2 code done (contracts, scripts, rev 1, throwaway-key round trip). Waiting for the developer's key + signature; continuing with M3 (unsigned builds refuse to start).
+- 2026-11-13: M3 done. private-app verifies the signed package at start-up (virtual:form-package); E2E builds use a throwaway key; an unsigned production build refuses entry → the developer must sign before the next private deploy.

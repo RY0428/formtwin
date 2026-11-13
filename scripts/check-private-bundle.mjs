@@ -18,6 +18,8 @@ const FORBIDDEN = [
   ['localStorage.setItem', 'localStorage write'],
   ['sessionStorage.setItem', 'sessionStorage write'],
   ['serviceWorker.register', 'Service worker'],
+  ['testKey:!0', 'E2E throwaway signing key'],
+  ['testKey: true', 'E2E throwaway signing key'],
 ];
 
 function* walk(dir) {

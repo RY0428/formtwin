@@ -50,7 +50,7 @@ Status: **approved for bundling (2026-11-12).** Unmodified copy at `forms/source
 6. 別紙 業種一覧 (business types, not submitted).
 7. 別紙 職種一覧 (occupations, not submitted).
 
-## MVP target fields on page 1 — layout `apps/private-app/assets/forms/official/930004094.layout.json`
+## MVP target fields on page 1 — FormDef `forms/defs/isa-930004094/rev-1.formdef.json` (was the Spike C layout JSON)
 
 Measured 2026-11-12 from `pdftotext -bbox` word positions, then checked visually (pdf.js render,
 `docs/spikes/spike-c/official-p1.png`): values sit on the underline, inside each slot.

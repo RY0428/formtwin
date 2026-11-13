@@ -1,4 +1,4 @@
-/** Output fields of the MVP form (layout ids in 930004094.layout.json). */
+/** Output fields of the MVP form (field ids in forms/defs/isa-930004094/rev-1.formdef.json). */
 export const FIELD_IDS = [
   'familyName',
   'givenName',

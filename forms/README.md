@@ -29,6 +29,11 @@ forms/
 6. `node scripts/forms/verify-package.mjs <packageId>` checks the signature with the committed public key and
    re-hashes every file. private-app runs the same verification at start-up, before any personal data is accepted.
 
+private-app bundles the package through `apps/private-app/vite-plugin-form-package.ts`.
+A production build without `manifest.sig.json` and a matching public key still builds, but the app
+refuses entry (`unsigned`). Sign the package before deploying private-app. E2E builds sign an in-memory
+manifest with a throwaway key, and the page labels it "TEST KEY".
+
 Revision 1 of `isa-930004094` comes from the hand-measured Spike C layout (`origin: manual-layout`).
 No cloud candidate has been adopted yet.
 

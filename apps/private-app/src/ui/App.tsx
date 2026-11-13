@@ -1,6 +1,7 @@
 import type { ExtractionResult } from '@formtwin/contracts';
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
-import { FORM_SOURCE, prepareFixedAssets, type FixedAssets } from '../bootstrap/fixedAssets.ts';
+import { prepareFixedAssets, type FixedAssets } from '../bootstrap/fixedAssets.ts';
+import { PackageError } from '../packages/verifyPackage.ts';
 import {
   EXTRACTION_PROMPT_VERSION,
   FIREBASE_SDK_VERSION,
@@ -36,7 +37,12 @@ interface Timing {
 /** Start point of the correction-time measurement. Timing only; no personal data. */
 type ConfirmClock = { readonly kind: 'candidates' | 'manual'; readonly startedAt: number } | undefined;
 
-type Bootstrap = { status: 'preparing' } | { status: 'ready'; assets: FixedAssets } | { status: 'failed' };
+type Bootstrap =
+  | { status: 'preparing' }
+  | { status: 'ready'; assets: FixedAssets }
+  | { status: 'failed'; reason: string };
+
+const FORM_TITLE = 'Application for Extension of Period of Stay (Form 30-2, applicant part 1)';
 
 function failureCode(e: unknown): string {
   if (e instanceof OnDeviceError) return e.code;
@@ -76,8 +82,8 @@ export function App() {
       (assets) => {
         if (live) setBoot({ status: 'ready', assets });
       },
-      () => {
-        if (live) setBoot({ status: 'failed' });
+      (e: unknown) => {
+        if (live) setBoot({ status: 'failed', reason: e instanceof PackageError ? e.code : 'assets_invalid' });
       },
     );
     llm.availability().then(
@@ -180,7 +186,7 @@ export function App() {
     <main>
       <h1>FormTwin</h1>
       <p>
-        Fill in the {FORM_SOURCE.title} on this device. Use fictional sample data only. This app supports checking
+        Fill in the {boot.status === 'ready' ? boot.assets.pkg.formDef.title : FORM_TITLE} on this device. Use fictional sample data only. This app supports checking
         your own entries; it does not judge eligibility or give legal advice.
       </p>
 
@@ -190,7 +196,10 @@ export function App() {
           Form status: <output data-testid="boot-status">{boot.status}</output>
         </p>
         {boot.status === 'failed' && (
-          <p role="alert">The bundled form could not be verified. Entry is disabled.</p>
+          <p role="alert">
+            The bundled form package could not be verified (<code data-testid="boot-reason">{boot.reason}</code>).
+            Entry is disabled.
+          </p>
         )}
       </section>
 
@@ -343,7 +352,16 @@ export function App() {
       </section>
 
       <footer>
-        <p>{FORM_SOURCE.credit}</p>
+        {boot.status === 'ready' && (
+          <>
+            <p>{boot.assets.pkg.formDef.credit}</p>
+            <p data-testid="package-info">
+              Form package {boot.assets.pkg.manifest.packageId} (FormDef revision {boot.assets.pkg.formDef.formDefRevision},
+              signed by key {boot.assets.pkg.manifest.keyId}
+              {boot.assets.pkg.testKey ? ', TEST KEY — not for real use' : ''}).
+            </p>
+          </>
+        )}
       </footer>
     </main>
   );

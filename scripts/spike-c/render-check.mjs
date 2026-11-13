@@ -17,9 +17,17 @@ const template = new Uint8Array(
   readFileSync(official ? new URL('../../forms/sources/930004094.pdf', import.meta.url) : new URL('forms/dummy-form.pdf', assets)),
 );
 const font = new Uint8Array(readFileSync(new URL('fonts/BIZUDGothic-Regular.ttf', assets)));
-const layout = JSON.parse(
-  readFileSync(new URL(official ? 'forms/official/930004094.layout.json' : 'forms/dummy-form.layout.json', assets), 'utf8'),
-);
+const layout = official
+  ? (() => {
+      // Official form: coordinates come from the reviewed FormDef revision (forms/defs).
+      const def = JSON.parse(readFileSync(new URL('../../forms/defs/isa-930004094/rev-1.formdef.json', import.meta.url), 'utf8'));
+      return {
+        formId: def.formId,
+        sourcePdfSha256: def.sourcePdfSha256,
+        fields: def.fields.map((f) => ({ kind: 'coordinateText', id: f.fieldId, ...f.placement })),
+      };
+    })()
+  : JSON.parse(readFileSync(new URL('forms/dummy-form.layout.json', assets), 'utf8'));
 
 const cases = official
   ? {
