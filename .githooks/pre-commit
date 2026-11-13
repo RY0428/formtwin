@@ -1,0 +1,4 @@
+#!/bin/sh
+# Git pre-commit hook (enabled by `npm ci` via the "prepare" script: core.hooksPath=.githooks).
+# Scans the staged blobs for secrets at the moment of the commit (CLAUDE.md rule 7).
+exec node "$(git rev-parse --show-toplevel)/scripts/check-secrets.mjs" "$(git rev-parse --show-toplevel)" --staged

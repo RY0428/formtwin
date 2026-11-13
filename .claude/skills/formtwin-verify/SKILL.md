@@ -19,7 +19,9 @@ An edit that applied is **not** "done". An item is done only after these steps p
 4. **Device-relevant flow?** Make sure `tests/e2e/device-flows.spec.ts` covers the same steps as the real-device checklist. A bug found on a device gets a failing E2E first, then the fix.
 5. **Milestone end:** run the `formtwin-reviewer` subagent on the milestone diff. Fix every blocking finding and re-run step 1.
 6. **Record:** update the loop progress file (`docs/plans/day8-12.md`: verify result, review result, attempts, commit), `docs/development-history.md`, and the relevant spike/decision docs. Frozen values go in `docs/decisions.md` *before* implementation.
-7. **Commit and push** (the PreToolUse hook re-runs the secret scan). Commit messages end with the attribution lines from the system reminder.
+7. **Commit and push.** Two secret checks run: the Claude PreToolUse hook (before the Bash call; it cannot see files
+   created in the same command) and the git pre-commit hook `.githooks/pre-commit` (staged blobs, at commit time;
+   enabled by `npm ci` via `prepare`). Commit messages end with the attribution lines from the system reminder.
 
 ## Rules
 - Failure → fix → restart from step 1. **Three failed attempts on the same item → stop and report** (what failed, what was tried).

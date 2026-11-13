@@ -20,7 +20,8 @@
     "check:package": "node scripts/forms/check-current-package.mjs",
     "check:invariants": "node scripts/check-invariants.mjs",
     "check:secrets": "node scripts/check-secrets.mjs",
-    "ui:snapshots": "npm run build:e2e -w @formtwin/private-app && npm run build:e2e -w @formtwin/public-app && node scripts/ui-snapshots.mjs"
+    "ui:snapshots": "npm run build:e2e -w @formtwin/private-app && npm run build:e2e -w @formtwin/public-app && node scripts/ui-snapshots.mjs",
+    "prepare": "git config core.hooksPath .githooks || true"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
