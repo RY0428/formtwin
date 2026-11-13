@@ -117,3 +117,24 @@ Status: **implemented, fake-tested; NOT yet verified against the real service.**
 - Real response quality: whether the box coordinates are usable, and whether the labels are copied exactly.
 - Whether limited-use tokens add noticeable latency or cost on Spark.
 - Replay protection is not enforced in the console yet (optional).
+
+## 2026-11-13 — First hosted run (developer's Mac, build 648e7d2)
+
+**What worked**
+- App Check registered: web app `formtwin`, provider Fraud Defense (reCAPTCHA Enterprise), TTL 1 h.
+- AI Logic enforcement: basic enforced, replay off.
+- reCAPTCHA Enterprise script and widget loaded (200).
+- `exchangeRecaptchaEnterpriseToken` returned 200, so **an App Check token was obtained on the real device.**
+
+**What failed**
+- `generateContent` (`gemini-3.5-flash-lite`) returned **400 Bad Request**, shown as `request_failed`
+  (logged `unknown`).
+- About 9 CSP violations: reCAPTCHA fetches `https://www.google.com/recaptcha/enterprise/clr?k=…`, which is not
+  in `connect-src`.
+
+**Changes**
+- `connect-src` += `https://www.google.com/recaptcha/` (observed host only).
+- The public gateway now shows the SDK error text, truncated (`detail`), in the UI and log, so the 400 reason can be
+  read. The public side handles only the approved blank original.
+- The 400 cause is open until the response body is read.
+

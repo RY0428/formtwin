@@ -40,6 +40,13 @@ function analyzer(response: { text: string; inferenceSource: string | undefined 
 
 const okResponse = { text: JSON.stringify(CANDIDATE), inferenceSource: 'in_cloud' };
 
+describe('errorDetail', () => {
+  it('flattens and truncates', async () => {
+    const { errorDetail } = await import('./gateway.ts');
+    expect(errorDetail(new Error('x'.repeat(900)))).toHaveLength(600);
+  });
+});
+
 describe('EgressGateway', () => {
   it.each([
     ['unknown id', 'other-form'],
@@ -88,8 +95,8 @@ describe('EgressGateway', () => {
   });
 
   it('logs a started request that throws as unknown, not as unsent', async () => {
-    const g = new EgressGateway(analyzer(new Error('network')));
-    expect(await g.analyzeApprovedForm('ok')).toEqual({ ok: false, reason: 'request_failed' });
+    const g = new EgressGateway(analyzer(new Error('network\n  down')));
+    expect(await g.analyzeApprovedForm('ok')).toEqual({ ok: false, reason: 'request_failed', detail: 'Error: network down' });
     expect(g.entries().map((e) => e.status)).toEqual(['planned', 'started', 'unknown']);
   });
 

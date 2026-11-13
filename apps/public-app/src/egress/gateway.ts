@@ -38,6 +38,8 @@ export interface RequestLogEntry {
   readonly model: string;
   readonly endpointHost: string;
   readonly reason: string | null;
+  /** SDK/service error text, truncated. Public side only: requests carry only an approved blank original. */
+  readonly detail: string | null;
 }
 
 export type AnalysisOutcome =
@@ -49,7 +51,7 @@ export type AnalysisOutcome =
       readonly model: string;
       readonly promptVersion: string;
     }
-  | { readonly ok: false; readonly reason: GatewayError };
+  | { readonly ok: false; readonly reason: GatewayError; readonly detail?: string };
 
 export type GatewayError =
   | 'not_approved'
@@ -65,6 +67,13 @@ function toBase64(bytes: Uint8Array): string {
     s += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
   }
   return btoa(s);
+}
+
+/** Short, single-line error text for the public audit view (no request or response bodies). */
+export function errorDetail(e: unknown): string {
+  const raw = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
+  const line = raw.replace(/\s+/g, ' ').trim();
+  return line.length > 600 ? `${line.slice(0, 599)}…` : line;
 }
 
 function newRunId(): string {
@@ -85,7 +94,12 @@ export class EgressGateway {
     return [...this.log];
   }
 
-  private record(status: RequestStatus, source: ApprovedSource | undefined, reason: string | null): void {
+  private record(
+    status: RequestStatus,
+    source: ApprovedSource | undefined,
+    reason: string | null,
+    detail: string | null = null,
+  ): void {
     this.seq += 1;
     this.log.push({
       seq: this.seq,
@@ -96,6 +110,7 @@ export class EgressGateway {
       model: this.analyzer.model,
       endpointHost: this.analyzer.endpointHost,
       reason,
+      detail,
     });
     this.onLog(this.entries());
   }
@@ -126,10 +141,11 @@ export class EgressGateway {
           pdfBase64: toBase64(source.bytes),
           prompt: buildPrompt(source),
         }));
-      } catch {
+      } catch (e: unknown) {
         // Once started, a failure is not "not sent": the request may have reached the service.
-        this.record('unknown', source, 'request_failed');
-        return { ok: false, reason: 'request_failed' };
+        const detail = errorDetail(e);
+        this.record('unknown', source, 'request_failed', detail);
+        return { ok: false, reason: 'request_failed', detail };
       }
       if (inferenceSource !== 'in_cloud') {
         this.record('failed', source, 'source_mismatch');

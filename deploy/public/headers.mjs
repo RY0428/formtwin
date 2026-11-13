@@ -12,7 +12,7 @@ export const publicCsp = [
   "font-src 'self'",
   "worker-src 'self'",
   "frame-src https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/",
-  "connect-src 'self' https://firebasevertexai.googleapis.com https://content-firebaseappcheck.googleapis.com",
+  "connect-src 'self' https://firebasevertexai.googleapis.com https://content-firebaseappcheck.googleapis.com https://www.google.com/recaptcha/",
   "manifest-src 'none'",
   "form-action 'none'",
   "object-src 'none'",

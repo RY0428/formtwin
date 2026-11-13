@@ -48,7 +48,7 @@ export function App() {
         promptVersion: out.promptVersion,
         candidate: out.candidate,
       });
-    else setError(REASON_TEXT[out.reason] ?? 'Analysis failed.');
+    else setError((REASON_TEXT[out.reason] ?? 'Analysis failed.') + (out.detail ? ` Details: ${out.detail}` : ''));
     setBusy(false);
   }
 
@@ -188,6 +188,7 @@ export function App() {
                   {e.status} — form {e.formId ?? '(none)'} — prompt {e.promptVersion} — model {e.model} — to{' '}
                   {e.endpointHost}
                   {e.reason ? ` — ${e.reason}` : ''}
+                  {e.detail ? ` — ${e.detail}` : ''}
                 </li>
               ))}
             </ol>
