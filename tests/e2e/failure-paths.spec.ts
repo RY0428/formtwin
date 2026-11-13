@@ -78,5 +78,39 @@ test('cancelling AI preparation: a late completion does not switch to AI', async
   await expect(page.getByTestId('ai-status')).toHaveText('failed');
   await page.getByLabel(/^Family name/).fill('SANTOS');
   await expect(page.getByLabel(/^Family name/)).toHaveValue('SANTOS');
+  await page.getByLabel('Residence card image (JPEG or PNG)').setInputFiles('data/eval/explore/explore-03.png');
+  await expect(page.getByAltText('Selected sample')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Extract on this device' })).toBeDisabled();
   expect(foreign).toEqual([]);
+});
+
+test('after a time-out and End session, the new session waits for the old device call', async ({ page }) => {
+  const foreign = await open(page, { availability: 'available', response: VALID, delayMs: 40_000 });
+  await prepareAndExtract(page);
+  await page.clock.fastForward('00:31');
+  await expect(page.getByTestId('error')).toHaveText('timeout');
+  await page.getByRole('button', { name: 'End session and clear data' }).click();
+  await expect(page.getByTestId('extract-finishing')).toBeVisible();
+  await page.getByLabel('Residence card image (JPEG or PNG)').setInputFiles('data/eval/explore/explore-03.png');
+  await expect(page.getByAltText('Selected sample')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Extract on this device' })).toBeDisabled();
+  await page.clock.fastForward('00:45');
+  await expect(page.getByTestId('extract-finishing')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /^Use name/ })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Extract on this device' })).toBeEnabled();
+  expect(await prompts(page)).toBe(1);
+  expect(foreign).toEqual([]);
+});
+
+test('ending during extraction: no retry on the ended request, no stacked request', async ({ page }) => {
+  await open(page, { availability: 'available', response: '', responses: ['not json', VALID], delayMs: 5_000 });
+  await prepareAndExtract(page);
+  await page.getByRole('button', { name: 'End session and clear data' }).click();
+  await page.getByLabel('Residence card image (JPEG or PNG)').setInputFiles('data/eval/explore/explore-03.png');
+  await expect(page.getByAltText('Selected sample')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Extract on this device' })).toBeDisabled();
+  await page.clock.fastForward('00:20');
+  await expect(page.getByRole('button', { name: 'Extract on this device' })).toBeEnabled();
+  expect(await prompts(page)).toBe(1);
+  await expect(page.getByRole('button', { name: /^Use name/ })).toHaveCount(0);
 });

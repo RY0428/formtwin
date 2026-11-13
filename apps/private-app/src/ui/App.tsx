@@ -69,9 +69,12 @@ export function App() {
   const [previewUrl, setPreviewUrl] = useState<string | undefined>();
   const [result, setResult] = useState<ExtractionResult | undefined>();
   const [error, setError] = useState<string | undefined>();
+  // `busy`: the current request is waiting for its answer (per session; cleared on end).
   const [busy, setBusy] = useState(false);
-  // A timed-out device call that has not returned yet (it cannot be aborted): no new request meanwhile.
-  const [finishing, setFinishing] = useState(false);
+  // `deviceBusy`: a device call from any run is still running. It outlives sessions and time-outs because
+  // the call cannot be aborted (SDK 13.3.0), so it is never reset by End session. One run at a time.
+  const [deviceBusy, setDeviceBusy] = useState(false);
+  const deviceRun = useRef(0);
   const [timing, setTiming] = useState<Timing>({});
   const [ended, setEnded] = useState<EndReason | null>(null);
   const requests = useRef(new ExtractionRequests());
@@ -158,7 +161,9 @@ export function App() {
   }, [ai.attempt]);
 
   const onFile = useCallback((file: File | undefined) => {
+    // Any running request is now stale; its device call still gates Extract through `deviceBusy`.
     requests.current.newDocument();
+    setBusy(false);
     setResult(undefined);
     setError(undefined);
     setImage(undefined);
@@ -178,34 +183,36 @@ export function App() {
 
   const onExtract = useCallback(() => {
     if (image === undefined) return;
+    if (deviceRun.current !== 0) return;
     const request = requests.current.begin();
+    const runId = Date.now();
+    deviceRun.current = runId;
+    setDeviceBusy(true);
     setBusy(true);
     setError(undefined);
     setResult(undefined);
     const started = performance.now();
     // 30 s limit and at most one retry for invalid output (docs/decisions.md). On-device only.
-    const run = runExtraction(() => llm.extract(image));
-    run.idle.then(
-      () => {
-        setFinishing(false);
-      },
-      () => undefined,
-    );
+    // The retry only runs while this request is still current (not after End session or a new image).
+    const run = runExtraction(() => llm.extract(image), { shouldRetry: () => requests.current.isCurrent(request) });
+    void run.idle.then(() => {
+      if (deviceRun.current === runId) {
+        deviceRun.current = 0;
+        setDeviceBusy(false);
+      }
+    });
     run.result.then(
       (r) => {
-        setBusy(false);
         if (!requests.current.settle(request)) return;
+        setBusy(false);
         setTiming((t) => ({ ...t, extractMs: performance.now() - started, confirmMs: undefined }));
         confirmClock.current = { kind: 'candidates', startedAt: performance.now() };
         setResult(r);
       },
       (e: unknown) => {
-        setBusy(false);
-        const code = failureCode(e);
-        // The device call keeps running after a time-out; block new requests until it returns.
-        if (code === 'timeout') setFinishing(true);
         if (!requests.current.settle(request)) return;
-        setError(code);
+        setBusy(false);
+        setError(failureCode(e));
       },
     );
   }, [image]);
@@ -230,7 +237,7 @@ export function App() {
     endLifecycle('user');
   }, [endLifecycle]);
 
-  const extractEnabled = canExtract(ai) && image !== undefined && !busy && !finishing;
+  const extractEnabled = canExtract(ai) && image !== undefined && !busy && !deviceBusy;
 
   const ms = (v: number | undefined) => (v === undefined ? '-' : `${Math.round(v)} ms`);
   const title = boot.status === 'ready' ? boot.assets.pkg.formDef.title : FORM_TITLE;
@@ -418,7 +425,7 @@ export function App() {
                   </Alert>
                 )}
                 {busy && <p role="status">{COPY.candidates.extracting}</p>}
-                {finishing && !busy && (
+                {deviceBusy && !busy && (
                   <p role="status" data-testid="extract-finishing" className="text-sm text-muted-foreground">
                     {COPY.candidates.finishing}
                   </p>

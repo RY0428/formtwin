@@ -88,4 +88,13 @@ describe('runExtraction', () => {
     expect(await code(run.result)).toBe(c);
     expect(run.attempts()).toBe(1);
   });
+
+  it('does not retry once the request is no longer current', async () => {
+    const run = runExtraction(() => Promise.reject(new OnDeviceError('invalid_output')), {
+      ...manualTimer(),
+      shouldRetry: () => false,
+    });
+    expect(await code(run.result)).toBe('invalid_output');
+    expect(run.attempts()).toBe(1);
+  });
 });

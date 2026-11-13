@@ -36,7 +36,7 @@ export interface ExtractionRun {
  */
 export function runExtraction(
   extract: () => Promise<ExtractionResult>,
-  opts: { timeoutMs?: number; setTimer?: SetTimer } = {},
+  opts: { timeoutMs?: number; setTimer?: SetTimer; shouldRetry?: () => boolean } = {},
 ): ExtractionRun {
   const timeoutMs = opts.timeoutMs ?? EXTRACTION_TIMEOUT_MS;
   const setTimer = opts.setTimer ?? defaultTimer;
@@ -56,7 +56,8 @@ export function runExtraction(
     try {
       return await Promise.race([call, limit]);
     } catch (e) {
-      if (e instanceof OnDeviceError && e.code === 'invalid_output' && attempts < MAX_ATTEMPTS) return attempt();
+      const retryable = e instanceof OnDeviceError && e.code === 'invalid_output' && attempts < MAX_ATTEMPTS;
+      if (retryable && (opts.shouldRetry?.() ?? true)) return attempt();
       throw e;
     } finally {
       cancel();
