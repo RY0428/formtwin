@@ -68,9 +68,9 @@ release evaluation (20 new cards), bundle-size reduction, video.
 - [x] Central copy (`private-app/src/ui/copy.ts`)
 - [x] React Hook Form wired to the session contract
 - [x] Stale-request discard (`requestId`, `documentRevision`)
-- [ ] pdf.js preview (bundled worker, CSP)
-- [ ] End-screen wording per architecture 9.3
-- [ ] E2E: manual, fake on-device, offline, edit invalidates PDF, late result discarded
+- [x] pdf.js preview (bundled worker, CSP)
+- [x] End-screen wording per architecture 9.3
+- [x] E2E: manual, fake on-device, offline, edit invalidates PDF, late result discarded
 
 ### M5 — public review screen and adoption history
 - [ ] Candidate boxes over the original (pdf.js); diff vs adopted; history vs live candidate
@@ -87,3 +87,4 @@ release evaluation (20 new cards), bundle-size reduction, video.
 - 2026-11-13: M3 done. private-app verifies the signed package at start-up (virtual:form-package); E2E builds use a throwaway key; an unsigned production build refuses entry → the developer must sign before the next private deploy.
 - 2026-11-13: M4 step 1: Tailwind 4 + local shadcn/ui-pattern components in both apps, restyled screens, central copy; CSP unchanged.
 - 2026-11-13: M4 step 2: React Hook Form owns values (useSessionForm use cases; reducer keeps only revisions/confirmations); ExtractionRequests (session generation, request id, document revision) discards stale responses; E2E for a late result.
+- 2026-11-13: M4 done: pdf.js page-1 preview (worker bundled and started at bootstrap before PII, font faces disabled, no CSP change); screenshot docs/spikes/s5-preview-fictional.png (fictional values). Removed `bluetooth` from Permissions-Policy (unrecognized by Chrome). Real-device check of the hosted worker (.mjs MIME on Firebase Hosting) pending.

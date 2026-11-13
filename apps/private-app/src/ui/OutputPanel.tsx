@@ -5,6 +5,7 @@ import { FIELD_LABELS, type FieldId } from '../pii/session/fields.ts';
 import type { SessionForm } from '../pii/session/useSessionForm.ts';
 import { Alert } from './components/alert.tsx';
 import { Button } from './components/button.tsx';
+import { PdfPreview } from './PdfPreview.tsx';
 
 interface Props {
   assets: FixedAssets;
@@ -14,6 +15,7 @@ interface Props {
 interface Generated {
   readonly inputRevision: number;
   readonly url: string;
+  readonly bytes: Uint8Array;
   readonly left: readonly { id: FieldId; reason: string }[];
 }
 
@@ -60,7 +62,7 @@ export function OutputPanel({ assets, session }: Props) {
           ...r.notFilled.map((n) => ({ id: n.id as FieldId, reason: n.reason })),
         ];
         const url = URL.createObjectURL(new Blob([r.bytes as BlobPart], { type: 'application/pdf' }));
-        setGenerated({ inputRevision: snapshot.inputRevision, url, left });
+        setGenerated({ inputRevision: snapshot.inputRevision, url, bytes: r.bytes, left });
       },
       () => {
         setBusy(false);
@@ -104,6 +106,7 @@ export function OutputPanel({ assets, session }: Props) {
               </ul>
             </>
           )}
+          <PdfPreview bytes={generated.bytes} />
           <div>
             <Button asChild>
               <a href={generated.url} download="formtwin-filled-form.pdf">

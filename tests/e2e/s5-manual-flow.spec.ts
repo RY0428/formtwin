@@ -57,6 +57,7 @@ test('manual entry without AI, offline, produces a partial PDF with confirmed va
   await expect(page.getByTestId('left-blank')).toContainText('Residence card number');
   await expect(page.getByTestId('left-blank')).toContainText('not checked');
   await expect(page.getByText('partially filled')).toBeVisible();
+  await expect(page.getByTestId('pdf-preview')).toHaveAttribute('data-state', 'done');
 
   const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('link', { name: 'Save PDF' }).click()]);
   expect(download.suggestedFilename()).toBe('formtwin-filled-form.pdf');
