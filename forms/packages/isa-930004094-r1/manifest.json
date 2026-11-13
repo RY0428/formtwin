@@ -1,0 +1,38 @@
+{
+  "manifestVersion": 1,
+  "packageId": "isa-930004094-r1",
+  "formId": "isa-930004094",
+  "formDefRevision": 1,
+  "schemaVersion": 1,
+  "ontologyVersion": "0.0.0-provisional",
+  "minAppVersion": "0.1.0",
+  "status": "active",
+  "createdAt": "2026-11-13",
+  "keyId": "ft-d27d442d1434e11c",
+  "files": [
+    {
+      "path": "forms/sources/930004094.pdf",
+      "role": "sourcePdf",
+      "sha256": "f4a84e52db12074d9e007d0228fc8116c9f522dd6d4ad3dde920c6ee2bbecab3",
+      "size": 306403
+    },
+    {
+      "path": "forms/defs/isa-930004094/rev-1.formdef.json",
+      "role": "formDef",
+      "sha256": "70505aae3277774966346e902076886f67f7325d97c2746fa192db1e0787e7f3",
+      "size": 2151
+    },
+    {
+      "path": "apps/private-app/assets/fonts/BIZUDGothic-Regular.ttf",
+      "role": "font",
+      "sha256": "709fcd41e3209fb765da750472f55ccdf925653e9fa7e1eb007cb65c8f749c75",
+      "size": 4667376
+    },
+    {
+      "path": "forms/history/isa-930004094/rev-1.history.json",
+      "role": "history",
+      "sha256": "ade7916c65e31a0bdad3e9d445e7936a558d9c482baef6a8d3eb8e91337a8f7a",
+      "size": 1215
+    }
+  ]
+}

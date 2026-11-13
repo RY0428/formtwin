@@ -1,0 +1,9 @@
+{
+  "keyId": "ft-d27d442d1434e11c",
+  "jwk": {
+    "kty": "EC",
+    "crv": "P-256",
+    "x": "aR-fshYtOmiorv6MCCnxYvXLMIDjmnShqijjrn8-HEk",
+    "y": "RiF2PC-RaRXA4LUoJx5BMBDm7hUzL0qeWKIkdHhVY1s"
+  }
+}
