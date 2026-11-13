@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { FixedAssets } from '../bootstrap/fixedAssets.ts';
 import { fillPdf } from '../pii/fill/fillPdf.ts';
 import { FIELD_LABELS, type FieldId } from '../pii/session/fields.ts';
@@ -34,6 +34,15 @@ export function OutputPanel({ assets, session }: Props) {
   const [generated, setGenerated] = useState<Generated | undefined>();
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
+  // The panel is keyed on the session generation: once unmounted (session ended), a late PDF is dropped
+  // before an object URL is created for it.
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
   // Invalidation notice lives in the session so that ending the session always clears it.
   const { pdfInvalidated: invalidated, setPdfInvalidated: setInvalidated } = session;
 
@@ -60,6 +69,7 @@ export function OutputPanel({ assets, session }: Props) {
     setInvalidated(false);
     fillPdf({ template: assets.template, font: assets.font, layout: assets.layout, values: snapshot.values }).then(
       (r) => {
+        if (!mounted.current) return;
         setBusy(false);
         const left = [
           ...snapshot.excluded,

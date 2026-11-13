@@ -161,9 +161,16 @@ export function App() {
     setImage(undefined);
     setPreviewUrl(undefined);
     if (file === undefined) return;
-    prepareImage(file).then(setImage, (e: unknown) => {
-      setError(failureCode(e));
-    });
+    // A decode that finishes after the session ended or another file was chosen is dropped.
+    const token = requests.current.documentToken();
+    prepareImage(file).then(
+      (img) => {
+        if (requests.current.isDocument(token)) setImage(img);
+      },
+      (e: unknown) => {
+        if (requests.current.isDocument(token)) setError(failureCode(e));
+      },
+    );
   }, []);
 
   const onExtract = useCallback(() => {
@@ -194,6 +201,7 @@ export function App() {
   const clearSession = useCallback((reason: EndReason) => {
     requests.current.endSession();
     resetSession();
+    setBusy(false);
     setResult(undefined);
     setImage(undefined);
     setPreviewUrl(undefined);
@@ -255,6 +263,7 @@ export function App() {
           <Alert variant="info" role="status" data-testid="ended-reason">
             <p>{COPY.lifecycle.endedBecause[ended]}</p>
             <p className="mt-1">{COPY.end.cleared}</p>
+            <p className="mt-1 text-xs">{COPY.end.limits}</p>
           </Alert>
         )}
         <div hidden={lifecycle.locked} className="flex flex-col gap-5" data-testid="session-content">

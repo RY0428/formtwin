@@ -31,4 +31,15 @@ describe('ExtractionRequests', () => {
     expect(q.settle(r)).toBe(false);
     expect(q.settle(q.begin())).toBe(true);
   });
+
+  it('document token: valid until the image changes or the session ends', () => {
+    const r = new ExtractionRequests();
+    const t = r.documentToken();
+    expect(r.isDocument(t)).toBe(true);
+    r.newDocument();
+    expect(r.isDocument(t)).toBe(false);
+    const t2 = r.documentToken();
+    r.endSession();
+    expect(r.isDocument(t2)).toBe(false);
+  });
 });

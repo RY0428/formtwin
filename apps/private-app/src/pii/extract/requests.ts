@@ -11,6 +11,11 @@ export interface ExtractionRequest {
   readonly documentRevision: number;
 }
 
+export interface DocumentToken {
+  readonly sessionGeneration: number;
+  readonly documentRevision: number;
+}
+
 export class ExtractionRequests {
   private sessionGeneration = 0;
   private documentRevision = 0;
@@ -27,6 +32,16 @@ export class ExtractionRequests {
   endSession(): void {
     this.sessionGeneration += 1;
     this.newDocument();
+  }
+
+  /** Marks the current image document; see {@link isDocument}. */
+  documentToken(): DocumentToken {
+    return { sessionGeneration: this.sessionGeneration, documentRevision: this.documentRevision };
+  }
+
+  /** True while the session and the image document are unchanged since the token was taken. */
+  isDocument(t: DocumentToken): boolean {
+    return t.sessionGeneration === this.sessionGeneration && t.documentRevision === this.documentRevision;
   }
 
   /** Starts a request; any earlier one becomes stale. */

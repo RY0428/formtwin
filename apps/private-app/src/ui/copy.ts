@@ -44,7 +44,7 @@ export const COPY = {
   lifecycle: {
     lockedTitle: 'Session locked',
     locked:
-      'This page was hidden, so its contents are covered. Select Resume to continue. Your inputs stay in this page’s memory until the session ends.',
+      'This page was hidden, so its contents are covered. Select Resume to continue. Your inputs are kept in this page only while the session is open.',
     resume: 'Resume',
     warning: 'No activity for 9 minutes. The session will end in 1 minute and clear your inputs.',
     stay: 'Keep working',
