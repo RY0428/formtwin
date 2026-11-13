@@ -85,6 +85,10 @@ test('editing after PDF creation withdraws the confirmation and invalidates the 
   await expect(page.getByText('Values changed. Create the PDF again.')).toBeVisible();
   const row = page.locator('div', { has: page.getByLabel(/^Family name/) }).last();
   await expect(row.getByLabel('Checked against my card')).not.toBeChecked();
+  await page.getByRole('button', { name: 'End session and clear data' }).click();
+  await expect(page.getByText('Values changed. Create the PDF again.')).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Save PDF' })).toHaveCount(0);
+  await expect(page.getByLabel(/^Family name/)).toHaveValue('');
 });
 
 test('AI candidates are applied only on request and stay unconfirmed', async ({ page }) => {

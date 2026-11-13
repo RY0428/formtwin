@@ -365,7 +365,7 @@ export function App() {
                 <CardDescription>{COPY.steps.output.description}</CardDescription>
               </CardHeader>
               <CardContent>
-                <OutputPanel assets={boot.assets} session={session} />
+                <OutputPanel key={session.generation} assets={boot.assets} session={session} />
               </CardContent>
             </Card>
 

@@ -76,3 +76,12 @@ Footer: PDL1.0 source credit for the form.
    - To re-check on the device.
 3. Availability is refreshed after Prepare. A favicon is added (same-origin SVG).
 
+### Re-check after the fixes (2026-11-13, hosted)
+- Verified on the device:
+  - Editing a checked field ("SANTO X") withdraws its check.
+  - "Values changed. Create the PDF again." is shown, and the PDF and preview are removed.
+- New finding: the notice stayed visible after "End session and clear data", because the reset changes
+  `inputRevision` too.
+  - Fixed: the output panel is keyed on a session generation that increases on every end, so it starts fresh.
+  - Covered by E2E.
+

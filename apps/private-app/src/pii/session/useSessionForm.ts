@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useReducer, useRef } from 'react';
+import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { FIELD_IDS, type FieldId } from './fields.ts';
 import {
@@ -21,6 +21,8 @@ import {
  */
 export interface SessionForm {
   readonly state: SessionState;
+  /** Increases on every session end; UI parts keyed on it start fresh. */
+  readonly generation: number;
   readonly values: Readonly<FieldValues>;
   /** Props for an input bound to the form. */
   readonly bind: (id: FieldId) => ReturnType<ReturnType<typeof useForm<FieldValues>>['register']>;
@@ -35,6 +37,7 @@ export function useSessionForm(onManualEdit?: () => void): SessionForm {
   const form = useForm<FieldValues>({ defaultValues: EMPTY_VALUES, shouldUnregister: false });
   const [state, dispatch] = useReducer(sessionReducer, undefined, initialSession);
   const values = { ...EMPTY_VALUES, ...(useWatch({ control: form.control }) as Partial<FieldValues>) };
+  const [generation, setGeneration] = useState(0);
   const seen = useRef<FieldValues>(EMPTY_VALUES);
   /** Fields whose next change comes from an explicitly chosen candidate. */
   const pendingCandidate = useRef(new Set<FieldId>());
@@ -59,6 +62,7 @@ export function useSessionForm(onManualEdit?: () => void): SessionForm {
   return useMemo(
     () => ({
       state,
+      generation,
       values,
       bind: (id: FieldId) => form.register(id),
       applyCandidate: (next: Partial<Record<FieldId, string>>) => {
@@ -82,6 +86,7 @@ export function useSessionForm(onManualEdit?: () => void): SessionForm {
         pendingCandidate.current.clear();
         form.reset(EMPTY_VALUES);
         dispatch({ type: 'reset' });
+        setGeneration((g) => g + 1);
       },
       snapshot: () => {
         const current = { ...EMPTY_VALUES, ...form.getValues() };
@@ -91,7 +96,7 @@ export function useSessionForm(onManualEdit?: () => void): SessionForm {
       },
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `values` is derived from `key`
-    [state, key, form],
+    [state, key, form, generation],
   );
 }
 

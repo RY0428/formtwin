@@ -235,6 +235,23 @@ triggered. Chrome's model-selection rule is not documented (inference, not confi
 take precedence). Decision (developer): record and continue with Spike B; a retry on a clean Chrome channel
 (no Nano installed) may be done later without touching the working setup.
 
+### 2026-11-13 — Gemma 4 downloaded on the hosted run (developer's Mac)
+With `#gemma4-for-built-in-ai` still enabled, the hosted app reported availability `downloadable`.
+
+**Download and use cases**
+- Prepare AI took 1,390,548 ms (about 23 min), including the download.
+- Afterwards, `chrome://on-device-internals` showed:
+  - Assets: `gemma4_component` 2026.8.7.929 **Ready**; `nano_v3_gpu_component` Ready.
+  - Use cases: `prompt_api` and `prompt_api_gemma4` both **Requested** and Available.
+
+**Extraction**
+- explore-03, prompt `spike-a-1`: 5,567 ms; 3/3 fields correct.
+
+⇒ Gemma 4 was requested and available when this extraction ran. Chrome does not report which model served an
+individual Prompt API call, so the serving model is **not confirmed**: it is recorded as "with Gemma 4
+requested", not as "by Gemma 4". The earlier observation (flag on, no download, `nano_v3` only) was the state
+before Chrome fetched the Gemma 4 asset.
+
 ## Open questions
 
 1. CSP for the image path: keep `'none'` (image extraction impossible) or allow `data:` only in
