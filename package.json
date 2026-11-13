@@ -22,7 +22,8 @@
     "check:secrets": "node scripts/check-secrets.mjs",
     "ui:snapshots": "npm run build:e2e -w @formtwin/private-app && npm run build:e2e -w @formtwin/public-app && node scripts/ui-snapshots.mjs",
     "prepare": "git config core.hooksPath .githooks || true",
-    "test:hosted": "playwright test -c playwright.hosted.config.ts --trace off"
+    "test:hosted": "playwright test -c playwright.hosted.config.ts --trace off",
+    "device:check": "node scripts/device/device-check.mjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
