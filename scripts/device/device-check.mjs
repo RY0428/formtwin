@@ -46,11 +46,11 @@ async function launch() {
   });
 }
 
-async function ensureFlags() {
+async function ensureFlags(wanted = Object.fromEntries(FLAGS.map((f) => [f, 'Enabled']))) {
   let ctx = await launch();
   const page = ctx.pages()[0] ?? (await ctx.newPage());
   let changed = false;
-  for (const flag of FLAGS) {
+  for (const [flag, label] of Object.entries(wanted)) {
     await page.goto(`chrome://flags/#${flag}`);
     const select = page.locator(`#${flag} select`).first();
     if ((await select.count()) === 0) {
@@ -58,11 +58,11 @@ async function ensureFlags() {
       continue;
     }
     const current = await select.evaluate((s) => s.options[s.selectedIndex]?.textContent?.trim());
-    if (current !== 'Enabled') {
-      await select.selectOption({ label: 'Enabled' });
+    if (current !== label) {
+      await select.selectOption({ label });
       changed = true;
     }
-    report.flags[flag] = 'Enabled';
+    report.flags[flag] = label;
   }
   if (changed) {
     log('Chrome flags changed; restarting Chrome.');
@@ -116,15 +116,47 @@ async function waitAi(page, timeoutMs) {
 }
 
 async function main() {
-  const ctx = await ensureFlags();
+  let ctx = await ensureFlags();
   report.chrome = ctx.browser()?.version() ?? null;
   try {
     // ④ Cancel during preparation (only possible while the model is not installed yet).
     let { page, foreign } = await openApp(ctx);
+    // A fresh profile can take minutes before Chrome answers LanguageModel.availability().
     let availability = await text(page, 'availability');
-    for (let i = 0; i < 30 && availability === 'checking'; i += 1) {
-      await page.waitForTimeout(500);
-      availability = await text(page, 'availability');
+    for (let i = 0; availability === 'checking' && i < 5; i += 1) {
+      log(`waiting for Chrome to report AI availability (${(i + 1) * 60} s max ${5 * 60} s); reloading the page each minute`);
+      for (let j = 0; j < 60 && availability === 'checking'; j += 1) {
+        await page.waitForTimeout(1000);
+        availability = await text(page, 'availability');
+      }
+      if (availability === 'checking') {
+        ({ page, foreign } = await openApp(ctx));
+        availability = await text(page, 'availability');
+      }
+    }
+    if (availability === 'checking' && report.flags['gemma4-for-built-in-ai'] === 'Enabled') {
+      // Fallback: the Gemma 4 flag in a fresh profile may keep Chrome from answering. Retry without it.
+      log('no answer with the Gemma 4 flag; setting it to Default and restarting Chrome');
+      report.gemma4FallbackFrom = 'Enabled';
+      await ctx.close();
+      ctx = await ensureFlags({ 'prompt-api-multimodal-input': 'Enabled', 'gemma4-for-built-in-ai': 'Default' });
+      ({ page, foreign } = await openApp(ctx));
+      for (let j = 0; j < 180 && (availability = await text(page, 'availability')) === 'checking'; j += 1) await page.waitForTimeout(1000);
+    }
+    if (availability === 'checking') {
+      // Diagnostics without personal data: what Chrome reports, and its feature switches.
+      report.diagnostics = await page.evaluate(async () => {
+        const lm = globalThis.LanguageModel;
+        const res = { languageModelGlobal: typeof lm };
+        if (lm) {
+          res.availabilityPlain = await Promise.race([lm.availability().catch((e) => `error ${e}`), new Promise((r) => setTimeout(() => r('no answer in 10 s'), 10_000))]);
+        }
+        return res;
+      });
+      const v = await ctx.newPage();
+      await v.goto('chrome://version');
+      report.diagnostics.commandLine = ((await v.locator('#command_line').innerText().catch(() => '')) || '').replace(/--user-data-dir=\S+/, '--user-data-dir=<profile>');
+      await v.close();
     }
     report.availabilityAtStart = availability;
     if (availability === 'available') {
