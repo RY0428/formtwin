@@ -17,24 +17,24 @@ tests use throwaway keys generated at run time). Loop stops only when needed.
         from the approved original 930004094.pdf, `inferenceSource = IN_CLOUD` — verified on a real device
   - [ ] Data separation: filled PDFs / arbitrary File / URL / unknown IDs rejected at the public entry (unit + E2E);
         no fictional personal data in private-side traffic (E2E; real-device Network check)
-  - [ ] Contest fit: record the Discord answers, or record "pending" without blocking later work
+  - [x] Contest fit: recorded as pending (requirements §9, CLAUDE.md); answers still awaited
 - **G2 — the Day 3–7 scope works end to end**
-  - [ ] Public: analysis by approved ID only, shown as "unadopted candidate"; review overlay on the original with
+  - [x] Public: analysis by approved ID only, shown as "unadopted candidate"; review overlay on the original with
         the difference from the adopted revision
-  - [ ] Review → sign → bundle chain: candidate → human diff → review record → `formDefRevision` → manifest
+  - [x] Review → sign → bundle chain: candidate → human diff → review record → `formDefRevision` → manifest
         (hashes, versions, `keyId`) → signature → bundled in private-app; adoption history with `analysisRunId`
-  - [ ] Private: signature / hash / compatibility verified at start-up before any PII; failure blocks input;
+  - [x] Private: signature / hash / compatibility verified at start-up before any PII; failure blocks input;
         PDF filling driven by the signed FormDef field bindings
-  - [ ] One English flow: prepare (AI optional) → image → on-device extraction → explicit adoption → confirm all
+  - [x] One English flow: prepare (AI optional) → image → on-device extraction → explicit adoption → confirm all
         fields → PDF preview (pdf.js under CSP) → save → end; also manual-only and offline
-  - [ ] UI: Tailwind + shadcn/ui in both apps; copy centralised; keyboard operable; `aria-live` state changes;
+  - [x] UI: Tailwind + shadcn/ui in both apps; copy centralised; keyboard operable; `aria-live` state changes;
         no guarantee wording
-  - [ ] State contract: React Hook Form owns edit values; edits withdraw confirmation and invalidate the PDF;
+  - [x] State contract: React Hook Form owns edit values; edits withdraw confirmation and invalidate the PDF;
         stale extraction results discarded; manual edits never overwritten
 - **G3 — quality**
   - [ ] `npm run verify` green (lint, typecheck, unit, bundle check, E2E for both apps) and CI green
-  - [ ] Private CSP stays `connect-src data:`; public CSP adds only observed hosts
-  - [ ] Docs updated (spike-b.md, development-history, specs together if changed); implemented vs verified reported
+  - [x] Private CSP stays `connect-src data:`; public CSP adds only observed hosts
+  - [x] Docs updated (spike-b.md, development-history, specs together if changed); implemented vs verified reported
 
 Out of scope (Day 8+): Firestore rules/ops, monitoring, spend caps, inactivity lock and bfcache recovery,
 release evaluation (20 new cards), bundle-size reduction, video.
@@ -76,9 +76,9 @@ release evaluation (20 new cards), bundle-size reduction, video.
 - [x] Candidate boxes over the original (pdf.js); diff vs adopted; history vs live candidate
 
 ### M6 — wrap-up
-- [ ] E2E both apps, basic a11y (keyboard, labels)
-- [ ] spike-b.md, development-history, README, CLAUDE.md status/phase
-- [ ] Consolidated real-device checklist for the developer
+- [x] E2E both apps, basic a11y (keyboard, labels)
+- [x] spike-b.md, development-history, README, CLAUDE.md status/phase
+- [x] Consolidated real-device checklist for the developer
 
 ## Log
 - 2026-11-13: plan approved; loop started.
@@ -89,3 +89,8 @@ release evaluation (20 new cards), bundle-size reduction, video.
 - 2026-11-13: M4 step 2: React Hook Form owns values (useSessionForm use cases; reducer keeps only revisions/confirmations); ExtractionRequests (session generation, request id, document revision) discards stale responses; E2E for a late result.
 - 2026-11-13: M4 done: pdf.js page-1 preview (worker bundled and started at bootstrap before PII, font faces disabled, no CSP change); screenshot docs/spikes/s5-preview-fictional.png (fictional values). Removed `bluetooth` from Permissions-Policy (unrecognized by Chrome). Real-device check of the hosted worker (.mjs MIME on Firebase Hosting) pending.
 - 2026-11-13: M5 done: public review view (pdf.js original, adopted boxes solid green, live candidate dashed amber, comparison by semantic key, adoption history, candidate export JSON for promote-forms). Screenshot with the FAKE analyzer: docs/spikes/spike-b-review-fake.png.
+- 2026-11-13: M6 done (a11y basics E2E, README/CLAUDE.md, docs/plans/device-checklist-day7.md). Loop stopped: remaining
+  goal items need the developer (real-device evidence). Status:
+  - Implemented and container-verified (fake models, throwaway key): all G2 items, G3 verify.
+  - Not verified yet (needs developer): G1 public cloud path with real App Check; G1 data separation on the real
+    device; G2 end-to-end on hosted URLs; production package signature; CI run of the latest commit.

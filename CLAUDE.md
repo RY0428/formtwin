@@ -24,13 +24,14 @@
 9. 「PII漏えいゼロ」「端末に残るもの0件」等の保証文言を表示しない。
 10. 二つのSPAは別オリジン・別ビルド。相互 import 禁止（lintで強制）。
 
-## 現在の状況（2026-11-12時点）
+## 現在の状況（2026-11-13時点）
 
 - スパイクA: 実機（Mac・Chrome 157・`nano_v3`）で公開URL・本番CSP・通信断まで確認済み。Gemini Nano 4 の証拠は運営回答待ち。`docs/spikes/spike-a.md`
 - スパイクC: 公式様式 930004094.pdf（PDL1.0）1ページ目へ記入確認済み。フォント BIZ UDゴシック全体埋込み。`docs/spikes/spike-c.md`
 - S5: 手入力→確認→部分記入PDF の導線を実装、コンテナ E2E・実機（公開URL・実AI）で確認済み。`docs/spikes/s5-manual-flow.md`
 - 重要欄ゲート: 凍結プロトコル（`docs/eval/protocol.md`, `fe793c2`）で判定済み・合格（`docs/eval/gate-results.md`）。要修正: モデルの文字列 `"null"`、印字に無い発音記号
-- 未着手: スパイクB（公開側クラウド・App Check）
+- スパイクB: 実装・fake 試験済み（承認済みID→ハッシュ再確認→App Check(reCAPTCHA Enterprise)→`ONLY_IN_CLOUD`→`IN_CLOUD`確認→未採用候補表示）。実サービス未実行（ユーザーの reCAPTCHA キー・App Check 登録待ち）。`docs/spikes/spike-b.md`
+- Day 3–7 範囲（ループ `docs/plans/day1-7.md`）: 署名済みフォームパッケージ（`forms/`、ES256、秘密鍵はリポジトリ外）、本人側の起動時検証、Tailwind + shadcn/ui 形式部品、React Hook Form、古い抽出結果の破棄、pdf.js プレビュー、公開側レビュー画面を実装。未署名の本番ビルドは入力拒否 → private の次回 deploy 前にユーザーが鍵生成・署名
 - SDK 注意: `LanguageModel` global が無い環境では `ONLY_ON_DEVICE` でもクラウドへ送信される（@firebase/ai 3.1.0 のコードで確認）。`FirebaseOnDeviceLLM` のガードを外さない。
 - Node 24（`.nvmrc`）。@firebase/ai 3.x の要件。
 - 2026-11-12 hackathon manager へ3点を再送 → 2026-11-13 返信「技術的質問は Discord #hackathon-help（#BuildHybridAI タグ）で技術チームへ」。Discord で質問（①② は 2026-11-13 #hackathon-help に投稿、回答待ち）:
@@ -39,7 +40,9 @@
   3. 「Gemini Nano 4」→ 2026-11-13 Discord 既存スレッドで運営が Firebase チーム回答を転記:「Firebase AI Logic SDK 経由ならよい。chrome://flags の Gemma 4 for built-in AI 有効化が必要な場合あり」。Gemma 4 有効時も検証する → 2026-11-13 フラグ有効（`model_version/v4`）でも `prompt_api` は nano_v3、Gemma 4 未DL。記録済み・本線（スパイクB）優先
   - 承認済み・規約違反確定のどちらとしても扱わない。回答待ちでも実装・実機検証は進める。本人情報のクラウドフォールバックは回答にかかわらず導入しない。
 
-## 現フェーズ: Day 1–2 成立ゲート（requirements.md 6章）
+## 現フェーズ: Day 1–7 実装済み・実機確認待ち（次は Day 8–12、requirements.md 8.2）
+
+以下は Day 1–2 の優先順（記録として残す）。
 
 優先順:
 1. モノレポ雛形（npm workspaces: `apps/public-app`, `apps/private-app`, `packages/domain`, `packages/contracts`）、TypeScript strict、ESLint（boundaries）、Vitest
