@@ -1,5 +1,9 @@
 # Gate results — key fields (2026-11-12/13, developer's Mac)
 
+**Verdict: PASS** for the gate row 「重要欄」 (requirements.md §6) under the frozen protocol: accuracy and unread
+thresholds, warm extraction p95 ≤ 15 s, and 0 PDF mis-fills after confirmation. Per-field confirmation stays
+mandatory. This does not cover the release evaluation (20 new cards) or the Gemini Nano 4 question.
+
 Protocol: `docs/eval/protocol.md`, frozen at `fe793c2`; gate set generated after the freeze (`3b775c8`).
 Run: `data/eval/results/gate-2026-11-12-mac.json` (transcribed from screenshots; gate-05 number and gate-10 name
 confirmed with zoomed screenshots). Scored with `scripts/eval/score.mjs`. Judged once; nothing was tuned on the gate set.
@@ -49,12 +53,12 @@ exactly (pdftotext); 7 pages, no AcroForm left, producer FormTwin. **0 mis-fills
 |---|---|---|---|
 | gate-01 | 12.7 s | 52.8 s | extraction after idle took 16.5 s |
 | gate-02 | 30.1 s | 45.5 s* | *typed values were gate-03's (6-field typing sample) |
+| gate-03 | 10.0 s | 36.0 s | |
+| median | 12.7 s | 45.5 s | candidates + check ≈ 3.6× faster than typing |
 
 Name split: for `PEREZ GARCIA LUCIA` the developer chose family `PEREZ` / given `GARCIA LUCIA`. With two surnames the
 card alone does not show where the family name ends — this is why the app offers all splits and never chooses.
 
-## Pending in this gate row
-- Correction time for gate-03 (step E).
 
 ## Findings to act on after the gate (do not change the recorded result)
 1. Treat a literal `"null"` / empty string from the model as "not read" before showing candidates.

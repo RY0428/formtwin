@@ -188,6 +188,12 @@
       "confirmMs": 30112,
       "manualMs": 45533,
       "note": "Name split chosen: family PEREZ / given GARCIA LUCIA (the card does not say which part is the family name). The manual-entry screenshot shows the gate-03 values (KIM MINJUN …) typed; manual time is a 6-field typing sample, not tied to gate-02."
+    },
+    {
+      "file": "gate-03.png",
+      "extractMs": 7008,
+      "confirmMs": 9956,
+      "manualMs": 36005
     }
   ],
   "pdfCheck": {
