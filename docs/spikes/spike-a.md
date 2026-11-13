@@ -218,13 +218,30 @@ chrome://flags and search for Gemma 4 on built-in AI and enable it." (seen by th
 Prompt now asks for character-by-character copying (no diacritics added, no spelling correction, no letter↔digit
 swaps, JSON null for blanks). Placeholder strings are normalized to null in the adapter. Not yet run on a device.
 
+### 2026-11-13 — `#gemma4-for-built-in-ai` enabled (developer's Mac)
+
+Chrome 157.0.8103.79 (macOS), Performance Class Medium. Flag options are only Default / Enabled; set to Enabled
+and Chrome relaunched. `chrome://version` command line contains
+`--enable-features=AIApiFoundationalModel:model_version/v4,OptimizationGuideManifestBroker`, so the flag is active.
+Manifest criteria all true (feature flag, enterprise policy, user setting, VRAM 5461/3000 MiB, device capable, disk).
+
+After the hosted app's Prepare AI:
+- Assets: `gemma4_component` 2026.8.7.929 **Not Installed 0%**; `nano_v3_gpu_component` 2025.8.8.1141 Ready.
+- Use cases: `prompt_api` Requested, Available; `prompt_api_gemma4` not requested, Pending Usage.
+- Models: `gemma4_gpu_low_tier_model` 0 MiB; `nano_v3_gpu_low_tier_model` 4,088.14 MiB (GPU).
+
+⇒ On this device the app's Prompt API request is still served by `nano_v3`; the Gemma 4 download is not
+triggered. Chrome's model-selection rule is not documented (inference, not confirmed: an installed Nano may
+take precedence). Decision (developer): record and continue with Spike B; a retry on a clean Chrome channel
+(no Nano installed) may be done later without touching the working setup.
+
 ## Open questions
 
 1. CSP for the image path: keep `'none'` (image extraction impossible) or allow `data:` only in
    `connect-src` (no network origin). Requires updating all three spec documents.
 2. Evidence that the on-device model is Gemini Nano 4. Observed labels: `nano_v3` (ready, serves `prompt_api`) and
-   `gemma4` (not installed, `prompt_api_gemma4` pending). Need an official mapping and, if needed, a way to
-   make `prompt_api` use the right model.
+   `gemma4` (not installed, `prompt_api_gemma4` pending — also with the Gemma 4 flag enabled, 2026-11-13). Organizer:
+   on-device via Firebase AI Logic is acceptable. Gemma 4 run on this device: not achieved.
 3. Whether the multimodal flag (`#prompt-api-multimodal-input`) is still needed in the current Chrome stable.
 4. Heartbeat IndexedDB write (measured): accept as non-personal SDK metadata and document, or find a
    supported way to avoid it. Decision pending.
