@@ -83,3 +83,79 @@ export const formDefCandidateResponseSchema = {
   },
   required: ['fields'],
 } as const;
+
+// ---------------------------------------------------------------------------------------------
+// Reviewed FormDef revision (architecture.md §5, §8.2–8.3). Produced only by human review
+// (scripts/forms/promote-forms.mjs); bundled into private-app inside a signed package.
+
+/** Reviewed conversion rules. FormDef never carries code or free expressions (architecture.md §5.2). */
+export const TRANSFORM_IDS = ['identity', 'name.family', 'name.given', 'date.year', 'date.month', 'date.day'] as const;
+export type TransformId = (typeof TRANSFORM_IDS)[number];
+
+const TRANSFORM_KEY: Record<TransformId, (typeof SEMANTIC_KEYS)[number] | null> = {
+  identity: null,
+  'name.family': 'fullName',
+  'name.given': 'fullName',
+  'date.year': 'periodOfStayExpiry',
+  'date.month': 'periodOfStayExpiry',
+  'date.day': 'periodOfStayExpiry',
+};
+
+const fieldIdString = z.string().regex(/^[a-z][a-zA-Z0-9]{0,63}$/);
+const sha256 = z.string().regex(/^[0-9a-f]{64}$/);
+
+export const formDefFieldSchema = z
+  .object({
+    fieldId: fieldIdString,
+    labelJa: label,
+    labelEn: label,
+    semanticKey: z.enum(SEMANTIC_KEYS),
+    transform: z.enum(TRANSFORM_IDS),
+    /** PDF points, bottom-left origin, 0-based page (same convention as pdfLayout.ts). */
+    placement: z
+      .object({
+        page: z.number().int().min(0).max(50),
+        x: z.number().min(0).max(2000),
+        y: z.number().min(0).max(2000),
+        width: z.number().positive().max(2000),
+        fontSize: z.number().min(4).max(48),
+      })
+      .strict(),
+  })
+  .strict()
+  .superRefine((f, ctx) => {
+    const required = TRANSFORM_KEY[f.transform];
+    if (required !== null && required !== f.semanticKey) {
+      ctx.addIssue({ code: 'custom', message: `transform ${f.transform} needs ${required}` });
+    }
+  });
+
+export const formDefSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    ontologyVersion: z.string().min(1).max(40),
+    formId: z.string().regex(/^[a-z0-9][a-z0-9-]{0,79}$/),
+    issuerVersion: z.string().min(1).max(120),
+    formDefRevision: z.number().int().min(1),
+    sourcePdfSha256: sha256,
+    page: z.object({ index: z.number().int().min(0), width: z.number().positive(), height: z.number().positive() }).strict(),
+    title: label,
+    credit: z.string().min(1).max(400),
+    checkedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    fields: z.array(formDefFieldSchema).min(1).max(200),
+  })
+  .strict()
+  .superRefine((d, ctx) => {
+    const ids = new Set<string>();
+    for (const f of d.fields) {
+      if (ids.has(f.fieldId)) ctx.addIssue({ code: 'custom', message: `duplicate field ${f.fieldId}` });
+      ids.add(f.fieldId);
+      const p = f.placement;
+      if (p.page !== d.page.index || p.x + p.width > d.page.width || p.y + p.fontSize > d.page.height) {
+        ctx.addIssue({ code: 'custom', message: `field ${f.fieldId} is outside the page` });
+      }
+    }
+  });
+
+export type FormDef = z.infer<typeof formDefSchema>;
+export type FormDefField = FormDef['fields'][number];

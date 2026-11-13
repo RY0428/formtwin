@@ -1,0 +1,26 @@
+{
+  "formId": "isa-930004094",
+  "formDefRevision": 1,
+  "origin": "manual-layout",
+  "analysisRunId": null,
+  "model": null,
+  "promptVersion": null,
+  "candidateSha256": null,
+  "changes": [
+    { "fieldId": "familyName", "action": "added", "note": "Coordinates measured by hand in Spike C (docs/spikes/spike-c.md)." },
+    { "fieldId": "givenName", "action": "added", "note": "Coordinates measured by hand in Spike C." },
+    { "fieldId": "expiryYear", "action": "added", "note": "Coordinates measured by hand in Spike C." },
+    { "fieldId": "expiryMonth", "action": "added", "note": "Coordinates measured by hand in Spike C." },
+    { "fieldId": "expiryDay", "action": "added", "note": "Coordinates measured by hand in Spike C." },
+    { "fieldId": "residenceCardNumber", "action": "added", "note": "Coordinates measured by hand in Spike C." }
+  ],
+  "review": {
+    "reviewedOn": "2026-11-12",
+    "reviewerRole": "project maintainer",
+    "checks": [
+      "Source PDF approval checks (docs/forms/official-form-930004094.md).",
+      "Rendered fill check with long and Japanese values (docs/spikes/spike-c.md).",
+      "Viewed in Preview by the developer (Spike C); paper printing not done yet."
+    ]
+  }
+}

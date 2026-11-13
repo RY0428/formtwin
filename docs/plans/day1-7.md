@@ -53,9 +53,9 @@ release evaluation (20 new cards), bundle-size reduction, video.
 - [ ] Developer: reCAPTCHA Enterprise key + App Check registration, `.env.local`, deploy, real-device check
 
 ### M2 — FormDef, manifest, signing
-- [ ] `packages/contracts/src/manifest.ts`; ECDSA P-256/SHA-256 over canonical manifest bytes
-- [ ] Scripts: `scripts/forms/approve-source.mjs`, `promote-forms.mjs`, `sign-package.mjs`, `keygen.mjs`
-- [ ] Official form layout migrated to FormDef rev 1; adoption history under `forms/history/`
+- [x] `packages/contracts/src/manifest.ts`; ECDSA P-256/SHA-256 over canonical manifest bytes
+- [x] Scripts: `scripts/forms/approve-source.mjs`, `promote-forms.mjs`, `sign-package.mjs`, `keygen.mjs`
+- [x] Official form layout migrated to FormDef rev 1; adoption history under `forms/history/`
 - [ ] Developer (Mac): keygen → sign → commit public key + signature
 
 ### M3 — private-app on the signed package
@@ -82,3 +82,4 @@ release evaluation (20 new cards), bundle-size reduction, video.
 ## Log
 - 2026-11-13: plan approved; loop started.
 - 2026-11-13: M1 code done (fake-tested, docs/spikes/spike-b.md). Waiting for the developer's reCAPTCHA/App Check setup; continuing with M2.
+- 2026-11-13: M2 code done (contracts, scripts, rev 1, throwaway-key round trip). Waiting for the developer's key + signature; continuing with M3 (unsigned builds refuse to start).

@@ -16,3 +16,6 @@ data/private/
 !.env.e2e
 dist-e2e/
 docs/spikes/spike-c/*.pdf
+# Package signing keys: only public keys (forms/keys/*.pub.json) may be committed
+*.private.jwk.json
+formtwin-signing-*

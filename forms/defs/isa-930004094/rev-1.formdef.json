@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "ontologyVersion": "0.0.0-provisional",
+  "formId": "isa-930004094",
+  "issuerVersion": "別記第三十号の二様式（第二十一条関係） (930004094.pdf, retrieved 2026-11-12; no revision date printed)",
+  "formDefRevision": 1,
+  "sourcePdfSha256": "f4a84e52db12074d9e007d0228fc8116c9f522dd6d4ad3dde920c6ee2bbecab3",
+  "page": { "index": 0, "width": 595.276, "height": 841.89 },
+  "title": "Application for Extension of Period of Stay (Form 30-2, applicant part 1)",
+  "credit": "Source: Immigration Services Agency of Japan website (https://www.moj.go.jp/isa/applications/procedures/16-3-1.html), Public Data License 1.0.",
+  "checkedAt": "2026-11-12",
+  "fields": [
+    { "fieldId": "familyName", "labelJa": "3 氏名 Family name", "labelEn": "Family name", "semanticKey": "fullName", "transform": "name.family", "placement": { "page": 0, "x": 140, "y": 617, "width": 150, "fontSize": 11 } },
+    { "fieldId": "givenName", "labelJa": "3 氏名 Given name", "labelEn": "Given name", "semanticKey": "fullName", "transform": "name.given", "placement": { "page": 0, "x": 300, "y": 617, "width": 240, "fontSize": 11 } },
+    { "fieldId": "expiryYear", "labelJa": "11 在留期間の満了日 年", "labelEn": "Expiry year", "semanticKey": "periodOfStayExpiry", "transform": "date.year", "placement": { "page": 0, "x": 178, "y": 453, "width": 32, "fontSize": 11 } },
+    { "fieldId": "expiryMonth", "labelJa": "11 在留期間の満了日 月", "labelEn": "Expiry month", "semanticKey": "periodOfStayExpiry", "transform": "date.month", "placement": { "page": 0, "x": 244, "y": 453, "width": 20, "fontSize": 11 } },
+    { "fieldId": "expiryDay", "labelJa": "11 在留期間の満了日 日", "labelEn": "Expiry day", "semanticKey": "periodOfStayExpiry", "transform": "date.day", "placement": { "page": 0, "x": 291, "y": 453, "width": 20, "fontSize": 11 } },
+    { "fieldId": "residenceCardNumber", "labelJa": "12 在留カード番号", "labelEn": "Residence card number", "semanticKey": "residenceCardNumber", "transform": "identity", "placement": { "page": 0, "x": 150, "y": 429, "width": 150, "fontSize": 11 } }
+  ]
+}
