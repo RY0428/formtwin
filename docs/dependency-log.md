@@ -47,3 +47,15 @@ downgrade firebase to 9.x and ESLint to 9.x.
   Fonts are embedded in full (`subset: false`).
 - pdfjs-dist 6.5.438 — used for text-extraction tests and visual checks; viewer integration later.
 - Font: BIZ UDGothic Regular (OFL), replaces Noto Sans JP; see `THIRD_PARTY_NOTICES.md`.
+
+## 2026-11-13 — UI (M4)
+
+Pinned to versions published at least about a week before installation (supply-chain caution):
+- tailwindcss 4.3.4 and @tailwindcss/vite 4.3.4 (2026-11-02): root devDependencies, build-time only.
+- class-variance-authority 0.7.1, clsx 2.1.1, tailwind-merge 3.7.0, @radix-ui/react-slot 1.5.0: both apps.
+- react-hook-form 7.91.0 (2026-10-23): private-app, wired in the next step.
+- shadcn/ui is used as a pattern. Components (Button, Card, Input, Alert, Badge) are written locally in each
+  app's `src/ui/components/`, because the shadcn CLI registry (ui.shadcn.com) is not reachable from the dev
+  container. They are duplicated in both apps because the apps must not import each other.
+- Radix components that inject `<style>` elements, such as dialogs using react-remove-scroll, are avoided:
+  `style-src 'self'` stays without `'unsafe-inline'`. Native checkboxes are kept.

@@ -1,3 +1,4 @@
+import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
@@ -7,7 +8,7 @@ import { bytesPlugin } from './vite-plugin-bytes.ts';
 // `#cloud-impl` is the real Firebase AI Logic analyzer, except in the E2E build
 // (`--mode e2e` → dist-e2e), which uses a fake so tests never call the cloud.
 export default defineConfig(({ mode }) => ({
-  plugins: [bytesPlugin(), react()],
+  plugins: [bytesPlugin(), react(), tailwindcss()],
   resolve: {
     alias: {
       '#cloud-impl': fileURLToPath(

@@ -1,3 +1,4 @@
+import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { privateHeaders } from '../../deploy/private/headers.mjs';
@@ -7,7 +8,7 @@ import { formPackagePlugin } from './vite-plugin-form-package.ts';
 // Dev server (HMR over WebSocket) cannot run under connect-src 'none'.
 // Production CSP is verified only with `vite preview` or Firebase Hosting.
 export default defineConfig(({ mode }) => ({
-  plugins: [formPackagePlugin(mode), bytesPlugin(), react()],
+  plugins: [formPackagePlugin(mode), bytesPlugin(), react(), tailwindcss()],
   build: {
     outDir: 'dist',
     emptyOutDir: true,

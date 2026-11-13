@@ -3,6 +3,8 @@ import type { FixedAssets } from '../bootstrap/fixedAssets.ts';
 import { fillPdf } from '../pii/fill/fillPdf.ts';
 import { FIELD_LABELS, type FieldId } from '../pii/session/fields.ts';
 import { takeSnapshot, type SessionState } from '../pii/session/sessionState.ts';
+import { Alert } from './components/alert.tsx';
+import { Button } from './components/button.tsx';
 
 interface Props {
   assets: FixedAssets;
@@ -67,22 +69,32 @@ export function OutputPanel({ assets, state }: Props) {
   };
 
   return (
-    <div>
-      <button type="button" onClick={onCreate} disabled={busy}>
-        Create PDF
-      </button>
+    <div className="flex flex-col gap-3" aria-live="polite">
+      <div>
+        <Button type="button" onClick={onCreate} disabled={busy}>
+          Create PDF
+        </Button>
+      </div>
       {busy && <p role="status">Creating PDF…</p>}
-      {failed && <p role="alert">The PDF could not be created.</p>}
-      {stale && <p role="status">Values changed. Create the PDF again.</p>}
+      {failed && (
+        <Alert variant="destructive" role="alert">
+          The PDF could not be created.
+        </Alert>
+      )}
+      {stale && (
+        <Alert variant="warning" role="status">
+          Values changed. Create the PDF again.
+        </Alert>
+      )}
       {generated !== undefined && !stale && (
-        <div data-testid="pdf-ready">
-          <p role="status">
+        <div data-testid="pdf-ready" className="flex flex-col gap-3">
+          <Alert variant="warning" role="status">
             This PDF is <strong>partially filled</strong>. It is not complete and not ready to submit.
-          </p>
+          </Alert>
           {generated.left.length > 0 && (
             <>
-              <p>Left blank:</p>
-              <ul data-testid="left-blank">
+              <p className="text-sm font-medium">Left blank:</p>
+              <ul data-testid="left-blank" className="list-disc pl-5 text-sm">
                 {generated.left.map((l) => (
                   <li key={`${l.id}-${l.reason}`}>
                     {FIELD_LABELS[l.id]} — {REASON[l.reason] ?? l.reason}
@@ -91,12 +103,14 @@ export function OutputPanel({ assets, state }: Props) {
               </ul>
             </>
           )}
-          <p>
-            <a href={generated.url} download="formtwin-filled-form.pdf">
-              Save PDF
-            </a>
-          </p>
-          <p>
+          <div>
+            <Button asChild>
+              <a href={generated.url} download="formtwin-filled-form.pdf">
+                Save PDF
+              </a>
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
             A saved PDF stays on your device and is not changed by later edits here. You entered these values with
             FormTwin; the form is not checked by the Immigration Services Agency.
           </p>

@@ -3,6 +3,10 @@ import { createCloudFormAnalyzer } from '#cloud-impl';
 import { useMemo, useState } from 'react';
 import { APPROVED_FORM_IDS, resolveApprovedSource } from '../catalog/approvedSources.ts';
 import { EgressGateway, FORM_ANALYSIS_PROMPT_VERSION, type RequestLogEntry } from '../egress/gateway.ts';
+import { Alert } from './components/alert.tsx';
+import { Badge } from './components/badge.tsx';
+import { Button } from './components/button.tsx';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/card.tsx';
 
 interface CandidateView {
   readonly analysisRunId: string;
@@ -38,97 +42,132 @@ export function App() {
   }
 
   return (
-    <main>
-      <h1>FormTwin — Public form analysis</h1>
-      <p>
-        This app analyzes approved blank public forms only. It never accepts personal documents or filled
-        forms. Analysis runs in the cloud (Firebase AI Logic, cloud only).
-      </p>
+    <div className="min-h-screen">
+      <header className="border-b bg-white">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-primary">FormTwin — Public form analysis</h1>
+            <p className="text-sm text-muted-foreground">Cloud analysis of approved blank forms only</p>
+          </div>
+          <Badge variant="secondary">Firebase AI Logic · cloud only</Badge>
+        </div>
+      </header>
+      <main className="mx-auto flex max-w-6xl flex-col gap-5 px-4 py-6">
+        <Alert variant="info">
+          This app analyzes approved blank public forms only. It never accepts personal documents or filled forms.
+          Analysis runs in the cloud (Firebase AI Logic, cloud only).
+        </Alert>
 
-      <section aria-labelledby="source-h">
-        <h2 id="source-h">Approved original</h2>
-        {source && (
-          <dl>
-            <dt>Form ID</dt>
-            <dd data-testid="form-id">{source.formId}</dd>
-            <dt>Title</dt>
-            <dd>{source.title}</dd>
-            <dt>Issuer</dt>
-            <dd>{source.issuer}</dd>
-            <dt>Source</dt>
-            <dd>
-              {source.sourceUrl} (retrieved {source.retrievedOn}, {source.license})
-            </dd>
-            <dt>SHA-256</dt>
-            <dd>
-              <code data-testid="source-sha">{source.sha256}</code>
-            </dd>
-            <dt>Pages analyzed</dt>
-            <dd>{source.targetPages.map((p) => p + 1).join(', ')}</dd>
-          </dl>
+        <Card aria-labelledby="source-h">
+          <CardHeader>
+            <CardTitle id="source-h">Approved original</CardTitle>
+            <CardDescription>The only document this app can send.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {source && (
+              <dl className="grid gap-x-4 gap-y-1 text-sm sm:grid-cols-[auto_1fr]">
+                <dt className="text-muted-foreground">Form ID</dt>
+                <dd data-testid="form-id">{source.formId}</dd>
+                <dt className="text-muted-foreground">Title</dt>
+                <dd>{source.title}</dd>
+                <dt className="text-muted-foreground">Issuer</dt>
+                <dd>{source.issuer}</dd>
+                <dt className="text-muted-foreground">Source</dt>
+                <dd className="break-all">
+                  {source.sourceUrl} (retrieved {source.retrievedOn}, {source.license})
+                </dd>
+                <dt className="text-muted-foreground">SHA-256</dt>
+                <dd>
+                  <code data-testid="source-sha" className="break-all text-xs">
+                    {source.sha256}
+                  </code>
+                </dd>
+                <dt className="text-muted-foreground">Pages analyzed</dt>
+                <dd>{source.targetPages.map((p) => p + 1).join(', ')}</dd>
+              </dl>
+            )}
+            <div className="flex flex-wrap items-center gap-3">
+              <Button type="button" onClick={() => void analyze()} disabled={busy}>
+                {busy ? 'Analyzing…' : 'Analyze in the cloud'}
+              </Button>
+              <span className="text-xs text-muted-foreground">Prompt version: {FORM_ANALYSIS_PROMPT_VERSION}</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div role="status" aria-live="polite">
+          {error && (
+            <Alert variant="destructive" role="alert" data-testid="analysis-error">
+              {error}
+            </Alert>
+          )}
+        </div>
+
+        {view && (
+          <Card aria-labelledby="cand-h" data-testid="candidate">
+            <CardHeader>
+              <CardTitle id="cand-h">Unadopted candidate</CardTitle>
+              <CardDescription>
+                Live result <code data-testid="run-id">{view.analysisRunId}</code>. It is not reviewed and is not used
+                by the personal-entry app. Only a reviewed and signed revision is bundled there.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="border-b text-muted-foreground">
+                  <tr>
+                    <th scope="col" className="py-2 pr-3">Label (printed)</th>
+                    <th scope="col" className="py-2 pr-3">Label (English)</th>
+                    <th scope="col" className="py-2 pr-3">Kind</th>
+                    <th scope="col" className="py-2 pr-3">Semantic key</th>
+                    <th scope="col" className="py-2 pr-3">Status</th>
+                    <th scope="col" className="py-2 pr-3">Page</th>
+                    <th scope="col" className="py-2">Box (0–1000)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {view.candidate.fields.map((f, i) => (
+                    <tr key={i} data-testid="candidate-field" className="border-b last:border-0">
+                      <td lang="ja" className="py-2 pr-3">{f.labelJa}</td>
+                      <td className="py-2 pr-3">{f.labelEn}</td>
+                      <td className="py-2 pr-3">{f.kind}</td>
+                      <td className="py-2 pr-3">{f.semanticKey ?? '—'}</td>
+                      <td className="py-2 pr-3">
+                        <Badge variant={f.status === 'resolved' ? 'success' : f.status === 'ambiguous' ? 'warning' : 'outline'}>
+                          {f.status}
+                        </Badge>
+                      </td>
+                      <td className="py-2 pr-3">{f.page + 1}</td>
+                      <td className="py-2 font-mono text-xs">{f.box.join(', ')}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </CardContent>
+          </Card>
         )}
-        <button type="button" onClick={() => void analyze()} disabled={busy}>
-          {busy ? 'Analyzing…' : 'Analyze in the cloud'}
-        </button>
-        <p>Prompt version: {FORM_ANALYSIS_PROMPT_VERSION}</p>
-      </section>
 
-      <div role="status" aria-live="polite">
-        {error && (
-          <p role="alert" data-testid="analysis-error">
-            {error}
-          </p>
-        )}
-      </div>
-
-      {view && (
-        <section aria-labelledby="cand-h" data-testid="candidate">
-          <h2 id="cand-h">Unadopted candidate</h2>
-          <p>
-            Live result <code data-testid="run-id">{view.analysisRunId}</code>. It is not reviewed and is not used by
-            the personal-entry app. Only a reviewed and signed revision is bundled there.
-          </p>
-          <table>
-            <thead>
-              <tr>
-                <th scope="col">Label (printed)</th>
-                <th scope="col">Label (English)</th>
-                <th scope="col">Kind</th>
-                <th scope="col">Semantic key</th>
-                <th scope="col">Status</th>
-                <th scope="col">Page</th>
-                <th scope="col">Box (0–1000)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {view.candidate.fields.map((f, i) => (
-                <tr key={i} data-testid="candidate-field">
-                  <td lang="ja">{f.labelJa}</td>
-                  <td>{f.labelEn}</td>
-                  <td>{f.kind}</td>
-                  <td>{f.semanticKey ?? '—'}</td>
-                  <td>{f.status}</td>
-                  <td>{f.page + 1}</td>
-                  <td>{f.box.join(', ')}</td>
-                </tr>
+        <Card aria-labelledby="log-h">
+          <CardHeader>
+            <CardTitle id="log-h">Requests this app allowed</CardTitle>
+            <CardDescription>
+              Logical requests built by this app. SDK headers and token traffic are not shown here.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ol data-testid="request-log" className="flex flex-col gap-1 font-mono text-xs">
+              {log.length === 0 && <li className="text-muted-foreground">No requests yet.</li>}
+              {log.map((e) => (
+                <li key={e.seq} data-status={e.status}>
+                  {e.status} — form {e.formId ?? '(none)'} — prompt {e.promptVersion} — model {e.model} — to{' '}
+                  {e.endpointHost}
+                  {e.reason ? ` — ${e.reason}` : ''}
+                </li>
               ))}
-            </tbody>
-          </table>
-        </section>
-      )}
-
-      <section aria-labelledby="log-h">
-        <h2 id="log-h">Requests this app allowed</h2>
-        <p>Logical requests built by this app. SDK headers and token traffic are not shown here.</p>
-        <ol data-testid="request-log">
-          {log.map((e) => (
-            <li key={e.seq} data-status={e.status}>
-              {e.status} — form {e.formId ?? '(none)'} — prompt {e.promptVersion} — model {e.model} — to {e.endpointHost}
-              {e.reason ? ` — ${e.reason}` : ''}
-            </li>
-          ))}
-        </ol>
-      </section>
-    </main>
+            </ol>
+          </CardContent>
+        </Card>
+      </main>
+    </div>
   );
 }

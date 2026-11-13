@@ -18,6 +18,12 @@ import { initialSession, isConfirmed, sessionReducer } from '../pii/session/sess
 import { CandidatesPanel } from './CandidatesPanel.tsx';
 import { FieldsForm } from './FieldsForm.tsx';
 import { OutputPanel } from './OutputPanel.tsx';
+import { Alert } from './components/alert.tsx';
+import { Badge } from './components/badge.tsx';
+import { Button } from './components/button.tsx';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/card.tsx';
+import { Input } from './components/input.tsx';
+import { COPY } from './copy.ts';
 
 /**
  * Applicant screen (S5 working flow). Personal data lives in React state only:
@@ -182,187 +188,242 @@ export function App() {
 
   const extractEnabled = canExtract(ai) && image !== undefined && !busy;
 
+  const ms = (v: number | undefined) => (v === undefined ? '-' : `${Math.round(v)} ms`);
+  const title = boot.status === 'ready' ? boot.assets.pkg.formDef.title : FORM_TITLE;
+
   return (
-    <main>
-      <h1>FormTwin</h1>
-      <p>
-        Fill in the {boot.status === 'ready' ? boot.assets.pkg.formDef.title : FORM_TITLE} on this device. Use fictional sample data only. This app supports checking
-        your own entries; it does not judge eligibility or give legal advice.
-      </p>
+    <div className="min-h-screen">
+      <header className="border-b bg-white">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-primary">{COPY.appName}</h1>
+            <p className="text-sm text-muted-foreground">{COPY.tagline}</p>
+          </div>
+          <Badge variant={boot.status === 'ready' ? 'success' : boot.status === 'failed' ? 'warning' : 'secondary'}>
+            Form package: {boot.status}
+          </Badge>
+        </div>
+      </header>
 
-      <section aria-labelledby="setup-heading">
-        <h2 id="setup-heading">0. Form and font</h2>
-        <p>
-          Form status: <output data-testid="boot-status">{boot.status}</output>
-        </p>
-        {boot.status === 'failed' && (
-          <p role="alert">
-            The bundled form package could not be verified (<code data-testid="boot-reason">{boot.reason}</code>).
-            Entry is disabled.
-          </p>
-        )}
-      </section>
+      <main className="mx-auto flex max-w-5xl flex-col gap-5 px-4 py-6">
+        <Alert variant="info">
+          <p>{COPY.intro(title)}</p>
+          <p className="mt-2 text-xs">{COPY.privacyNote}</p>
+        </Alert>
 
-      <section aria-labelledby="ai-heading">
-        <h2 id="ai-heading">1. Prepare on-device AI (optional)</h2>
-        <p>
-          Browser AI availability: <output data-testid="availability">{availability}</output>
-        </p>
-        <p>
-          AI status: <output data-testid="ai-status">{ai.status}</output>
-          {ai.reason !== undefined && (
-            <>
-              {' '}
-              (reason: <output data-testid="ai-reason">{ai.reason}</output>)
-            </>
-          )}
-        </p>
-        {ai.status === 'preparing' && (
-          <progress aria-label="Model download progress" max={1} value={ai.progress} />
-        )}
-        <button type="button" onClick={onPrepare} disabled={ai.status !== 'not_started'}>
-          Prepare AI
-        </button>{' '}
-        <button
-          type="button"
-          onClick={() => {
-            dispatchAi({ type: 'skip' });
-          }}
-          disabled={ai.status === 'ready' || ai.status === 'skipped'}
-        >
-          Continue without AI
-        </button>
-        {(ai.status === 'skipped' || ai.status === 'unavailable' || ai.status === 'failed') && (
-          <p role="status">AI extraction is off for this session. You can enter values manually.</p>
-        )}
-      </section>
+        <Card aria-labelledby="setup-heading">
+          <CardHeader>
+            <CardTitle id="setup-heading">{COPY.steps.form.title}</CardTitle>
+            <CardDescription>{COPY.steps.form.description}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm">
+              {COPY.boot.status}: <output data-testid="boot-status">{boot.status}</output>
+            </p>
+            {boot.status === 'failed' && (
+              <Alert variant="destructive" role="alert">
+                {COPY.boot.failed} (<code data-testid="boot-reason">{boot.reason}</code>). {COPY.boot.disabled}
+              </Alert>
+            )}
+          </CardContent>
+        </Card>
 
-      {boot.status === 'ready' && (
-        <>
-          <section aria-labelledby="image-heading">
-            <h2 id="image-heading">2. Choose a sample image (optional)</h2>
-            <label>
-              Residence card image (JPEG or PNG){' '}
-              <input
-                ref={fileInput}
-                type="file"
-                accept="image/png,image/jpeg"
-                onChange={(e) => {
-                  setEnded(false);
-                  onFile(e.currentTarget.files?.[0]);
+        <Card aria-labelledby="ai-heading">
+          <CardHeader>
+            <CardTitle id="ai-heading">{COPY.steps.ai.title}</CardTitle>
+            <CardDescription>{COPY.steps.ai.description}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
+              <dt className="text-muted-foreground">{COPY.ai.availability}</dt>
+              <dd>
+                <output data-testid="availability">{availability}</output>
+              </dd>
+              <dt className="text-muted-foreground">{COPY.ai.status}</dt>
+              <dd aria-live="polite">
+                <output data-testid="ai-status">{ai.status}</output>
+                {ai.reason !== undefined && (
+                  <>
+                    {' '}
+                    ({COPY.ai.reason}: <output data-testid="ai-reason">{ai.reason}</output>)
+                  </>
+                )}
+              </dd>
+            </dl>
+            {ai.status === 'preparing' && (
+              <progress className="w-full" aria-label={COPY.ai.progress} max={1} value={ai.progress} />
+            )}
+            <div className="flex flex-wrap gap-2">
+              <Button type="button" onClick={onPrepare} disabled={ai.status !== 'not_started'}>
+                {COPY.ai.prepare}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  dispatchAi({ type: 'skip' });
                 }}
-              />
-            </label>
-            {previewUrl !== undefined && image !== undefined && (
-              <p>
-                <img src={previewUrl} alt="Selected sample" width={Math.min(480, image.width)} />
-              </p>
+                disabled={ai.status === 'ready' || ai.status === 'skipped'}
+              >
+                {COPY.ai.skip}
+              </Button>
+            </div>
+            {(ai.status === 'skipped' || ai.status === 'unavailable' || ai.status === 'failed') && (
+              <Alert variant="warning" role="status">
+                {COPY.ai.off}
+              </Alert>
             )}
-            <button type="button" onClick={onExtract} disabled={!extractEnabled}>
-              Extract on this device
-            </button>
-          </section>
+          </CardContent>
+        </Card>
 
-          <section aria-labelledby="result-heading">
-            <h2 id="result-heading">3. Candidates</h2>
-            {error !== undefined && (
-              <p role="alert">
-                Failed: <output data-testid="error">{error}</output>
-              </p>
-            )}
-            {busy && <p role="status">Extracting…</p>}
-            {result !== undefined && (
-              <CandidatesPanel
-                result={result}
-                onApply={(values) => {
-                  dispatch({ type: 'applyCandidate', values });
-                }}
-              />
-            )}
-          </section>
+        {boot.status === 'ready' && (
+          <>
+            <Card aria-labelledby="image-heading">
+              <CardHeader>
+                <CardTitle id="image-heading">{COPY.steps.image.title}</CardTitle>
+                <CardDescription>{COPY.steps.image.description}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <label className="flex flex-col gap-1.5 text-sm font-medium">
+                  {COPY.image.label}
+                  <Input
+                    ref={fileInput}
+                    type="file"
+                    accept="image/png,image/jpeg"
+                    onChange={(e) => {
+                      setEnded(false);
+                      onFile(e.currentTarget.files?.[0]);
+                    }}
+                  />
+                </label>
+                {previewUrl !== undefined && image !== undefined && (
+                  <img
+                    className="max-w-full rounded-md border"
+                    src={previewUrl}
+                    alt={COPY.image.alt}
+                    width={Math.min(480, image.width)}
+                  />
+                )}
+                <div>
+                  <Button type="button" onClick={onExtract} disabled={!extractEnabled}>
+                    {COPY.image.extract}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
 
-          <section aria-labelledby="fields-heading">
-            <h2 id="fields-heading">4. Check every value</h2>
-            <FieldsForm
-              state={session}
-              dispatch={(e) => {
-                setEnded(false);
-                if (confirmClock.current === undefined && result === undefined && e.type === 'edit') {
-                  confirmClock.current = { kind: 'manual', startedAt: performance.now() };
-                  setTiming((t) => ({ ...t, manualMs: undefined }));
-                }
-                dispatch(e);
-              }}
-            />
-          </section>
+            <Card aria-labelledby="result-heading">
+              <CardHeader>
+                <CardTitle id="result-heading">{COPY.steps.candidates.title}</CardTitle>
+                <CardDescription>{COPY.steps.candidates.description}</CardDescription>
+              </CardHeader>
+              <CardContent aria-live="polite">
+                {error !== undefined && (
+                  <Alert variant="destructive" role="alert">
+                    {COPY.candidates.failed}: <output data-testid="error">{error}</output>
+                  </Alert>
+                )}
+                {busy && <p role="status">{COPY.candidates.extracting}</p>}
+                {result !== undefined && (
+                  <CandidatesPanel
+                    result={result}
+                    onApply={(values) => {
+                      dispatch({ type: 'applyCandidate', values });
+                    }}
+                  />
+                )}
+              </CardContent>
+            </Card>
 
-          <section aria-labelledby="output-heading">
-            <h2 id="output-heading">5. Create and save the PDF</h2>
-            <OutputPanel assets={boot.assets} state={session} />
-          </section>
+            <Card aria-labelledby="fields-heading">
+              <CardHeader>
+                <CardTitle id="fields-heading">{COPY.steps.fields.title}</CardTitle>
+                <CardDescription>{COPY.steps.fields.description}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FieldsForm
+                  state={session}
+                  dispatch={(e) => {
+                    setEnded(false);
+                    if (confirmClock.current === undefined && result === undefined && e.type === 'edit') {
+                      confirmClock.current = { kind: 'manual', startedAt: performance.now() };
+                      setTiming((t) => ({ ...t, manualMs: undefined }));
+                    }
+                    dispatch(e);
+                  }}
+                />
+              </CardContent>
+            </Card>
 
-          <section aria-labelledby="end-heading">
-            <h2 id="end-heading">6. Finish</h2>
-            <button type="button" onClick={onEnd}>
-              End session and clear data
-            </button>
-            {ended && (
-              <p role="status">
-                Your inputs, images, and generated results have been cleared from this app. Your original files and
-                downloaded PDFs have not been deleted. This app cannot guarantee deletion of browser or operating-system
-                history, memory, synced files, or backups.
-              </p>
-            )}
-          </section>
-        </>
-      )}
+            <Card aria-labelledby="output-heading">
+              <CardHeader>
+                <CardTitle id="output-heading">{COPY.steps.output.title}</CardTitle>
+                <CardDescription>{COPY.steps.output.description}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <OutputPanel assets={boot.assets} state={session} />
+              </CardContent>
+            </Card>
 
-      <section aria-labelledby="diag-heading">
-        <h2 id="diag-heading">Diagnostics (no personal data)</h2>
-        <ul>
-          <li>Firebase JS SDK: {FIREBASE_SDK_VERSION}</li>
-          <li>Prompt version: {EXTRACTION_PROMPT_VERSION}</li>
-          <li>Inference source required: on_device</li>
-          <li>
-            Prepare time:{' '}
-            <output data-testid="prepare-ms">
-              {timing.prepareMs === undefined ? '-' : `${Math.round(timing.prepareMs)} ms`}
-            </output>
-          </li>
-          <li>
-            Extract time:{' '}
-            <output data-testid="extract-ms">
-              {timing.extractMs === undefined ? '-' : `${Math.round(timing.extractMs)} ms`}
-            </output>
-          </li>
-          <li>
-            Confirm time (candidates → all checked):{' '}
-            <output data-testid="confirm-ms">
-              {timing.confirmMs === undefined ? '-' : `${Math.round(timing.confirmMs)} ms`}
-            </output>
-          </li>
-          <li>
-            Manual entry time (first edit → all checked):{' '}
-            <output data-testid="manual-ms">
-              {timing.manualMs === undefined ? '-' : `${Math.round(timing.manualMs)} ms`}
-            </output>
-          </li>
-          <li>User agent: {navigator.userAgent}</li>
-        </ul>
-      </section>
+            <Card aria-labelledby="end-heading">
+              <CardHeader>
+                <CardTitle id="end-heading">{COPY.steps.end.title}</CardTitle>
+                <CardDescription>{COPY.steps.end.description}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div>
+                  <Button type="button" variant="destructive" onClick={onEnd}>
+                    {COPY.end.button}
+                  </Button>
+                </div>
+                {ended && (
+                  <Alert variant="success" role="status">
+                    <p>{COPY.end.cleared}</p>
+                    <p className="mt-1">{COPY.end.limits}</p>
+                  </Alert>
+                )}
+              </CardContent>
+            </Card>
+          </>
+        )}
 
-      <footer>
+        <details className="rounded-xl border bg-white p-4 text-sm">
+          <summary className="cursor-pointer font-medium" id="diag-heading">
+            {COPY.diagnostics}
+          </summary>
+          <ul className="mt-2 list-disc pl-5 text-muted-foreground">
+            <li>Firebase JS SDK: {FIREBASE_SDK_VERSION}</li>
+            <li>Prompt version: {EXTRACTION_PROMPT_VERSION}</li>
+            <li>Inference source required: on_device</li>
+            <li>
+              Prepare time: <output data-testid="prepare-ms">{ms(timing.prepareMs)}</output>
+            </li>
+            <li>
+              Extract time: <output data-testid="extract-ms">{ms(timing.extractMs)}</output>
+            </li>
+            <li>
+              Confirm time (candidates → all checked): <output data-testid="confirm-ms">{ms(timing.confirmMs)}</output>
+            </li>
+            <li>
+              Manual entry time (first edit → all checked): <output data-testid="manual-ms">{ms(timing.manualMs)}</output>
+            </li>
+            <li>User agent: {navigator.userAgent}</li>
+          </ul>
+        </details>
+      </main>
+
+      <footer className="mx-auto max-w-5xl px-4 pb-8 text-xs text-muted-foreground">
         {boot.status === 'ready' && (
           <>
             <p>{boot.assets.pkg.formDef.credit}</p>
             <p data-testid="package-info">
               Form package {boot.assets.pkg.manifest.packageId} (FormDef revision {boot.assets.pkg.formDef.formDefRevision},
               signed by key {boot.assets.pkg.manifest.keyId}
-              {boot.assets.pkg.testKey ? ', TEST KEY — not for real use' : ''}).
+              {boot.assets.pkg.testKey ? `, ${COPY.testKey}` : ''}).
             </p>
           </>
         )}
       </footer>
-    </main>
+    </div>
   );
 }

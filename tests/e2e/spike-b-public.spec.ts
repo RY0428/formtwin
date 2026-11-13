@@ -13,7 +13,7 @@ test('approved original → unadopted candidate, with a request log', async ({ p
   await expect(page.getByRole('heading', { name: 'Unadopted candidate' })).toBeVisible();
   await expect(page.getByTestId('candidate-field')).toHaveCount(4);
   await expect(page.getByTestId('run-id')).toHaveText(/^run-/);
-  const statuses = await page.getByTestId('request-log').locator('li').evaluateAll((els) =>
+  const statuses = await page.getByTestId('request-log').locator('li[data-status]').evaluateAll((els) =>
     els.map((e) => e.getAttribute('data-status')),
   );
   expect(statuses).toEqual(['planned', 'started', 'completed']);

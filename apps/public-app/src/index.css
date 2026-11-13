@@ -1,0 +1,38 @@
+@import 'tailwindcss';
+
+/* shadcn/ui neutral tokens (light). Bundled; no remote fonts. */
+@theme {
+  --color-background: #ffffff;
+  --color-foreground: #0a0a0a;
+  --color-card: #ffffff;
+  --color-card-foreground: #0a0a0a;
+  --color-primary: #1e3a8a;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f1f5f9;
+  --color-secondary-foreground: #0f172a;
+  --color-muted: #f4f4f5;
+  --color-muted-foreground: #52525b;
+  --color-accent: #f1f5f9;
+  --color-accent-foreground: #0f172a;
+  --color-destructive: #b91c1c;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #e4e4e7;
+  --color-input: #d4d4d8;
+  --color-ring: #1d4ed8;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  body {
+    background: #f8fafc;
+    color: var(--color-foreground);
+    font-family: system-ui, -apple-system, 'Segoe UI', 'Hiragino Sans', 'Yu Gothic UI', sans-serif;
+  }
+  input[type='checkbox'] {
+    accent-color: var(--color-primary);
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+}

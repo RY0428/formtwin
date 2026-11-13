@@ -64,8 +64,9 @@ release evaluation (20 new cards), bundle-size reduction, video.
 - [x] Rejection tests: bad signature, forged hash, incompatible, revoked, out-of-range coordinates
 
 ### M4 — private UI and state
-- [ ] Tailwind + shadcn/ui (pinned, dependency-log)
-- [ ] Central copy; React Hook Form wired to the session contract
+- [x] Tailwind + shadcn/ui (pinned, dependency-log)
+- [x] Central copy (`private-app/src/ui/copy.ts`)
+- [ ] React Hook Form wired to the session contract
 - [ ] Stale-request discard (`requestId`, `documentRevision`)
 - [ ] pdf.js preview (bundled worker, CSP)
 - [ ] End-screen wording per architecture 9.3
@@ -84,3 +85,4 @@ release evaluation (20 new cards), bundle-size reduction, video.
 - 2026-11-13: M1 code done (fake-tested, docs/spikes/spike-b.md). Waiting for the developer's reCAPTCHA/App Check setup; continuing with M2.
 - 2026-11-13: M2 code done (contracts, scripts, rev 1, throwaway-key round trip). Waiting for the developer's key + signature; continuing with M3 (unsigned builds refuse to start).
 - 2026-11-13: M3 done. private-app verifies the signed package at start-up (virtual:form-package); E2E builds use a throwaway key; an unsigned production build refuses entry → the developer must sign before the next private deploy.
+- 2026-11-13: M4 step 1: Tailwind 4 + local shadcn/ui-pattern components in both apps, restyled screens, central copy; CSP unchanged.
