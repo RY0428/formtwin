@@ -1,8 +1,8 @@
-import { formDefCandidateResponseSchema } from '@formtwin/contracts';
 import { GoogleAIBackend, InferenceMode, getAI, getGenerativeModel, type GenerativeModel } from 'firebase/ai';
 import { getApp, getApps, initializeApp, type FirebaseApp } from 'firebase/app';
 import { ReCaptchaEnterpriseProvider, initializeAppCheck } from 'firebase/app-check';
 import type { CloudAnalysisRequest, CloudAnalysisResponse, CloudFormAnalyzer } from './CloudFormAnalyzer.ts';
+import { generationConfigFor, type OutputVariant } from './outputVariants.ts';
 
 /** Model fixed by tech-stack.md §4 (availability checked 2026-11-13, firebase.google.com/docs/ai-logic/models). */
 export const CLOUD_MODEL = 'gemini-3.5-flash-lite';
@@ -44,23 +44,26 @@ function getPublicFirebaseApp(): FirebaseApp {
 export class FirebaseCloudFormAnalyzer implements CloudFormAnalyzer {
   readonly model = CLOUD_MODEL;
   readonly endpointHost = AI_LOGIC_HOST;
-  private generative: GenerativeModel | undefined;
+  private readonly models = new Map<OutputVariant, GenerativeModel>();
+
+  private modelFor(variant: OutputVariant): GenerativeModel {
+    let m = this.models.get(variant);
+    if (!m) {
+      const generationConfig = generationConfigFor(variant);
+      m = getGenerativeModel(
+        getAI(getPublicFirebaseApp(), { backend: new GoogleAIBackend(), useLimitedUseAppCheckTokens: true }),
+        {
+          mode: InferenceMode.ONLY_IN_CLOUD,
+          inCloudParams: generationConfig ? { model: CLOUD_MODEL, generationConfig } : { model: CLOUD_MODEL },
+        },
+      );
+      this.models.set(variant, m);
+    }
+    return m;
+  }
 
   async analyze(request: CloudAnalysisRequest): Promise<CloudAnalysisResponse> {
-    this.generative ??= getGenerativeModel(
-      getAI(getPublicFirebaseApp(), { backend: new GoogleAIBackend(), useLimitedUseAppCheckTokens: true }),
-      {
-        mode: InferenceMode.ONLY_IN_CLOUD,
-        inCloudParams: {
-          model: CLOUD_MODEL,
-          generationConfig: {
-            responseMimeType: 'application/json',
-            responseSchema: formDefCandidateResponseSchema as unknown as Record<string, unknown>,
-          },
-        },
-      },
-    );
-    const result = await this.generative.generateContent([
+    const result = await this.modelFor(request.variant).generateContent([
       request.prompt,
       { type: 'inlineData', inlineData: { mimeType: 'application/pdf', data: request.pdfBase64 } },
     ]);

@@ -1,3 +1,5 @@
+import type { OutputVariant } from './outputVariants.ts';
+
 /**
  * Cloud analysis port (architecture.md §6.1). Implementations receive only the base64 of an
  * approved original that the egress gateway resolved and hash-checked; callers outside
@@ -6,6 +8,8 @@
 export interface CloudAnalysisRequest {
   readonly pdfBase64: string;
   readonly prompt: string;
+  /** One of the fixed output-configuration variants (outputVariants.ts). */
+  readonly variant: OutputVariant;
 }
 
 export interface CloudAnalysisResponse {

@@ -45,3 +45,14 @@ test('review shows the original with adopted boxes, then live boxes, the compari
   expect(download.suggestedFilename()).toMatch(/^candidate-run-.*\.json$/);
   expect(csp).toEqual([]);
 });
+
+test('diagnostics run each fixed output variant once and report the outcome (fake)', async ({ page }) => {
+  await page.goto(`${ORIGIN}/`);
+  await page.getByText('Diagnostics (cloud request variants)').click();
+  await page.getByRole('button', { name: 'Run diagnostics' }).click();
+  await expect(page.getByTestId('diag-row')).toHaveCount(6);
+  await expect(page.locator('[data-testid="diag-row"][data-variant="schema-s3"]')).toHaveAttribute('data-outcome', 'request_failed');
+  await expect(page.locator('[data-testid="diag-row"][data-variant="schema-s3"]')).toContainText('invalid argument');
+  await expect(page.locator('[data-testid="diag-row"][data-variant="none"]')).toContainText('yes');
+  await expect(page.locator('[data-testid="diag-row"][data-variant="schema-full"]')).toHaveAttribute('data-outcome', 'ok');
+});

@@ -12,16 +12,19 @@ export function createCloudFormAnalyzer(): CloudFormAnalyzer {
       const pdf = atob(request.pdfBase64.slice(0, 12));
       if (!pdf.startsWith('%PDF')) throw new Error('not a pdf');
       await new Promise((r) => setTimeout(r, 150));
+      // Diagnostics exercise: one variant fails like the hosted 400; 'none' answers in a code fence.
+      if (request.variant === 'schema-s3') throw new Error('[400 ] Request contains an invalid argument. (fake)');
+      const fence = request.variant === 'none' ? '```json\n' : '';
       return {
         inferenceSource: 'in_cloud',
-        text: JSON.stringify({
+        text: fence + JSON.stringify({
           fields: [
             { labelJa: '氏名', labelEn: 'Name', kind: 'text', semanticKey: 'fullName', status: 'resolved', page: 0, box: [255, 220, 275, 900] },
             { labelJa: '在留期間の満了日', labelEn: 'Date of expiration of period of stay', kind: 'date', semanticKey: 'periodOfStayExpiry', status: 'resolved', page: 0, box: [455, 290, 475, 520] },
             { labelJa: '在留カード番号', labelEn: 'Residence card number', kind: 'text', semanticKey: 'residenceCardNumber', status: 'resolved', page: 0, box: [485, 240, 505, 520] },
             { labelJa: '国籍・地域', labelEn: 'Nationality/Region', kind: 'text', semanticKey: null, status: 'unsupported', page: 0, box: [205, 140, 225, 480] },
           ],
-        }),
+        }) + (fence ? '\n```' : ''),
       };
     },
   };

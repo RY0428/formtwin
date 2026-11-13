@@ -4,7 +4,12 @@ import { useMemo, useState } from 'react';
 import { adoptedRevisionFor } from '../catalog/adopted.ts';
 import { APPROVED_FORM_IDS, resolveApprovedSource } from '../catalog/approvedSources.ts';
 import { ReviewPanel } from '../review/ReviewPanel.tsx';
-import { EgressGateway, FORM_ANALYSIS_PROMPT_VERSION, type RequestLogEntry } from '../egress/gateway.ts';
+import {
+  EgressGateway,
+  FORM_ANALYSIS_PROMPT_VERSION,
+  type DiagnosticResult,
+  type RequestLogEntry,
+} from '../egress/gateway.ts';
 import { Alert } from './components/alert.tsx';
 import { Badge } from './components/badge.tsx';
 import { Button } from './components/button.tsx';
@@ -32,6 +37,7 @@ export function App() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [view, setView] = useState<CandidateView | null>(null);
+  const [diag, setDiag] = useState<readonly DiagnosticResult[] | string | null>(null);
   const formId = APPROVED_FORM_IDS[0];
   const source = resolveApprovedSource(formId);
   const adopted = formId === undefined ? undefined : adoptedRevisionFor(formId);
@@ -49,6 +55,13 @@ export function App() {
         candidate: out.candidate,
       });
     else setError((REASON_TEXT[out.reason] ?? 'Analysis failed.') + (out.detail ? ` Details: ${out.detail}` : ''));
+    setBusy(false);
+  }
+
+  async function runDiagnostics() {
+    setBusy(true);
+    setDiag(null);
+    setDiag(await gateway.diagnoseApprovedForm(formId));
     setBusy(false);
   }
 
@@ -172,6 +185,46 @@ export function App() {
             </CardContent>
           </Card>
         )}
+
+        <details className="rounded-xl border bg-white p-4 text-sm" data-testid="diagnostics">
+          <summary className="cursor-pointer font-medium">Diagnostics (cloud request variants)</summary>
+          <p className="mt-2 text-muted-foreground">
+            Sends the same approved original and prompt once per fixed output configuration (6 requests), to find which
+            configuration the service rejects. Nothing else can be sent.
+          </p>
+          <div className="mt-2">
+            <Button type="button" variant="outline" size="sm" onClick={() => void runDiagnostics()} disabled={busy}>
+              {busy ? 'Running…' : 'Run diagnostics'}
+            </Button>
+          </div>
+          {typeof diag === 'string' && <p className="mt-2 text-destructive">Not run: {diag}</p>}
+          {Array.isArray(diag) && (
+            <table className="mt-3 w-full text-left text-xs">
+              <thead className="border-b text-muted-foreground">
+                <tr>
+                  <th scope="col" className="py-1 pr-2">Variant</th>
+                  <th scope="col" className="py-1 pr-2">Outcome</th>
+                  <th scope="col" className="py-1 pr-2">Valid candidate</th>
+                  <th scope="col" className="py-1 pr-2">Fields</th>
+                  <th scope="col" className="py-1 pr-2">ms</th>
+                  <th scope="col" className="py-1">Detail</th>
+                </tr>
+              </thead>
+              <tbody>
+                {diag.map((d) => (
+                  <tr key={d.variant} data-testid="diag-row" data-variant={d.variant} data-outcome={d.outcome} className="border-b align-top">
+                    <td className="py-1 pr-2 font-mono">{d.variant}</td>
+                    <td className="py-1 pr-2">{d.outcome}</td>
+                    <td className="py-1 pr-2">{d.validCandidate === null ? '—' : d.validCandidate ? 'yes' : 'no'}</td>
+                    <td className="py-1 pr-2">{d.fieldCount ?? '—'}</td>
+                    <td className="py-1 pr-2">{d.ms}</td>
+                    <td className="break-all py-1">{d.detail ?? ''}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </details>
 
         <Card aria-labelledby="log-h">
           <CardHeader>

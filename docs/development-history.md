@@ -39,3 +39,4 @@ Submission period: 2026-11-11 13:30 PT – 2026-11-30 14:00 PT (JST 2026-11-12 0
 | 2026-11-13 | PDF-invalidated notice moved into the session state (always cleared on end); device-flow E2E; build commit shown in both apps for device reports. | |
 | 2026-11-13 | Hosted private-app flow verified on the developer's Mac with Build ac0c241 (signed package, on-device extraction, PDF preview, confirmation/invalidation, end session, same-origin network only). | |
 | 2026-11-13 | Spike B hosted run: App Check token obtained on the device; generateContent 400 under investigation; public CSP adds the observed reCAPTCHA connect host; public error detail shown for diagnosis. | |
+| 2026-11-13 | Public-app cloud diagnostics: fixed output-configuration variants (no config → full schema) to isolate the hosted 400; unit and E2E tests. | |

@@ -138,3 +138,25 @@ Status: **implemented, fake-tested; NOT yet verified against the real service.**
   read. The public side handles only the approved blank original.
 - The 400 cause is open until the response body is read.
 
+## 2026-11-13 — Second hosted run (build 554401e) and diagnostics
+
+**Second run**
+- No CSP violations remained; the reCAPTCHA `clr` fetch returned 200.
+- The AI Logic request carried `X-Firebase-AppCheck`.
+- `generateContent` still returned 400 with the body `Request contains an invalid argument.` and no field named.
+- SDK code check: 13.3.0 strips the client-side Part `type` before sending (`stripPartType`), so the Part shape is
+  not the cause.
+
+**Diagnostics added (public-app only)**
+- "Run diagnostics" sends the approved original and fixed prompt once per fixed output variant, which identifies
+  the failing variant:
+  - `none`: no output config
+  - `json`: JSON MIME only
+  - `schema-s1`: enums only
+  - `schema-s2`: + nullable
+  - `schema-s3`: + minItems/maxItems
+  - `schema-full`: + minimum/maximum/propertyOrdering, the current production schema
+- Each row shows: whether the request failed, whether the answer was a valid candidate, the field count, the time,
+  and the error detail.
+- No response body is kept, and variants are chosen by name only; no caller-supplied schema is accepted.
+

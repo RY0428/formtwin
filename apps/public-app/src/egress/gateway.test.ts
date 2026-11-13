@@ -106,3 +106,20 @@ describe('EgressGateway', () => {
     expect(JSON.stringify(g.entries())).not.toContain('氏名');
   });
 });
+
+describe('diagnoseApprovedForm', () => {
+  it('rejects unapproved input without sending', async () => {
+    const a = analyzer(okResponse);
+    expect(await new EgressGateway(a).diagnoseApprovedForm('https://example.com/x.pdf')).toBe('not_approved');
+    expect(a.analyze).not.toHaveBeenCalled();
+  });
+
+  it('sends each fixed variant once with the approved bytes only', async () => {
+    const a = analyzer(okResponse);
+    const out = await new EgressGateway(a).diagnoseApprovedForm('ok');
+    expect(Array.isArray(out) && out.map((r) => r.outcome)).toEqual(['ok', 'ok', 'ok', 'ok', 'ok', 'ok']);
+    const variants = a.analyze.mock.calls.map((c) => (c[0] as { variant: string }).variant);
+    expect(variants).toEqual(['none', 'json', 'schema-s1', 'schema-s2', 'schema-s3', 'schema-full']);
+    for (const c of a.analyze.mock.calls) expect(atob((c[0] as { pdfBase64: string }).pdfBase64)).toBe('%PDF-approved');
+  });
+});

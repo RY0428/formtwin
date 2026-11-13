@@ -2,6 +2,7 @@ import { formDefCandidateSchema, type FormDefCandidate } from '@formtwin/contrac
 import { SEMANTIC_KEYS } from '@formtwin/domain';
 import { resolveApprovedSource, sha256Hex, type ApprovedSource } from '../catalog/approvedSources.ts';
 import type { CloudFormAnalyzer } from '../cloud/CloudFormAnalyzer.ts';
+import { OUTPUT_VARIANTS, PRODUCTION_VARIANT, type OutputVariant } from '../cloud/outputVariants.ts';
 
 /**
  * EgressGateway (architecture.md §3.1, §10.2; CLAUDE.md rule 6).
@@ -52,6 +53,17 @@ export type AnalysisOutcome =
       readonly promptVersion: string;
     }
   | { readonly ok: false; readonly reason: GatewayError; readonly detail?: string };
+
+/** One row of the output-configuration diagnostics. No response body is kept. */
+export interface DiagnosticResult {
+  readonly variant: OutputVariant;
+  readonly outcome: 'ok' | 'request_failed' | 'source_mismatch';
+  /** For ok: whether the text was JSON that passed the candidate contract. */
+  readonly validCandidate: boolean | null;
+  readonly fieldCount: number | null;
+  readonly detail: string | null;
+  readonly ms: number;
+}
 
 export type GatewayError =
   | 'not_approved'
@@ -140,6 +152,7 @@ export class EgressGateway {
         ({ text, inferenceSource } = await this.analyzer.analyze({
           pdfBase64: toBase64(source.bytes),
           prompt: buildPrompt(source),
+          variant: PRODUCTION_VARIANT,
         }));
       } catch (e: unknown) {
         // Once started, a failure is not "not sent": the request may have reached the service.
@@ -172,6 +185,75 @@ export class EgressGateway {
         model: this.analyzer.model,
         promptVersion: FORM_ANALYSIS_PROMPT_VERSION,
       };
+    } finally {
+      this.inFlight = false;
+    }
+  }
+
+  /**
+   * Diagnostics: send the same approved original and fixed prompt once per fixed output variant,
+   * one after another, to find which configuration the service rejects. Approved IDs only.
+   */
+  async diagnoseApprovedForm(formId: unknown): Promise<readonly DiagnosticResult[] | GatewayError> {
+    const source = resolveApprovedSource(formId);
+    if (!source) {
+      this.record('rejected', undefined, 'not_approved');
+      return 'not_approved';
+    }
+    if ((await sha256Hex(source.bytes)) !== source.sha256) {
+      this.record('rejected', source, 'hash_mismatch');
+      return 'hash_mismatch';
+    }
+    if (this.inFlight) {
+      this.record('rejected', source, 'busy');
+      return 'busy';
+    }
+    this.inFlight = true;
+    const results: DiagnosticResult[] = [];
+    try {
+      const pdfBase64 = toBase64(source.bytes);
+      const prompt = buildPrompt(source);
+      for (const variant of OUTPUT_VARIANTS) {
+        this.record('planned', source, `diagnostic:${variant}`);
+        this.record('started', source, `diagnostic:${variant}`);
+        const t0 = performance.now();
+        try {
+          const r = await this.analyzer.analyze({ pdfBase64, prompt, variant });
+          const ms = Math.round(performance.now() - t0);
+          if (r.inferenceSource !== 'in_cloud') {
+            this.record('failed', source, `diagnostic:${variant}:source_mismatch`);
+            results.push({ variant, outcome: 'source_mismatch', validCandidate: null, fieldCount: null, detail: null, ms });
+            continue;
+          }
+          let parsed: ReturnType<typeof formDefCandidateSchema.safeParse> | undefined;
+          try {
+            parsed = formDefCandidateSchema.safeParse(JSON.parse(r.text.replace(/^```(?:json)?\s*|\s*```$/g, '')));
+          } catch {
+            parsed = undefined;
+          }
+          this.record('completed', source, `diagnostic:${variant}`);
+          results.push({
+            variant,
+            outcome: 'ok',
+            validCandidate: parsed?.success ?? false,
+            fieldCount: parsed?.success ? parsed.data.fields.length : null,
+            detail: parsed && !parsed.success ? errorDetail(parsed.error) : null,
+            ms,
+          });
+        } catch (e: unknown) {
+          const detail = errorDetail(e);
+          this.record('unknown', source, `diagnostic:${variant}:request_failed`, detail);
+          results.push({
+            variant,
+            outcome: 'request_failed',
+            validCandidate: null,
+            fieldCount: null,
+            detail,
+            ms: Math.round(performance.now() - t0),
+          });
+        }
+      }
+      return results;
     } finally {
       this.inFlight = false;
     }
