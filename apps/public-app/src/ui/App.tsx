@@ -9,6 +9,7 @@ import {
   FORM_ANALYSIS_PROMPT_VERSION,
   type DiagnosticResult,
   type RequestLogEntry,
+  isRateLimited,
 } from '../egress/gateway.ts';
 import { Alert } from './components/alert.tsx';
 import { Badge } from './components/badge.tsx';
@@ -198,7 +199,16 @@ export function App() {
               {busy ? 'Running…' : 'Run diagnostics'}
             </Button>
           </div>
-          {typeof diag === 'string' && <p className="mt-2 text-destructive">Not run: {diag}</p>}
+          {typeof diag === 'string' && (
+            <p className="mt-2 text-destructive" data-testid="diag-not-run">
+              Not run: {REASON_TEXT[diag] ?? diag}
+            </p>
+          )}
+          {Array.isArray(diag) && diag.some((r) => r.detail !== null && isRateLimited(r.detail)) && (
+            <p className="mt-2 text-destructive" data-testid="diag-rate-limited">
+              {REASON_TEXT['rate_limited']} The remaining variants were not sent.
+            </p>
+          )}
           {Array.isArray(diag) && (
             <table className="mt-3 w-full text-left text-xs">
               <thead className="border-b text-muted-foreground">

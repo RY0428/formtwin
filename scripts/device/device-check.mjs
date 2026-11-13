@@ -9,7 +9,7 @@
 // everyday profile. Playwright's default switches that block component/model downloads are not used.
 // Output: a summary on the terminal and docs/device-runs/<time>-<build>.json (no personal data).
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { homedir } from 'node:os';
+import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { chromium } from '@playwright/test';
 
@@ -18,8 +18,16 @@ const PROFILE = join(homedir(), '.formtwin-device-profile');
 const FLAGS = ['prompt-api-multimodal-input', 'gemma4-for-built-in-ai'];
 const IMAGES = ['data/eval/explore/explore-01.png', 'data/eval/explore/explore-02.png', 'data/eval/explore/explore-03.png'];
 const SKIP_DOWNLOAD = process.argv.includes('--skip-download');
+const FAKE_AI_RUN = process.env.FORMTWIN_DRY_FAKE_AI === '1';
 const report = { startedAt: new Date().toISOString(), chrome: null, build: null, flags: {}, steps: [] };
-const log = (m) => console.log(`[device-check] ${m}`);
+const log = (m) => console.log(`[device-check]${FAKE_AI_RUN ? ' [DRY RUN, fake model]' : ''} ${m}`);
+/** Removes local paths (home, profile, working directory) from any text that goes into a report. */
+const redact = (t) =>
+  t
+    .split(PROFILE).join('<profile>')
+    .split(process.cwd()).join('<repo>')
+    .split(homedir()).join('~')
+    .replace(/--user-data-dir=\S+/g, '--user-data-dir=<profile>');
 const step = (name, ok, detail = {}) => {
   report.steps.push({ name, ok, ...detail });
   log(`${ok ? 'OK  ' : 'NG  '} ${name} ${Object.keys(detail).length ? JSON.stringify(detail) : ''}`);
@@ -83,18 +91,24 @@ function installFake() {
   };
 }
 
+// Every request of every page in every Chrome launch of this run (not only the last page).
+const foreign = [];
+const watched = new WeakSet();
 async function openApp(ctx) {
-  if (FAKE_AI) await ctx.addInitScript(installFake);
+  if (!watched.has(ctx)) {
+    watched.add(ctx);
+    if (FAKE_AI) await ctx.addInitScript(installFake);
+    ctx.on('request', (r) => {
+      const u = new URL(r.url());
+      if (u.protocol.startsWith('http') && u.origin !== new URL(URL_PRIVATE).origin) foreign.push(r.url());
+    });
+  }
+  for (const old of ctx.pages()) if (old.url().startsWith(URL_PRIVATE)) await old.close();
   const page = await ctx.newPage();
-  const foreign = [];
-  page.on('request', (r) => {
-    const u = new URL(r.url());
-    if (!['data:', 'blob:'].includes(u.protocol) && u.origin !== new URL(URL_PRIVATE).origin) foreign.push(r.url());
-  });
   await page.goto(URL_PRIVATE);
   await page.getByTestId('boot-status').filter({ hasText: 'ready' }).waitFor({ timeout: 60_000 });
   report.build = ((await page.locator('footer').innerText()).match(/Build (\S+)\./) ?? [])[1] ?? 'unknown';
-  return { page, foreign };
+  return { page };
 }
 
 const text = (page, id) => page.getByTestId(id).innerText();
@@ -120,7 +134,7 @@ async function main() {
   report.chrome = ctx.browser()?.version() ?? null;
   try {
     // ④ Cancel during preparation (only possible while the model is not installed yet).
-    let { page, foreign } = await openApp(ctx);
+    let { page } = await openApp(ctx);
     // A fresh profile can take minutes before Chrome answers LanguageModel.availability().
     let availability = await text(page, 'availability');
     for (let i = 0; availability === 'checking' && i < 5; i += 1) {
@@ -130,7 +144,7 @@ async function main() {
         availability = await text(page, 'availability');
       }
       if (availability === 'checking') {
-        ({ page, foreign } = await openApp(ctx));
+        ({ page } = await openApp(ctx));
         availability = await text(page, 'availability');
       }
     }
@@ -140,7 +154,7 @@ async function main() {
       report.gemma4FallbackFrom = 'Enabled';
       await ctx.close();
       ctx = await ensureFlags({ 'prompt-api-multimodal-input': 'Enabled', 'gemma4-for-built-in-ai': 'Default' });
-      ({ page, foreign } = await openApp(ctx));
+      ({ page } = await openApp(ctx));
       for (let j = 0; j < 180 && (availability = await text(page, 'availability')) === 'checking'; j += 1) await page.waitForTimeout(1000);
     }
     if (availability === 'checking') {
@@ -155,7 +169,7 @@ async function main() {
       });
       const v = await ctx.newPage();
       await v.goto('chrome://version');
-      report.diagnostics.commandLine = ((await v.locator('#command_line').innerText().catch(() => '')) || '').replace(/--user-data-dir=\S+/, '--user-data-dir=<profile>');
+      report.diagnostics.commandLine = redact((await v.locator('#command_line').innerText().catch(() => '')) || '');
       await v.close();
     }
     report.availabilityAtStart = availability;
@@ -170,7 +184,7 @@ async function main() {
       const reason = await text(page, 'ai-reason').catch(() => '');
       step('④ cancel AI preparation', s1 === 'failed' && s2 === 'failed' && reason === 'cancelled', { after: s1, after60s: s2, reason });
       if (SKIP_DOWNLOAD) throw new Error('model not installed; run again without --skip-download');
-      ({ page, foreign } = await openApp(ctx));
+      ({ page } = await openApp(ctx));
     } else {
       step('AI availability', false, { availability });
       throw new Error(`on-device AI not usable here: ${availability}`);
@@ -239,23 +253,27 @@ async function main() {
     await page.getByRole('button', { name: 'Create PDF' }).click();
     await page.locator('[data-testid="pdf-preview"][data-state="done"]').waitFor({ timeout: 60_000 });
     const [dl] = await Promise.all([page.waitForEvent('download'), page.getByRole('link', { name: 'Save PDF' }).click()]);
-    await dl.path();
-    step('② Save PDF without lock', (await page.getByTestId('lock-screen').count()) === 0);
+    // The download event is the evidence; the file itself is not kept (fictional values).
+    const pdfName = dl.suggestedFilename().endsWith('.pdf');
+    await dl.cancel().catch(() => undefined);
+    step('② Save PDF without lock', pdfName && (await page.getByTestId('lock-screen').count()) === 0, { pdfName });
 
     await page.getByRole('button', { name: 'End session and clear data' }).click();
     step('③ End session clears values', (await page.getByLabel(/^Family name/).inputValue()) === '' && (await page.getByTestId('pdf-preview').count()) === 0);
 
-    step('page made no request outside its origin', foreign.length === 0, { foreign });
+    step('no request outside the app origin during the whole run', foreign.length === 0, { foreign });
   } catch (e) {
-    report.error = String(e instanceof Error ? e.message : e);
+    report.error = redact(String(e instanceof Error ? e.message : e)).slice(0, 2000);
     log(`stopped: ${report.error}`);
   } finally {
     await ctx.close();
   }
   report.finishedAt = new Date().toISOString();
   if (FAKE_AI) report.dryRunWithFakeModel = 'NOT device evidence';
-  mkdirSync('docs/device-runs', { recursive: true });
-  const file = join('docs/device-runs', `${report.startedAt.replace(/[:.]/g, '-')}-${report.build}.json`);
+  // Dry runs (fake model) never go to docs/device-runs: they are not device evidence.
+  const dir = FAKE_AI ? join(tmpdir(), 'formtwin-device-dry-runs') : 'docs/device-runs';
+  mkdirSync(dir, { recursive: true });
+  const file = join(dir, `${report.startedAt.replace(/[:.]/g, '-')}-${report.build}${FAKE_AI ? '-DRY-RUN' : ''}.json`);
   writeFileSync(file, `${JSON.stringify(report, null, 2)}\n`);
   log(`report: ${file}`);
   log(`summary: ${report.steps.map((s) => `${s.name.split(' ')[0]} ${s.ok ? 'OK' : 'NG'}`).join(' / ')}${report.notMeasured ? ` (not measured: ${report.notMeasured.length})` : ''}`);

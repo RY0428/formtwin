@@ -77,10 +77,15 @@ test('hosted B1–B3: lock and resume, Save PDF without lock, End session then P
   expect(foreign).toEqual([]);
 });
 
-test('hosted public app: same build and CSP host list', async ({ page }) => {
+test('hosted public app: same build as the private app, pinned CSP host list', async ({ page }) => {
+  await page.goto(`${ORIGIN}/`);
+  await expect(page.getByTestId('boot-status')).toHaveText('ready', { timeout: 30_000 });
+  const privateBuild = (await page.locator('footer').innerText()).match(/Build (\S+)\./)?.[1];
   const res = await page.goto('https://formtwin-dev.web.app/');
   const csp = res?.headers()['content-security-policy'] ?? '';
   expect(csp).toContain('connect-src \'self\' https://firebasevertexai.googleapis.com https://content-firebaseappcheck.googleapis.com https://www.google.com/recaptcha/;');
   await expect(page.getByText(/build [0-9a-f]{7}/)).toBeVisible();
+  expect(privateBuild).toBeDefined();
+  await expect(page.getByText(`build ${privateBuild ?? '?'}`)).toBeVisible();
   test.info().annotations.push({ type: 'public build', description: (await page.getByText(/build [0-9a-f]{7}/).innerText()) });
 });

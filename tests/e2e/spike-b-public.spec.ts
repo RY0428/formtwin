@@ -69,3 +69,13 @@ test('429 from the service: English reason, no automatic retry, nothing sent dur
   // One request reached the (fake) service; the second click was refused locally.
   expect(statuses).toEqual(['planned', 'started', 'unknown', 'rejected']);
 });
+
+test('diagnostics: a 429 stops the run with the English reason; a second run is refused with it', async ({ page }) => {
+  await page.goto(`${ORIGIN}/?fake=429`);
+  await page.getByText('Diagnostics (cloud request variants)').click();
+  await page.getByRole('button', { name: 'Run diagnostics' }).click();
+  await expect(page.getByTestId('diag-rate-limited')).toContainText('Too many requests');
+  await expect(page.getByTestId('diag-row')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Run diagnostics' }).click();
+  await expect(page.getByTestId('diag-not-run')).toContainText('Too many requests');
+});
