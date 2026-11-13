@@ -41,3 +41,4 @@ Submission period: 2026-11-11 13:30 PT – 2026-11-30 14:00 PT (JST 2026-11-12 0
 | 2026-11-13 | Spike B hosted run: App Check token obtained on the device; generateContent 400 under investigation; public CSP adds the observed reCAPTCHA connect host; public error detail shown for diagnosis. | |
 | 2026-11-13 | Public-app cloud diagnostics: fixed output-configuration variants (no config → full schema) to isolate the hosted 400; unit and E2E tests. | |
 | 2026-11-13 | Hosted diagnostics isolated the cloud 400 to array minItems/maxItems in responseSchema; first successful hosted cloud analysis (20-field candidate, App Check enforced). Production schema reduced to the working shape (Zod still enforces limits); prompt spike-b-1. | |
+| 2026-11-13 | Spike B verified on the developer's Mac (hosted, App Check enforced): 20-field candidate, 3 resolved keys, 9.4 s. Day 1–7 goals verified except the pending contest answers. | |

@@ -13,7 +13,7 @@ tests use throwaway keys generated at run time). Loop stops only when needed.
 ## Goals (end of Day 7 = 2026-11-18)
 
 - **G1 — close the Day 1–2 gate**
-  - [ ] Public cloud path: hosted URL, production App Check (reCAPTCHA Enterprise), `ONLY_IN_CLOUD`, candidates
+  - [x] Public cloud path (verified 2026-11-13, build e338cff; docs/spikes/spike-b.md): hosted URL, production App Check (reCAPTCHA Enterprise), `ONLY_IN_CLOUD`, candidates
         from the approved original 930004094.pdf, `inferenceSource = IN_CLOUD` — verified on a real device
   - [x] Data separation (private side verified on the hosted URL with Build ac0c241; public entry rejections unit/E2E): filled PDFs / arbitrary File / URL / unknown IDs rejected at the public entry (unit + E2E);
         no fictional personal data in private-side traffic (E2E; real-device Network check)
@@ -96,3 +96,8 @@ release evaluation (20 new cards), bundle-size reduction, video.
     device; G2 end-to-end on hosted URLs; production package signature; CI run of the latest commit.
 - 2026-11-13: Developer signed the package (`ft-d27d442d1434e11c`); hosted private run recorded in docs/spikes/s5-manual-flow.md; two UI-state bugs found on the device and fixed (re-check pending).
 - 2026-11-13: B done on the device (Build ac0c241): signed package, extraction, preview, confirmation withdrawal, invalidation notice, end session, network same-origin only. Remaining: C (public cloud with real App Check).
+- 2026-11-13: C done. The hosted public cloud path was verified with App Check enforced, after two fixes:
+  - the reCAPTCHA `connect-src` host;
+  - the response schema without array minItems/maxItems, found with the hosted diagnostics.
+- **Day 1–7 goals G1–G3 are verified, except the contest Q1/Q2 answers (pending on Discord).** Next: Day 8–12 plan.
+

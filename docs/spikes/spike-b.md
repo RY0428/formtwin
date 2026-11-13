@@ -182,3 +182,27 @@ Status: **implemented, fake-tested; NOT yet verified against the real service.**
 - Counts, ranges and box order stay enforced by Zod on every response.
 - Prompt version `spike-b-1`.
 
+## 2026-11-13 — Hosted production run: verified (build e338cff)
+
+**Run**
+- "Analyze in the cloud" with App Check (reCAPTCHA Enterprise, AI Logic enforcement on), `ONLY_IN_CLOUD`,
+  `gemini-3.5-flash-lite`, prompt `spike-b-1`.
+- `generateContent` returned 200 in 9.40 s, with no console errors.
+
+**Candidate**
+- 20 fields, all on page 1, validated by Zod. Three are resolved, with the expected keys:
+  - 氏名 → `fullName`
+  - 在留期間の満了日 → `periodOfStayExpiry`
+  - 在留カード番号 → `residenceCardNumber`
+- The other 17 are `unsupported`, which is correct because they are outside the MVP keys.
+
+**Review overlay**
+- The candidate boxes land roughly on the right lines.
+- Comparison with adopted rev 1:
+  - `fullName` is at the adopted position.
+  - `residenceCardNumber` and `periodOfStayExpiry` are at a different position. The candidate uses one box for
+    the whole date and the card-number box is offset.
+  - These are for human review; the candidate is not adopted.
+
+**Status:** the Day 1–2 gate row "公開側クラウド経路" is **verified on a real device**.
+

@@ -30,8 +30,8 @@
 - スパイクC: 公式様式 930004094.pdf（PDL1.0）1ページ目へ記入確認済み。フォント BIZ UDゴシック全体埋込み。`docs/spikes/spike-c.md`
 - S5: 手入力→確認→部分記入PDF の導線を実装、コンテナ E2E・実機（公開URL・実AI）で確認済み。`docs/spikes/s5-manual-flow.md`
 - 重要欄ゲート: 凍結プロトコル（`docs/eval/protocol.md`, `fe793c2`）で判定済み・合格（`docs/eval/gate-results.md`）。要修正: モデルの文字列 `"null"`、印字に無い発音記号
-- スパイクB: 実装・fake 試験済み（承認済みID→ハッシュ再確認→App Check(reCAPTCHA Enterprise)→`ONLY_IN_CLOUD`→`IN_CLOUD`確認→未採用候補表示）。実サービス未実行（ユーザーの reCAPTCHA キー・App Check 登録待ち）。`docs/spikes/spike-b.md`
-- Day 3–7 範囲（ループ `docs/plans/day1-7.md`）: 署名済みフォームパッケージ（`forms/`、ES256、秘密鍵はリポジトリ外）、本人側の起動時検証、Tailwind + shadcn/ui 形式部品、React Hook Form、古い抽出結果の破棄、pdf.js プレビュー、公開側レビュー画面を実装。未署名の本番ビルドは入力拒否 → private の次回 deploy 前にユーザーが鍵生成・署名
+- スパイクB: 実機確認済み（2026-11-13, build e338cff）。App Check(reCAPTCHA Enterprise, AI Logic enforced)→`ONLY_IN_CLOUD`→20欄・resolved 3。responseSchema の配列 minItems/maxItems は 400（実測）→ 不使用、制約は Zod。`docs/spikes/spike-b.md`
+- Day 3–7 範囲（ループ `docs/plans/day1-7.md`）: 署名済みフォームパッケージ（`forms/`、ES256、秘密鍵はリポジトリ外）、本人側の起動時検証、Tailwind + shadcn/ui 形式部品、React Hook Form、古い抽出結果の破棄、pdf.js プレビュー、公開側レビュー画面を実装。本番パッケージ署名済み（keyId `ft-d27d442d1434e11c`、秘密鍵は開発者Macのみ）。公開URLで本人側導線を実機確認済み（Build ac0c241）
 - SDK 注意: `LanguageModel` global が無い環境では `ONLY_ON_DEVICE` でもクラウドへ送信される（@firebase/ai 3.1.0 のコードで確認）。`FirebaseOnDeviceLLM` のガードを外さない。
 - Node 24（`.nvmrc`）。@firebase/ai 3.x の要件。
 - 2026-11-12 hackathon manager へ3点を再送 → 2026-11-13 返信「技術的質問は Discord #hackathon-help（#BuildHybridAI タグ）で技術チームへ」。Discord で質問（①② は 2026-11-13 #hackathon-help に投稿、回答待ち）:
@@ -40,7 +40,7 @@
   3. 「Gemini Nano 4」→ 2026-11-13 Discord 既存スレッドで運営が Firebase チーム回答を転記:「Firebase AI Logic SDK 経由ならよい。chrome://flags の Gemma 4 for built-in AI 有効化が必要な場合あり」。Gemma 4 有効時も検証する → 2026-11-13 フラグ有効（`model_version/v4`）でも当初 Gemma 4 未DL → 同日、公開URLの Prepare で Gemma 4 DL 完了（約23分）、`prompt_api_gemma4` Requested・Available。呼出しごとの実モデルは Chrome が示さないため「Gemma 4 要求下で抽出」と記録（断定しない）
   - 承認済み・規約違反確定のどちらとしても扱わない。回答待ちでも実装・実機検証は進める。本人情報のクラウドフォールバックは回答にかかわらず導入しない。
 
-## 現フェーズ: Day 1–7 実装済み・実機確認待ち（次は Day 8–12、requirements.md 8.2）
+## 現フェーズ: Day 1–7 完了・実機確認済み（大会Q1/Q2の回答待ちのみ）。次は Day 8–12（requirements.md 8.2）
 
 以下は Day 1–2 の優先順（記録として残す）。
 
