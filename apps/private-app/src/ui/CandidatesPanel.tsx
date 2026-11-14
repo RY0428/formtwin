@@ -62,16 +62,18 @@ export function CandidatesPanel({ result, onApply }: Props) {
             </Button>
           </li>
         )}
-        {number !== null && (
+        {number !== null && numberIssue === undefined && (
           <li>
             <Button type="button" variant="secondary" onClick={() => onApply({ residenceCardNumber: number })}>
               Use card number: {number}
             </Button>
-            {numberIssue !== undefined && (
-              <span role="note" data-testid="number-warning" className="ml-2 text-amber-800">
-                Check: {numberIssue}
-              </span>
-            )}
+          </li>
+        )}
+        {number !== null && numberIssue !== undefined && (
+          // A number that breaks the card format is not offered for one-click adoption (docs/decisions.md
+          // 2026-11-14): the release evaluation showed such values were always wrong. No automatic correction.
+          <li role="note" data-testid="number-warning" className="text-amber-800">
+            Card number read as “{number}” does not look right ({numberIssue}). Type it from your card.
           </li>
         )}
       </ul>

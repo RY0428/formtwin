@@ -85,3 +85,24 @@ if (Array.isArray(results.pdfChecks)) {
   const mis = checked.flatMap((p) => p.misfills.map((m) => `${p.file} ${m}`));
   console.log(`\nPDF after confirmation: ${checked.length} PDFs compared; mis-fills ${mis.length}${mis.length ? `\n${mis.map((m) => `- ${m}`).join('\n')}` : ''}`);
 }
+
+// Card number as offered for one-click adoption (release2 protocol, decision 2026-11-14 option A):
+// a candidate is offered only when it matches the card format.
+{
+  const FORMAT = /^[A-Z]{2}\d{8}[A-Z]{2}$/;
+  let n = 0;
+  let correct = 0;
+  let wrongOffered = 0;
+  let notOffered = 0;
+  for (const run of results.runs) {
+    const want = truthByFile.get(run.file).residenceCardNumber;
+    if (want === null || want === undefined) continue;
+    n += 1;
+    const got = run.timedOut ? null : (run.fields?.residenceCardNumber ?? null);
+    if (got === null || got === '' || !FORMAT.test(got)) notOffered += 1;
+    else if (got === want) correct += 1;
+    else wrongOffered += 1;
+  }
+  console.log(`\nCard number as offered for one-click adoption: N=${n}; correct and offered ${pct(correct, n)}; wrong but offered ${pct(wrongOffered, n)}; not offered (typed by hand) ${pct(notOffered, n)}`);
+}
+
