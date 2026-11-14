@@ -528,6 +528,9 @@ export function App() {
               signed by key {boot.assets.pkg.manifest.keyId}
               {boot.assets.pkg.testKey ? `, ${COPY.testKey}` : ''}). Build {__APP_COMMIT__}.
             </p>
+            <p data-testid="trust-info">
+              {COPY.boot.trustList(boot.assets.pkg.trustUpdatedAt)}
+            </p>
           </>
         )}
       </footer>

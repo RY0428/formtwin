@@ -21,6 +21,8 @@ export const COPY = {
   boot: {
     status: 'Form status',
     failed: 'The bundled form package could not be verified',
+    trustList: (date: string) =>
+      `Signing-key and withdrawal list as of ${date}. Changes made after that date apply only after the app is updated.`,
     /** Short English reason per package error code (no personal data). */
     reasons: {
       unsigned: 'The package is not signed.',

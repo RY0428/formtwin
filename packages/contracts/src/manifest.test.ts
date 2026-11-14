@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { adoptionHistorySchema, canonicalJson, manifestSchema } from './manifest.ts';
+import { adoptionHistorySchema, canonicalJson, evaluateTrust, keyIdForJwk, manifestSchema, trustListSchema, type Manifest } from './manifest.ts';
 
 const file = (role: string, path = `forms/${role}.bin`) => ({ path, role, sha256: 'a'.repeat(64), size: 10 });
 const base = {
@@ -54,5 +54,33 @@ describe('adoptionHistorySchema', () => {
     expect(adoptionHistorySchema.safeParse(h).success).toBe(true);
     expect(adoptionHistorySchema.safeParse({ ...h, analysisRunId: null }).success).toBe(false);
     expect(adoptionHistorySchema.safeParse({ ...h, origin: 'manual-layout' }).success).toBe(false);
+  });
+});
+
+describe('trust list', () => {
+  const m = { packageId: 'p-r1', keyId: 'ft-0123456789abcdef', createdAt: '2026-11-13' } as unknown as Manifest;
+  const tbase = { schemaVersion: 1 as const, updatedAt: '2026-11-14', revokedPackages: [] };
+  it('evaluates every state', () => {
+    expect(evaluateTrust({ ...tbase, keys: [] }, m, 'a'.repeat(64))).toBe('untrusted_key');
+    expect(evaluateTrust({ ...tbase, keys: [{ keyId: m.keyId, status: 'active', since: '2026-11-01' }] }, m, 'a'.repeat(64))).toBe('trusted');
+    expect(evaluateTrust({ ...tbase, keys: [{ keyId: m.keyId, status: 'revoked', since: '2026-11-01' }] }, m, 'a'.repeat(64))).toBe('key_revoked');
+    expect(evaluateTrust({ ...tbase, keys: [{ keyId: m.keyId, status: 'retired', since: '2026-11-01', retiredAt: '2026-11-13' }] }, m, 'a'.repeat(64))).toBe('trusted');
+    expect(evaluateTrust({ ...tbase, keys: [{ keyId: m.keyId, status: 'retired', since: '2026-11-01', retiredAt: '2026-11-12' }] }, m, 'a'.repeat(64))).toBe('key_retired');
+    expect(
+      evaluateTrust(
+        { ...tbase, keys: [{ keyId: m.keyId, status: 'active', since: '2026-11-01' }], revokedPackages: [{ packageId: 'p-r1', manifestSha256: 'a'.repeat(64), reason: 'x', revokedAt: '2026-11-14' }] },
+        m,
+        'a'.repeat(64),
+      ),
+    ).toBe('package_revoked');
+  });
+  it('rejects duplicate key ids (a later "revoked" entry must not be shadowed)', () => {
+    const k = { keyId: 'ft-0123456789abcdef', since: '2026-11-01' };
+    expect(trustListSchema.safeParse({ ...tbase, keys: [{ ...k, status: 'active' }, { ...k, status: 'revoked' }] }).success).toBe(false);
+  });
+  it('derives key ids from the key material', async () => {
+    const id = await keyIdForJwk({ kty: 'EC', crv: 'P-256', x: 'a', y: 'b' });
+    expect(id).toMatch(/^ft-[0-9a-f]{16}$/);
+    expect(await keyIdForJwk({ kty: 'EC', crv: 'P-256', x: 'a', y: 'c' })).not.toBe(id);
   });
 });

@@ -35,5 +35,10 @@ before deploying: `check:package` fails while the current package is revoked, an
 
 ## Limits
 
+- `retired` relies on the package's own `createdAt`, which the signer writes. Anyone holding a retired private
+  key can backdate a new package and it will still verify. Retire only keys that are known to be safe; revoke
+  any key that may have been exposed.
+- The private app shows the date of its bundled list (`updatedAt`) in the footer.
+
 The trust list ships inside each build. Revocation takes effect for users only after the new build is
 deployed and loaded; there is no runtime revocation check (the private side makes no network requests).

@@ -81,7 +81,7 @@ async function ephemeralPackage() {
     signature: { alg: 'ES256', keyId, signature: Buffer.from(sig).toString('base64') },
     publicKey: { keyId, jwk: { kty: pub.kty, crv: pub.crv, x: pub.x, y: pub.y } },
     // The E2E build trusts only its own throwaway key.
-    trust: { schemaVersion: 1, keys: [{ keyId, status: 'active', since: '2026-11-13' }], revokedPackages: [] },
+    trust: { schemaVersion: 1, updatedAt: '2026-11-14', keys: [{ keyId, status: 'active', since: '2026-11-13' }], revokedPackages: [] },
   };
 }
 
@@ -91,6 +91,8 @@ function committedPackage() {
   const manifest = json(dir + 'manifest.json') as { keyId: string };
   const keyPath = `forms/keys/${manifest.keyId}.pub.json`;
   if (!existsSync(ROOT + keyPath)) return null;
+  // Fail closed with a clear message: a signed package is never bundled without its trust list.
+  if (!existsSync(ROOT + 'forms/trust.json')) throw new Error('forms/trust.json is missing: the signed package cannot be trusted (docs/forms/key-rotation.md)');
   return { manifest, signature: json(dir + 'manifest.sig.json'), publicKey: json(keyPath), trust: json('forms/trust.json') };
 }
 

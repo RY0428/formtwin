@@ -139,9 +139,24 @@ export type AdoptionHistory = z.infer<typeof adoptionHistorySchema>;
 
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 
+/**
+ * The key id is derived from the public key itself: `ft-` + first 16 hex of SHA-256 over
+ * `{"crv","kty","x","y"}` (same formula as scripts/forms/keygen.mjs). Verifiers recompute it, so a key
+ * file whose JWK was swapped no longer matches the id the trust list names.
+ */
+export async function keyIdForJwk(jwk: { crv?: string; kty?: string; x?: string; y?: string }): Promise<string> {
+  const canon = JSON.stringify({ crv: jwk.crv, kty: jwk.kty, x: jwk.x, y: jwk.y });
+  // contracts has no DOM types; WebCrypto exists in browsers and Node 24. JWK fields are ASCII.
+  const subtle = (globalThis as unknown as { crypto: { subtle: { digest(a: string, d: Uint8Array): Promise<ArrayBuffer> } } }).crypto.subtle;
+  const digest = new Uint8Array(await subtle.digest('SHA-256', Uint8Array.from(canon, (c) => c.charCodeAt(0))));
+  return `ft-${Array.from(digest.slice(0, 8), (b) => b.toString(16).padStart(2, '0')).join('')}`;
+}
+
 export const trustListSchema = z
   .object({
     schemaVersion: z.literal(1),
+    /** Date of the last change; shown in private-app with the limit of build-time revocation. */
+    updatedAt: isoDate,
     keys: z
       .array(
         z
@@ -165,7 +180,13 @@ export const trustListSchema = z
       )
       .max(200),
   })
-  .strict();
+  .strict()
+  .superRefine((t, ctx) => {
+    const ids = t.keys.map((k) => k.keyId);
+    if (new Set(ids).size !== ids.length) ctx.addIssue({ code: 'custom', message: 'duplicate keyId' });
+    const pk = t.revokedPackages.map((r) => `${r.packageId}:${r.manifestSha256}`);
+    if (new Set(pk).size !== pk.length) ctx.addIssue({ code: 'custom', message: 'duplicate revoked package' });
+  });
 
 export type TrustList = z.infer<typeof trustListSchema>;
 export type TrustDecision = 'trusted' | 'untrusted_key' | 'key_revoked' | 'key_retired' | 'package_revoked';

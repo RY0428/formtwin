@@ -1,5 +1,6 @@
 import {
   evaluateTrust,
+  keyIdForJwk,
   formDefSchema,
   manifestSchema,
   manifestSignatureSchema,
@@ -58,6 +59,8 @@ export interface VerifiedPackage {
   readonly font: Uint8Array;
   readonly layout: PdfLayout;
   readonly testKey: boolean;
+  /** Date of the bundled trust list (withdrawals made later reach users only with a new build). */
+  readonly trustUpdatedAt: string;
 }
 
 /** The fixed binding table this app version implements (MVP: one person, simple fields; architecture.md §5.2). */
@@ -110,6 +113,8 @@ export async function verifyPackage(pkg: BundledPackage, appVersion = APP_VERSIO
   if (!m.success || !s.success || !k.success || !t.success) throw new PackageError('malformed');
   const manifest = m.data;
   if (manifest.keyId !== s.data.keyId || s.data.keyId !== k.data.keyId) throw new PackageError('key_mismatch');
+  // The id must be derived from the key material itself (a swapped key file keeps its name only).
+  if ((await keyIdForJwk(k.data.jwk)) !== k.data.keyId) throw new PackageError('key_mismatch');
 
   let ok: boolean;
   try {
@@ -173,5 +178,6 @@ export async function verifyPackage(pkg: BundledPackage, appVersion = APP_VERSIO
     font: pkg.files.font,
     layout: toPdfLayout(formDef),
     testKey: pkg.testKey,
+    trustUpdatedAt: t.data.updatedAt,
   };
 }

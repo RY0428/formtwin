@@ -15,6 +15,7 @@ const trust = trustListSchema.parse(readJson(FILE));
 const key = trust.keys.find((k) => k.keyId === id);
 
 function save() {
+  trust.updatedAt = today();
   writeFileSync(FILE, `${JSON.stringify(trustListSchema.parse(trust), null, 2)}\n`);
   console.log(`forms/trust.json updated (${cmd} ${id})`);
 }
@@ -29,6 +30,7 @@ switch (cmd) {
   case 'retire-key':
     if (!key || key.status !== 'active') throw new Error(`${id} is not an active key`);
     if (trust.keys.filter((k) => k.status === 'active').length < 2) throw new Error('add the new key first: retiring the last active key leaves nothing to sign with');
+    if (arg !== undefined && !(/^\d{4}-\d{2}-\d{2}$/.test(arg) && arg <= today())) throw new Error('retiredAt must be a date not in the future');
     key.status = 'retired';
     key.retiredAt = arg ?? today();
     save();
@@ -42,13 +44,13 @@ switch (cmd) {
   case 'revoke-package': {
     if (!arg) throw new Error('a reason is required');
     const manifest = manifestSchema.parse(readJson(join(ROOT, 'forms/packages', id, 'manifest.json')));
-    trust.revokedPackages.push({
-      packageId: id,
-      manifestSha256: sha256Hex(Buffer.from(manifestSigningText(manifest), 'utf8')),
-      reason: arg,
-      revokedAt: today(),
-    });
+    const manifestSha256 = sha256Hex(Buffer.from(manifestSigningText(manifest), 'utf8'));
+    if (trust.revokedPackages.some((r) => r.packageId === id && r.manifestSha256 === manifestSha256)) throw new Error(`${id} is already revoked`);
+    trust.revokedPackages.push({ packageId: id, manifestSha256, reason: arg, revokedAt: today() });
     save();
+    if (Object.values(readJson(join(ROOT, 'forms/current.json'))).some((c) => c.packageId === id)) {
+      console.warn(`WARNING: ${id} is the current package. Point forms/current.json to another revision (or sign a fixed one) before deploying; check:package now fails.`);
+    }
     break;
   }
   default:

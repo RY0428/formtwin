@@ -6,9 +6,10 @@ import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { evaluateTrust, manifestSchema, manifestSigningText, trustListSchema } from '@formtwin/contracts';
 
-const ROOT = new URL('..', import.meta.url).pathname;
+const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const sha = (b) => createHash('sha256').update(b).digest('hex');
 const json = (p) => JSON.parse(readFileSync(join(ROOT, p), 'utf8'));
 const git = (...a) => execFileSync('git', a, { cwd: ROOT, encoding: 'utf8' }).trim();
@@ -28,10 +29,19 @@ const packages = Object.entries(json('forms/current.json')).map(([formId, cur]) 
   if (!existsSync(join(ROOT, dir, 'manifest.sig.json'))) return { formId, packageId: cur.packageId, signed: false };
   const manifest = manifestSchema.parse(json(`${dir}/manifest.json`));
   const manifestSha256 = sha(Buffer.from(manifestSigningText(manifest), 'utf8'));
+  // Full verification (signature, key material, file hashes, trust), not only the trust list.
+  let verified;
+  try {
+    execFileSync(process.execPath, [join(ROOT, 'scripts/forms/verify-package.mjs'), cur.packageId, '--require-trusted'], { stdio: 'pipe' });
+    verified = true;
+  } catch {
+    verified = false;
+  }
   return {
     formId,
     packageId: cur.packageId,
     signed: true,
+    verified,
     keyId: manifest.keyId,
     keyStatus: trust.keys.find((k) => k.keyId === manifest.keyId)?.status ?? 'not listed',
     manifestSha256,
@@ -57,7 +67,8 @@ const builds = Object.fromEntries(
   ['public-app', 'private-app'].map((app) => {
     const list = files(`apps/${app}/dist`);
     // The build stamps its commit into the bundle (__APP_COMMIT__); a different stamp means a stale dist.
-    const stamped = list?.some((f) => f.path.endsWith('.js') && readFileSync(join(ROOT, `apps/${app}/dist`, f.path), 'utf8').includes(commit)) ?? false;
+    // Exact stamp: "<sha>" (a dirty build is stamped "<sha>+local" and does not match).
+    const stamped = list?.some((f) => f.path.endsWith('.js') && readFileSync(join(ROOT, `apps/${app}/dist`, f.path), 'utf8').includes(JSON.stringify(commit))) ?? false;
     return [app, list === null ? { built: false } : { built: true, matchesCommit: stamped, files: list }];
   }),
 );
@@ -88,5 +99,8 @@ console.log(`commit ${commit}${dirty ? ' (uncommitted changes)' : ''}; packages:
 for (const [app, b] of Object.entries(builds)) {
   console.log(`${app}: ${b.built ? `${b.files.length} files${b.matchesCommit ? '' : ' — WARNING: dist is not stamped with this commit (rebuild)'}` : 'not built'}`);
 }
-const problems = packages.filter((p) => !p.signed || p.trust !== 'trusted').length + Object.values(builds).filter((b) => !b.built || !b.matchesCommit).length;
+const problems =
+  (dirty ? 1 : 0) +
+  packages.filter((p) => !p.signed || !p.verified || p.trust !== 'trusted').length +
+  Object.values(builds).filter((b) => !b.built || !b.matchesCommit).length;
 if (problems > 0) process.exitCode = 1;

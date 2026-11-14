@@ -1,5 +1,6 @@
 {
   "schemaVersion": 1,
+  "updatedAt": "2026-11-14",
   "keys": [
     { "keyId": "ft-d27d442d1434e11c", "status": "active", "since": "2026-11-13", "note": "first production key (maintainer's Mac)" }
   ],

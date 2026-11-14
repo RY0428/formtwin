@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { manifestSigningText, type Manifest } from '@formtwin/contracts';
+import { keyIdForJwk, manifestSigningText, type Manifest } from '@formtwin/contracts';
 import { PackageError, verifyPackage, type BundledPackage } from './verifyPackage.ts';
 
 const ROOT = new URL('../../../../', import.meta.url);
@@ -21,7 +21,7 @@ const hex = async (b: Uint8Array) =>
 async function makeKey() {
   const pair = await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign', 'verify']);
   const jwk = await crypto.subtle.exportKey('jwk', pair.publicKey);
-  const keyId = `ft-${(await hex(new TextEncoder().encode(String(jwk.x)))).slice(0, 16)}`;
+  const keyId = await keyIdForJwk(jwk);
   return { pair, keyId, publicKey: { keyId, jwk: { kty: jwk.kty, crv: jwk.crv, x: jwk.x, y: jwk.y } } };
 }
 
@@ -73,7 +73,7 @@ async function build(opts: {
     manifest,
     signature: { alg: 'ES256', keyId: key.keyId, signature: Buffer.from(sig).toString('base64') },
     publicKey: key.publicKey,
-    trust: (opts.trust ?? ((keyId: string) => ({ schemaVersion: 1, keys: [{ keyId, status: 'active', since: '2026-11-13' }], revokedPackages: [] })))(
+    trust: (opts.trust ?? ((keyId: string) => ({ schemaVersion: 1, updatedAt: '2026-11-14', keys: [{ keyId, status: 'active', since: '2026-11-13' }], revokedPackages: [] })))(
       key.keyId,
       await hex(new TextEncoder().encode(manifestSigningText(manifest))),
     ),
@@ -111,8 +111,9 @@ describe('verifyPackage (throwaway keys)', () => {
   it('refuses a signature from another key', async () => {
     const p = await build();
     const other = await makeKey();
+    // Another key under the same id: caught by the key-id derivation before the signature check.
     expect(await code(verifyPackage({ ...p, publicKey: { ...other.publicKey, keyId: (p.publicKey as { keyId: string }).keyId } }))).toBe(
-      'bad_signature',
+      'key_mismatch',
     );
   });
 
@@ -162,7 +163,7 @@ describe('verifyPackage (throwaway keys)', () => {
   });
 
   describe('trust list (key rotation and revocation)', () => {
-    const list = (keys: unknown[], revokedPackages: unknown[] = []) => ({ schemaVersion: 1, keys, revokedPackages });
+    const list = (keys: unknown[], revokedPackages: unknown[] = []) => ({ schemaVersion: 1, updatedAt: '2026-11-14', keys, revokedPackages });
     it('refuses a key that is not on the list, even with a valid signature', async () => {
       expect(await code(verifyPackage(await build({ trust: () => list([]) })))).toBe('untrusted_key');
     });
@@ -199,3 +200,30 @@ describe('verifyPackage (throwaway keys)', () => {
     });
   });
 });
+
+describe('trust list: key material and check order', () => {
+  it('refuses a key file whose JWK was swapped under a trusted key id', async () => {
+    const good = await build();
+    const other = await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign', 'verify']);
+    const jwk = await crypto.subtle.exportKey('jwk', other.publicKey);
+    const keyId = (good.publicKey as { keyId: string }).keyId;
+    // Attacker signs with their own key but keeps the trusted id on the manifest, signature and key file.
+    const manifest = good.manifest as Manifest;
+    const sig = await crypto.subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, other.privateKey, new TextEncoder().encode(manifestSigningText(manifest)));
+    const forged: BundledPackage = {
+      ...good,
+      signature: { alg: 'ES256', keyId, signature: Buffer.from(sig).toString('base64') },
+      publicKey: { keyId, jwk: { kty: jwk.kty, crv: jwk.crv, x: jwk.x, y: jwk.y } },
+    };
+    expect(await code(verifyPackage(forged))).toBe('key_mismatch');
+  });
+
+  it('checks the signature before the trust list (a bad signature is reported even for an untrusted key)', async () => {
+    const pkg = await build({ trust: () => ({ schemaVersion: 1, updatedAt: '2026-11-14', keys: [], revokedPackages: [] }) });
+    const other = await build();
+    expect(await code(verifyPackage({ ...pkg, signature: other.signature, publicKey: pkg.publicKey }))).toBe('key_mismatch');
+    const tampered = { ...pkg, manifest: { ...(pkg.manifest as Manifest), createdAt: '2026-11-01' } };
+    expect(await code(verifyPackage(tampered))).toBe('bad_signature');
+  });
+});
+

@@ -32,10 +32,7 @@ export function assertOutsideRepo(path) {
   }
 }
 
-export async function keyIdFor(publicJwk) {
-  const canon = JSON.stringify({ crv: publicJwk.crv, kty: publicJwk.kty, x: publicJwk.x, y: publicJwk.y });
-  return `ft-${sha256Hex(Buffer.from(canon)).slice(0, 16)}`;
-}
+export { keyIdForJwk as keyIdFor } from '@formtwin/contracts';
 
 export async function signBytes(privateJwk, bytes) {
   const key = await subtle.importKey('jwk', privateJwk, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign']);

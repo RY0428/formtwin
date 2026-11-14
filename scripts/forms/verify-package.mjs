@@ -2,6 +2,7 @@
 // Usage: node scripts/forms/verify-package.mjs <packageId>
 import {
   evaluateTrust,
+  keyIdForJwk,
   manifestSchema,
   manifestSignatureSchema,
   manifestSigningText,
@@ -23,6 +24,7 @@ const manifest = manifestSchema.parse(readJson(join(dir, 'manifest.json')));
 const sig = manifestSignatureSchema.parse(readJson(join(dir, 'manifest.sig.json')));
 const pub = publicKeySchema.parse(readJson(join(ROOT, 'forms/keys', `${sig.keyId}.pub.json`)));
 if (sig.keyId !== manifest.keyId || pub.keyId !== sig.keyId) throw new Error('keyId mismatch');
+if ((await keyIdForJwk(pub.jwk)) !== pub.keyId) throw new Error('keyId does not match the public key material');
 if (!(await verifyBytes(pub.jwk, enc(manifestSigningText(manifest)), sig.signature))) throw new Error('BAD SIGNATURE');
 for (const f of manifest.files) {
   if (sha256Hex(readFileSync(join(ROOT, f.path))) !== f.sha256) throw new Error(`hash mismatch: ${f.path}`);
