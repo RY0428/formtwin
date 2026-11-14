@@ -80,3 +80,8 @@ for (const f of FIELDS) {
 }
 console.log(`\nTiming (ms): first run after page load n=${times.first.length} p50=${p(times.first, 0.5)} p95=${p(times.first, 0.95)}; warm n=${times.warm.length} p50=${p(times.warm, 0.5)} p95=${p(times.warm, 0.95)}; timeouts=${timeouts}`);
 if (wrongList.length) console.log(`\nWrong candidates:\n${wrongList.map((w) => `- ${w}`).join('\n')}`);
+if (Array.isArray(results.pdfChecks)) {
+  const checked = results.pdfChecks.filter((p) => Array.isArray(p.misfills));
+  const mis = checked.flatMap((p) => p.misfills.map((m) => `${p.file} ${m}`));
+  console.log(`\nPDF after confirmation: ${checked.length} PDFs compared; mis-fills ${mis.length}${mis.length ? `\n${mis.map((m) => `- ${m}`).join('\n')}` : ''}`);
+}

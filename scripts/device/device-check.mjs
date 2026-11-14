@@ -140,6 +140,8 @@ async function waitAi(page, timeoutMs) {
   }
 }
 
+/** Thrown after an evaluation run to skip the regular steps (not an error). */
+const EVAL_DONE = Symbol('eval done');
 async function main() {
   let ctx = await ensureFlags();
   report.chrome = ctx.browser()?.version() ?? null;
@@ -207,6 +209,40 @@ async function main() {
     const ai = await waitAi(page, 90 * 60_000);
     step('Prepare AI', ai === 'ready', { status: ai, seconds: Math.round((Date.now() - t0) / 1000) });
     if (ai !== 'ready') throw new Error('AI not ready');
+
+    // Evaluation mode (docs/eval/release-protocol.md §6): judge a set once and stop.
+    const evalIdx = process.argv.indexOf('--eval');
+    if (evalIdx >= 0) {
+      const setName = process.argv[evalIdx + 1];
+      if (!/^(release|explore)$/.test(setName ?? '')) throw new Error('--eval needs a set name: release (explore for a dry run)');
+      const { runEvaluation } = await import('./eval-run.mjs');
+      const out = await runEvaluation({ page, setName, log });
+      const date = new Date().toISOString().slice(0, 10);
+      const results = {
+        set: setName,
+        run: `${setName}-${date}-mac`,
+        note: `Automated run by device:check --eval ${setName} (docs/eval/release-protocol.md §6). Judge once.`,
+        environment: {
+          url: URL_PRIVATE,
+          profile: 'device:check dedicated profile',
+          chrome: report.chrome,
+          build: report.build,
+          flags: report.flags,
+          sdk: 'firebase 13.3.0',
+          device: 'developer Mac',
+        },
+        warmUp: out.warmUp,
+        runs: out.runs,
+        pdfChecks: out.pdfChecks,
+      };
+      mkdirSync('data/eval/results', { recursive: true });
+      const file = join('data/eval/results', `${results.run}.json`);
+      if (FAKE_AI) log('DRY RUN: evaluation results are not written');
+      else writeFileSync(file, `${JSON.stringify(results, null, 2)}\n`);
+      const misfills = out.pdfChecks.reduce((n, p) => n + (p.misfills?.length ?? 0), 0);
+      step(`evaluation ${setName}: ${out.runs.length} cards`, true, { results: FAKE_AI ? '(dry run)' : file, pdfMisfills: misfills });
+      throw EVAL_DONE; // skip the regular steps; the report is still written below
+    }
 
     // ⑤ Extraction on fictional sample images.
     for (const img of IMAGES) {
@@ -355,9 +391,11 @@ async function main() {
     await pub.close();
 
   } catch (e) {
-    report.error = redact(String(e instanceof Error ? e.message : e)).slice(0, 2000);
-    if (process.env.FORMTWIN_DEBUG === "1") console.error(e);
-    log(`stopped: ${report.error}`);
+    if (e !== EVAL_DONE) {
+      report.error = redact(String(e instanceof Error ? e.message : e)).slice(0, 2000);
+      if (process.env.FORMTWIN_DEBUG === "1") console.error(e);
+      log(`stopped: ${report.error}`);
+    }
   } finally {
     await ctx.close();
   }
