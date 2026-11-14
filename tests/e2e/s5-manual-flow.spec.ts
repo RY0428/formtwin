@@ -160,6 +160,7 @@ test('placeholder "null" is shown as not read; suspicious candidates carry warni
   await expect(page.getByTestId('name-warning')).toContainText('accented or non-Latin');
   await expect(page.getByTestId('number-warning')).toContainText('2 letters, 8 digits, 2 letters');
   await expect(page.getByTestId('number-warning')).toContainText('Type it from your card');
+  await expect(page.getByText('AI can confuse similar characters, such as O and 0 or I and 1')).toBeVisible();
   // A number that breaks the format is not offered for one-click adoption (release evaluation, option A).
   await expect(page.getByRole('button', { name: /^Use card number/ })).toHaveCount(0);
 });

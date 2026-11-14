@@ -23,7 +23,8 @@ export function CandidatesPanel({ result, onApply }: Props) {
   return (
     <div className="flex flex-col gap-3">
       <Alert variant="warning" role="status">
-        Candidates are not confirmed. Check every value against the image.
+        Candidates are not confirmed. Check every value against the image. AI can confuse similar characters, such as
+        O and 0 or I and 1, and may add or drop a character. Compare every character with your card.
       </Alert>
       <dl data-testid="result" className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 rounded-lg bg-muted p-3 text-sm">
         {result.fields.map((f) => (
