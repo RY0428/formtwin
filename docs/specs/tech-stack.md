@@ -138,7 +138,7 @@ MVPは一時セッションのみ。本人情報をメモリ内で扱い、Index
 
 ### CI
 
-GitHub Actionsでlint、型検査、Vitest、秘密情報・不変条件・パッケージ署名の検査、Fake LLMを使うPlaywright E2Eを実行する。
+GitHub Actionsでlint、型検査、Vitest、秘密情報・不変条件・パッケージ署名の検査、Fake LLMを使うPlaywright E2Eを実行する。E2Eには axe-core（`@axe-core/playwright` 4.13.0、開発時のみ、WCAG A/AA タグ）による自動検査と200%拡大（640px幅）の検査を含める。自動検査の合格をWCAG適合の主張に使わない。
 
 - LLM境界は`OnDeviceLLM` / `CloudLLM`に分ける。壊れたJSON、欠落値、拒否、タイムアウト、モデル非対応を試験する。
 - 端末失敗時にクラウド要求が発生しないことを検証する。

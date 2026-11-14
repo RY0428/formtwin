@@ -241,6 +241,25 @@ export function App() {
   }, [resetSession]);
   const lifecycle = useSessionLifecycle({ onEnd: clearSession });
   const { end: endLifecycle } = lifecycle;
+
+  // Focus management (docs/decisions.md 2026-11-14): lock → Resume button; resume → the element that had
+  // focus before the lock; end → the end message. Status texts themselves use role=status / role=alert.
+  const resumeButton = useRef<HTMLButtonElement>(null);
+  const lastFocusInSession = useRef<HTMLElement | null>(null);
+  const endMessage = useRef<HTMLDivElement>(null);
+  const wasLocked = useRef(false);
+  useEffect(() => {
+    if (lifecycle.locked) {
+      resumeButton.current?.focus();
+    } else if (wasLocked.current) {
+      const el = lastFocusInSession.current;
+      if (el !== null && el.isConnected) el.focus();
+    }
+    wasLocked.current = lifecycle.locked;
+  }, [lifecycle.locked]);
+  useEffect(() => {
+    if (ended !== null) endMessage.current?.focus();
+  }, [ended]);
   endSessionRef.current = endLifecycle;
   const onEnd = useCallback(() => {
     endLifecycle('user');
@@ -274,7 +293,7 @@ export function App() {
             </CardHeader>
             <CardContent>
               <div>
-                <Button type="button" onClick={lifecycle.resume}>
+                <Button type="button" onClick={lifecycle.resume} ref={resumeButton}>
                   {COPY.lifecycle.resume}
                 </Button>
               </div>
@@ -290,13 +309,20 @@ export function App() {
           </Alert>
         )}
         {ended !== null && ended !== 'user' && (
-          <Alert variant="info" role="status" data-testid="ended-reason">
+          <Alert variant="info" role="status" data-testid="ended-reason" ref={endMessage} tabIndex={-1}>
             <p>{COPY.lifecycle.endedBecause[ended]}</p>
             <p className="mt-1">{COPY.end.cleared}</p>
             <p className="mt-1 text-xs">{COPY.end.limits}</p>
           </Alert>
         )}
-        <div hidden={lifecycle.locked} className="flex flex-col gap-5" data-testid="session-content">
+        <div
+          hidden={lifecycle.locked}
+          className="flex flex-col gap-5"
+          data-testid="session-content"
+          onFocus={(e) => {
+            lastFocusInSession.current = e.target;
+          }}
+        >
         <Alert variant="info">
           <p>{COPY.intro(title)}</p>
           <p className="mt-2 text-xs">{COPY.privacyNote}</p>
@@ -480,7 +506,7 @@ export function App() {
                   </Button>
                 </div>
                 {ended === 'user' && (
-                  <Alert variant="success" role="status">
+                  <Alert variant="success" role="status" ref={endMessage} tabIndex={-1} data-testid="ended-user">
                     <p>{COPY.end.cleared}</p>
                     <p className="mt-1">{COPY.end.limits}</p>
                   </Alert>

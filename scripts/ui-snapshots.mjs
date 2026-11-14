@@ -93,6 +93,17 @@ try {
   await life.getByTestId('ended-reason').waitFor();
   await lifeShot('private-07-inactivity-ended');
   await life.close();
+  // 200% zoom (M12): a 1280 px window at 200% = 640 px CSS viewport.
+  const zoom = await browser.newPage({ viewport: { width: 640, height: 900 }, deviceScaleFactor: 1 });
+  await open(zoom, 'http://localhost:4174/');
+  await zoom.getByTestId('boot-status').filter({ hasText: 'ready' }).waitFor();
+  await zoom.screenshot({ path: join(OUT, 'private-09-zoom200.png'), fullPage: true });
+  shots.push(join(OUT, 'private-09-zoom200.png'));
+  await open(zoom, 'http://localhost:4173/');
+  await zoom.locator('[data-testid="review-canvas"][data-state="done"]').waitFor();
+  await zoom.screenshot({ path: join(OUT, 'public-03-zoom200.png'), fullPage: true });
+  shots.push(join(OUT, 'public-03-zoom200.png'));
+  await zoom.close();
   // Failure path (M8): extraction time-out, with a minimal fake model.
   const fail = await browser.newPage({ viewport: { width: 1100, height: 900 }, deviceScaleFactor: 1 });
   await fail.clock.install();
