@@ -5,6 +5,8 @@ All images here are **synthetic test cards** made by `scripts/generate-sample-ca
 
 - `explore/` — exploration set for tuning prompts, crops and thresholds (requirements.md §6). Never reuse these
   images, or variants of the same source card, for the gate or release judgement sets.
+- `explore2/` — exploration set 2 (5 cards, confusable letters at the card-number ends) for prompt `spike-a-2`.
+  Exploration only; never used for judgement.
 - `gate/` — gate judgement set (12 cards incl. 2 with a blank field), generated after the protocol freeze
   (`fe793c2`). Judge once; never use for tuning.
 - `results/` — recorded extraction runs (`score.mjs` input).

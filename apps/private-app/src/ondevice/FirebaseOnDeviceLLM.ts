@@ -18,7 +18,7 @@ import { getPrivateFirebaseApp } from './firebaseApp.ts';
 import { checkAvailability, getLanguageModelGlobal } from './languageModelGlobal.ts';
 import { OnDeviceError, type DeviceAvailability, type ImageInput, type OnDeviceLLM } from './OnDeviceLLM.ts';
 
-export const EXTRACTION_PROMPT_VERSION = 'spike-a-1';
+export const EXTRACTION_PROMPT_VERSION = 'spike-a-2';
 
 const CREATE_OPTIONS: LanguageModelCreateOptions = {
   expectedInputs: [{ type: 'text', languages: ['en', 'ja'] }, { type: 'image' }],
@@ -32,6 +32,11 @@ const PROMPT = [
   'Copy values exactly as printed, character by character.',
   'Do not add accents or diacritics, do not correct spelling, and do not change letters into digits or digits into letters.',
   'If a field is blank, missing or unreadable, use JSON null (not the text "null").',
+  // spike-a-2 (2026-11-14, after two release runs where letters O/I/Q at the card-number ends were read as digits):
+  'residenceCardNumber has exactly 12 characters: 2 letters, then 8 digits, then 2 letters (for example AB12345678CD).',
+  'Its first two and last two characters are always letters: a round character there is the letter O, not the digit 0;',
+  'a vertical stroke there is the letter I, not the digit 1. Never add or drop a character.',
+  'Copy only the value printed under each label; ignore any watermark or stamp text across the card.',
   'Return JSON that matches the given schema and nothing else.',
 ].join('\n');
 

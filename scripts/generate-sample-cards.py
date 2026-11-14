@@ -5,7 +5,7 @@ no official design, emblem, photo, hologram or security features, and every
 image carries a large "SAMPLE / NOT A REAL DOCUMENT" watermark. All values are
 fictional. Use only for tuning prompts/cropping (requirements.md §6).
 
-Usage: python3 scripts/generate-sample-cards.py <font-path> <out-dir> [explore|gate|release|release2]
+Usage: python3 scripts/generate-sample-cards.py <font-path> <out-dir> [explore|explore2|gate|release|release2]
 """
 
 import hashlib
@@ -33,6 +33,21 @@ SETS["explore"] = [
 ]
 
 BASE = {"scale": 1.0, "rotate": 0, "brightness": 1.0, "contrast": 1.0}
+
+# Exploration set 2 (2026-11-14): card numbers with confusable letters at the letter positions, for checking
+# prompt spike-a-2 BEFORE the release3 protocol is frozen. Exploration only: never used for judgement.
+SETS["explore2"] = [
+    ("explore2-01", {"fullName": "OLIVEIRA RAFAEL", "residenceCardNumber": "OI30581027QO", "periodOfStayExpiry": "2028-06-11"},
+     {"scale": 1.0, "rotate": 0, "brightness": 1.0, "contrast": 1.0}),
+    ("explore2-02", {"fullName": "NOWAK EWA", "residenceCardNumber": "QS10500811IO", "periodOfStayExpiry": "2027-02-17"},
+     {"scale": 0.8, "rotate": 0, "brightness": 1.0, "contrast": 1.0}),
+    ("explore2-03", {"fullName": "TANDON MEERA", "residenceCardNumber": "IB88015500OZ", "periodOfStayExpiry": "2029-09-30"},
+     {"scale": 1.0, "rotate": 4, "brightness": 1.0, "contrast": 1.0}),
+    ("explore2-04", {"fullName": "KOWALSKI PIOTR", "residenceCardNumber": "ZO05108150SI", "periodOfStayExpiry": "2026-12-05"},
+     {"scale": 1.0, "rotate": 0, "brightness": 0.6, "contrast": 0.8}),
+    ("explore2-05", {"fullName": "ODUYA BISI", "residenceCardNumber": None, "periodOfStayExpiry": "2028-10-01"},
+     {"scale": 1.0, "rotate": 0, "brightness": 1.0, "contrast": 1.0}),
+]
 
 # Gate set: generated AFTER the protocol freeze (docs/eval/protocol.md). New fictional values,
 # none shared with the exploration set. None = the field is blank on the card.
@@ -151,6 +166,7 @@ def main() -> None:
         "set": set_name,
         "purpose": {
             "explore": "Exploration only: prompt, crop and threshold tuning. Never reuse for gate or release judgement.",
+            "explore2": "Exploration only (confusable card-number letters, prompt spike-a-2). Never reuse for judgement.",
             "gate": "Gate judgement only, generated after the protocol freeze (fe793c2). Not for tuning.",
             "release": "Release judgement only, generated after the release protocol freeze (bd4745b). Judge once; never use for tuning.",
             "release2": "Release re-evaluation only, generated after the release2 protocol freeze (ab68491). Judge once; never use for tuning.",

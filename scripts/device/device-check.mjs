@@ -214,14 +214,16 @@ async function main() {
     const evalIdx = process.argv.indexOf('--eval');
     if (evalIdx >= 0) {
       const setName = process.argv[evalIdx + 1];
-      if (!/^(release|release2|explore)$/.test(setName ?? '')) throw new Error('--eval needs a set name: release2 (explore for a dry run)');
+      if (!/^(release|release2|release3|explore|explore2)$/.test(setName ?? '')) throw new Error('--eval needs a set name (release3, or explore2 for an exploration run)');
       const { runEvaluation } = await import('./eval-run.mjs');
       const out = await runEvaluation({ page, setName, log });
       const date = new Date().toISOString().slice(0, 10);
       const results = {
         set: setName,
         run: `${setName}-${date}-mac`,
-        note: `Automated run by device:check --eval ${setName} (docs/eval/${setName === 'release2' ? 'release2' : 'release'}-protocol.md). Judge once.`,
+        note: setName.startsWith('explore')
+          ? `Exploration run by device:check --eval ${setName} (not a judgement).`
+          : `Automated run by device:check --eval ${setName} (docs/eval/${setName}-protocol.md). Judge once.`,
         environment: {
           url: URL_PRIVATE,
           profile: 'device:check dedicated profile',

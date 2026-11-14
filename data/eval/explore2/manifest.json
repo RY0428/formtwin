@@ -1,0 +1,84 @@
+{
+  "set": "explore2",
+  "purpose": "Exploration only (confusable card-number letters, prompt spike-a-2). Never reuse for judgement.",
+  "synthetic": true,
+  "generator": "scripts/generate-sample-cards.py",
+  "dateFormatNote": "Ground truth uses ISO dates; the card prints YYYY年MM月DD日.",
+  "cases": [
+    {
+      "file": "explore2-01.png",
+      "sha256": "5df0fbb09e849ac084d740ed7c66d622fd5617dc0cd71ead9e5ea7777fc29085",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 0,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "OLIVEIRA RAFAEL",
+        "residenceCardNumber": "OI30581027QO",
+        "periodOfStayExpiry": "2028-06-11"
+      }
+    },
+    {
+      "file": "explore2-02.png",
+      "sha256": "12d1f5db4a0aa500038281277120006aa34421655f77e3c9e1d0f2460fc0e928",
+      "conditions": {
+        "scale": 0.8,
+        "rotate": 0,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "NOWAK EWA",
+        "residenceCardNumber": "QS10500811IO",
+        "periodOfStayExpiry": "2027-02-17"
+      }
+    },
+    {
+      "file": "explore2-03.png",
+      "sha256": "ac383d1d1c5c254dddd63c20916894b11ff59064363ebcf9d8d93c913992812e",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 4,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "TANDON MEERA",
+        "residenceCardNumber": "IB88015500OZ",
+        "periodOfStayExpiry": "2029-09-30"
+      }
+    },
+    {
+      "file": "explore2-04.png",
+      "sha256": "b7debdbca9fd50016b79fa6d0cec61f21a7c85f5e1ed53513c093a9f1536e1fe",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 0,
+        "brightness": 0.6,
+        "contrast": 0.8
+      },
+      "groundTruth": {
+        "fullName": "KOWALSKI PIOTR",
+        "residenceCardNumber": "ZO05108150SI",
+        "periodOfStayExpiry": "2026-12-05"
+      }
+    },
+    {
+      "file": "explore2-05.png",
+      "sha256": "e1e4a3d5e65c71d36cbd46c3b1b2e7650a52b967c092ba3b67883eeb57df43b1",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 0,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "ODUYA BISI",
+        "residenceCardNumber": null,
+        "periodOfStayExpiry": "2028-10-01"
+      }
+    }
+  ]
+}
