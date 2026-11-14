@@ -29,7 +29,9 @@ function sources(dir) {
 const read = (p) => readFileSync(p, 'utf8');
 const rel = (p) => relative(root, p);
 
-// Rule 2: fixed inference modes, never PREFER_*.
+// Rule 2: fixed inference modes. The only PREFER_* allowed is InferenceMode.PREFER_IN_CLOUD in the public
+// field explainer (docs/decisions.md 2026-11-14); private-app has no exception.
+const PREFER_EXCEPTION = { file: 'apps/public-app/src/cloud/fieldExplainer.ts', mode: 'InferenceMode.PREFER_IN_CLOUD' };
 const PREFER = /PREFER_ON_DEVICE|PREFER_IN_CLOUD|prefer_on_device|prefer_in_cloud/;
 for (const [app, must, mustNot] of [
   ['private-app', 'ONLY_ON_DEVICE', 'ONLY_IN_CLOUD'],
@@ -39,7 +41,12 @@ for (const [app, must, mustNot] of [
   let found = false;
   for (const f of files) {
     const t = read(f);
-    if (PREFER.test(t)) problems.push(`${rel(f)}: PREFER_* inference mode`);
+    if (PREFER.test(t)) {
+      const allowed =
+        rel(f) === PREFER_EXCEPTION.file &&
+        [...t.matchAll(new RegExp(PREFER.source, 'g'))].every((m) => t.slice(m.index - 'InferenceMode.'.length, m.index + m[0].length) === PREFER_EXCEPTION.mode);
+      if (!allowed) problems.push(`${rel(f)}: PREFER_* inference mode`);
+    }
     if (t.includes(`InferenceMode.${mustNot}`)) problems.push(`${rel(f)}: ${app} must not use InferenceMode.${mustNot}`);
     if (t.includes(`InferenceMode.${must}`)) found = true;
   }

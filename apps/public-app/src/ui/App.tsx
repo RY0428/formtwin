@@ -1,5 +1,5 @@
 import type { FormDefCandidate } from '@formtwin/contracts';
-import { createCloudFormAnalyzer } from '#cloud-impl';
+import { createCloudFormAnalyzer, createFieldExplainer } from '#cloud-impl';
 import { useMemo, useState } from 'react';
 import { adoptedRevisionFor } from '../catalog/adopted.ts';
 import { APPROVED_FORM_IDS, resolveApprovedSource } from '../catalog/approvedSources.ts';
@@ -8,6 +8,7 @@ import {
   EgressGateway,
   FORM_ANALYSIS_PROMPT_VERSION,
   type DiagnosticResult,
+  type ExplanationOutcome,
   type RequestLogEntry,
   isRateLimited,
 } from '../egress/gateway.ts';
@@ -35,7 +36,8 @@ const REASON_TEXT: Record<string, string> = {
 
 export function App() {
   const [log, setLog] = useState<readonly RequestLogEntry[]>([]);
-  const gateway = useMemo(() => new EgressGateway(createCloudFormAnalyzer(), setLog), []);
+  const gateway = useMemo(() => new EgressGateway(createCloudFormAnalyzer(), setLog, Date.now, createFieldExplainer()), []);
+  const [explained, setExplained] = useState<ExplanationOutcome | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [view, setView] = useState<CandidateView | null>(null);
@@ -57,6 +59,13 @@ export function App() {
         candidate: out.candidate,
       });
     else setError((REASON_TEXT[out.reason] ?? 'Analysis failed.') + (out.detail ? ` Details: ${out.detail}` : ''));
+    setBusy(false);
+  }
+
+  async function explainFields() {
+    setBusy(true);
+    setExplained(null);
+    setExplained(await gateway.explainApprovedFields(formId));
     setBusy(false);
   }
 
@@ -184,6 +193,57 @@ export function App() {
             </CardHeader>
             <CardContent>
               <ReviewPanel source={source} adopted={adopted} live={view ?? undefined} />
+            </CardContent>
+          </Card>
+        )}
+
+        {adopted && (
+          <Card aria-labelledby="explain-h" data-testid="explain">
+            <CardHeader>
+              <CardTitle id="explain-h">Field explanations (hybrid inference)</CardTitle>
+              <CardDescription>
+                Plain-English notes for the fields of the adopted revision. Only the public field labels are used. The
+                cloud model answers first; if the cloud cannot be reached, Firebase AI Logic falls back to the
+                on-device model in this browser when it is available. Reference text only: it is not used to fill
+                the form.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div>
+                <Button type="button" variant="outline" onClick={() => void explainFields()} disabled={busy}>
+                  Explain fields
+                </Button>
+              </div>
+              <div role="status" aria-live="polite" className="mt-3">
+                {explained?.ok === true && (
+                  <>
+                    <p className="text-sm">
+                      Answered{' '}
+                      <Badge variant={explained.inferenceSource === 'on_device' ? 'success' : 'secondary'} data-testid="explain-source">
+                        {explained.inferenceSource === 'on_device' ? 'On this device (automatic fallback)' : 'In the cloud'}
+                      </Badge>
+                    </p>
+                    <dl className="mt-2 grid gap-2 text-sm">
+                      {explained.items.map((it) => {
+                        const f = adopted.formDef.fields.find((x) => x.fieldId === it.fieldId);
+                        return (
+                          <div key={it.fieldId} data-testid="explain-item">
+                            <dt className="font-medium">
+                              {f?.labelEn} <span lang="ja">({f?.labelJa})</span>
+                            </dt>
+                            <dd className="text-muted-foreground">{it.explanation}</dd>
+                          </div>
+                        );
+                      })}
+                    </dl>
+                  </>
+                )}
+                {explained?.ok === false && (
+                  <p className="text-destructive" data-testid="explain-error">
+                    {REASON_TEXT[explained.reason] ?? 'The explanations could not be generated.'}
+                  </p>
+                )}
+              </div>
             </CardContent>
           </Card>
         )}

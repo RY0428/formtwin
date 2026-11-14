@@ -22,7 +22,7 @@ let app: FirebaseApp | undefined;
  * (firebase.google.com/docs/app-check/web/recaptcha-enterprise-provider, checked 2026-11-13).
  * No debug provider: a debug token never ships in this bundle.
  */
-function getPublicFirebaseApp(): FirebaseApp {
+export function getPublicFirebaseApp(): FirebaseApp {
   if (app) return app;
   if (getApps().length > 0) {
     app = getApp();
@@ -74,3 +74,5 @@ export class FirebaseCloudFormAnalyzer implements CloudFormAnalyzer {
 export function createCloudFormAnalyzer(): CloudFormAnalyzer {
   return new FirebaseCloudFormAnalyzer();
 }
+
+export { createFieldExplainer } from './fieldExplainer.ts';

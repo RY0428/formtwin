@@ -59,3 +59,4 @@ Submission period: 2026-11-11 13:30 PT – 2026-11-30 14:00 PT (JST 2026-11-12 0
 | 2026-11-13 | Public per-user RPM set to 10 in all regions by the developer; recorded with the 429 handling in the three specs. | |
 | 2026-11-14 | Day 8–12 M11: signing trust list (key rotation, retirement, revocation, withdrawn packages) applied at private-app start-up and in check:package; rotation procedure rehearsed; release inventory script. | |
 | 2026-11-14 | Day 8–12 M12: automated accessibility checks (axe, WCAG A/AA tags) in key states of both apps, 200% zoom without horizontal scroll, focus moves for lock/resume/end, live-region checks. | |
+| 2026-11-14 | Public field explanations with InferenceMode.PREFER_IN_CLOUD (cloud first, automatic on-device fallback) from adopted public labels only; private side unchanged (ONLY_ON_DEVICE). Firebase engineer's Q&A recorded as reference for Q1; demo video notes. | |

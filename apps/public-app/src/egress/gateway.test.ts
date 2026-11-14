@@ -19,6 +19,20 @@ vi.mock('../catalog/approvedSources.ts', async () => {
   };
 });
 
+vi.mock('../catalog/adopted.ts', () => ({
+  adoptedRevisionFor: (id: string) =>
+    id === 'ok'
+      ? {
+          formDef: {
+            fields: [
+              { fieldId: 'familyName', labelJa: '氏名', labelEn: 'Family name' },
+              { fieldId: 'residenceCardNumber', labelJa: '在留カード番号', labelEn: 'Residence card number' },
+            ],
+          },
+        }
+      : undefined,
+}));
+
 const CANDIDATE = {
   fields: [
     { labelJa: '氏名', labelEn: 'Name', kind: 'text', semanticKey: 'fullName', status: 'resolved', page: 0, box: [1, 2, 3, 4] },
@@ -157,5 +171,53 @@ describe('rate limits (429)', () => {
     const r = await g.diagnoseApprovedForm('ok');
     expect(Array.isArray(r) && r.length).toBe(1);
     expect(a.analyze).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('explainApprovedFields (hybrid, public labels only)', () => {
+  const answer = (source: string, ids = ['familyName', 'residenceCardNumber']) => ({
+    inferenceSource: source,
+    text: JSON.stringify({ items: ids.map((fieldId) => ({ fieldId, explanation: `About ${fieldId}.` })) }),
+  });
+  const explainer = (r: { text: string; inferenceSource: string | undefined } | Error) => ({
+    explain: vi.fn(async (req: { prompt: string; fieldIds: readonly string[] }) => {
+      void req;
+      if (r instanceof Error) throw r;
+      return r;
+    }),
+  });
+
+  it('sends only the adopted labels of an approved form and reports the source', async () => {
+    for (const source of ['in_cloud', 'on_device'] as const) {
+      const ex = explainer(answer(source));
+      const g = new EgressGateway(analyzer(new Error('unused')), () => undefined, Date.now, ex);
+      const out = await g.explainApprovedFields('ok');
+      expect(out).toMatchObject({ ok: true, inferenceSource: source });
+      const req = ex.explain.mock.calls[0]?.[0];
+      expect(req?.fieldIds).toEqual(['familyName', 'residenceCardNumber']);
+      expect(req?.prompt).toContain('氏名 / Family name');
+      expect(req?.prompt).not.toContain('%PDF');
+      expect(g.entries().map((e) => e.status)).toEqual(['planned', 'started', 'completed']);
+      expect(JSON.stringify(g.entries())).not.toContain('About familyName');
+    }
+  });
+
+  it('rejects unapproved ids, unknown sources, missing or extra fields', async () => {
+    expect(await new EgressGateway(analyzer(new Error('x')), undefined, Date.now, explainer(answer('in_cloud'))).explainApprovedFields('nope')).toMatchObject({ ok: false, reason: 'not_approved' });
+    expect(await new EgressGateway(analyzer(new Error('x')), undefined, Date.now, explainer(answer('somewhere'))).explainApprovedFields('ok')).toMatchObject({ ok: false, reason: 'source_mismatch' });
+    expect(await new EgressGateway(analyzer(new Error('x')), undefined, Date.now, explainer(answer('in_cloud', ['familyName']))).explainApprovedFields('ok')).toMatchObject({ ok: false, reason: 'invalid_output' });
+    expect(await new EgressGateway(analyzer(new Error('x')), undefined, Date.now, explainer(answer('in_cloud', ['familyName', 'other']))).explainApprovedFields('ok')).toMatchObject({ ok: false, reason: 'invalid_output' });
+  });
+
+  it('a 429 that was not absorbed by the fallback starts the shared cooldown', async () => {
+    let t = 0;
+    const err = Object.assign(new Error('[429 ] exhausted'), { customErrorData: { status: 429 } });
+    const ex = explainer(err);
+    const g = new EgressGateway(analyzer(new Error('x')), undefined, () => t, ex);
+    expect(await g.explainApprovedFields('ok')).toMatchObject({ ok: false, reason: 'rate_limited' });
+    expect(await g.analyzeApprovedForm('ok')).toMatchObject({ ok: false, reason: 'rate_limited' });
+    t += 60_000;
+    expect(g.cooldownMs()).toBe(0);
+    expect(ex.explain).toHaveBeenCalledTimes(1);
   });
 });

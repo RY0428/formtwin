@@ -79,3 +79,17 @@ test('diagnostics: a 429 stops the run with the English reason; a second run is 
   await page.getByRole('button', { name: 'Run diagnostics' }).click();
   await expect(page.getByTestId('diag-not-run')).toContainText('Too many requests');
 });
+
+test('field explanations: cloud answer, automatic on-device fallback, and a refused run', async ({ page }) => {
+  // Fake explainer only (vite --mode e2e): not evidence of real cloud or on-device inference.
+  await page.goto(`${ORIGIN}/`);
+  await page.getByRole('button', { name: 'Explain fields' }).click();
+  await expect(page.getByTestId('explain-source')).toHaveText('In the cloud');
+  await expect(page.getByTestId('explain-item')).toHaveCount(6);
+  await page.goto(`${ORIGIN}/?fake=offline`);
+  await page.getByRole('button', { name: 'Explain fields' }).click();
+  await expect(page.getByTestId('explain-source')).toHaveText('On this device (automatic fallback)');
+  await page.goto(`${ORIGIN}/?fake=429`);
+  await page.getByRole('button', { name: 'Explain fields' }).click();
+  await expect(page.getByTestId('explain-error')).toContainText('Too many requests');
+});

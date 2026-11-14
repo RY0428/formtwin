@@ -73,7 +73,9 @@ test('public-app: axe on load and with a candidate and diagnostics', async ({ pa
   await page.getByText('Diagnostics (cloud request variants)').click();
   await page.getByRole('button', { name: 'Run diagnostics' }).click();
   await page.getByTestId('diag-row').nth(5).waitFor();
-  await axe(page, 'public candidate + diagnostics');
+  await page.getByRole('button', { name: 'Explain fields' }).click();
+  await page.getByTestId('explain-item').first().waitFor();
+  await axe(page, 'public candidate + diagnostics + field explanations');
 });
 
 for (const origin of [PRIVATE, PUBLIC]) {

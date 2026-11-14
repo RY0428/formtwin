@@ -42,12 +42,19 @@ describe('check-invariants', () => {
   });
   it.each([
     ['a PREFER mode', { 'apps/private-app/src/c.ts': 'InferenceMode.PREFER_IN_CLOUD' }, 'PREFER'],
+    ['PREFER in another public file', { 'apps/public-app/src/c.ts': 'InferenceMode.PREFER_IN_CLOUD' }, 'PREFER'],
+    ['PREFER_ON_DEVICE in the explainer', { 'apps/public-app/src/cloud/fieldExplainer.ts': 'InferenceMode.PREFER_ON_DEVICE' }, 'PREFER'],
+    ['the explainer file name in private-app', { 'apps/private-app/src/cloud/fieldExplainer.ts': 'InferenceMode.PREFER_IN_CLOUD' }, 'PREFER'],
     ['cloud mode in private-app', { 'apps/private-app/src/c.ts': 'InferenceMode.ONLY_IN_CLOUD' }, 'must not use'],
     ['guarantee wording', { 'apps/private-app/src/c.ts': "const s = 'Zero leak: nothing remains on this device';" }, 'guarantee'],
   ])('fails on %s', (_n, extra, msg) => {
     const r = run('check-invariants.mjs', fixture({ ...okApps, ...extra }));
     expect(r.ok).toBe(false);
     expect(r.out).toContain(msg);
+  });
+  it('allows only InferenceMode.PREFER_IN_CLOUD in the public field explainer', () => {
+    const r = run('check-invariants.mjs', fixture({ ...okApps, 'apps/public-app/src/cloud/fieldExplainer.ts': 'x(InferenceMode.PREFER_IN_CLOUD);' }));
+    expect(r.ok).toBe(true);
   });
   it('allows a negated guarantee and comments', () => {
     const r = run(

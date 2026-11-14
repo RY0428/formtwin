@@ -1,4 +1,5 @@
 import type { CloudAnalysisRequest, CloudAnalysisResponse, CloudFormAnalyzer } from './CloudFormAnalyzer.ts';
+import type { FieldExplainer, FieldExplainRequest, FieldExplainResponse } from './explainerPort.ts';
 
 /**
  * E2E-ONLY stand-in, wired by `vite --mode e2e` (vite.config.ts alias). Never part of the
@@ -29,6 +30,27 @@ export function createCloudFormAnalyzer(): CloudFormAnalyzer {
             { labelJa: '国籍・地域', labelEn: 'Nationality/Region', kind: 'text', semanticKey: null, status: 'unsupported', page: 0, box: [205, 140, 225, 480] },
           ],
         }) + (fence ? '\n```' : ''),
+      };
+    },
+  };
+}
+
+/**
+ * E2E-ONLY field explainer. `?fake=offline` answers as the automatic on-device fallback would; `?fake=429`
+ * fails like a rate-limited request without an on-device model. Not evidence of real inference.
+ */
+export function createFieldExplainer(): FieldExplainer {
+  return {
+    async explain(request: FieldExplainRequest): Promise<FieldExplainResponse> {
+      await new Promise((r) => setTimeout(r, 100));
+      const fake = new URLSearchParams(location.search).get('fake');
+      if (fake === '429') throw Object.assign(new Error('[429 ] Resource exhausted. (fake)'), { customErrorData: { status: 429 } });
+      const source = fake === 'offline' ? 'on_device' : 'in_cloud';
+      return {
+        inferenceSource: source,
+        text: JSON.stringify({
+          items: request.fieldIds.map((fieldId) => ({ fieldId, explanation: `Fake explanation for ${fieldId} (${source}).` })),
+        }),
       };
     },
   };

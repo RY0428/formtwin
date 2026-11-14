@@ -14,7 +14,7 @@
 ## 絶対に守るルール
 
 1. **PIIは本人記入側（`apps/private-app`）から外へ出さない。** 画像・抽出値・手入力・派生値・記入済PDF・ファイル名・ハッシュも対象。
-2. **推論モードは固定。** 本人側は `InferenceMode.ONLY_ON_DEVICE`、公開側は `InferenceMode.ONLY_IN_CLOUD`。`PREFER_ON_DEVICE` / `PREFER_IN_CLOUD` は使わない。端末推論の失敗時は手入力へ。クラウドへ再試行しない。
+2. **推論モードは固定。** 本人側は `InferenceMode.ONLY_ON_DEVICE`、公開側の様式解析は `InferenceMode.ONLY_IN_CLOUD`。`PREFER_ON_DEVICE` / `PREFER_IN_CLOUD` は使わない。例外は公開側の「欄の説明」機能（`apps/public-app/src/cloud/fieldExplainer.ts`）の `PREFER_IN_CLOUD` だけ（入力は承認済み採用 FormDef の公開ラベルのみ、2026-11-14決定）。本人側では例外なし。端末推論の失敗時は手入力へ。クラウドへ再試行しない。
 3. **アプリの全AI推論は Firebase AI Logic Web SDK 経由。** Chrome Prompt API での直接生成、Gemini REST API、他社AI APIを使わない（Prompt API は可用性・モデル情報の確認だけ可）。端末モデルは Gemini Nano 4 を対象。
 4. **本人側は通信しない設計。** CSP `connect-src data:`（data: URL だけ許可、ネットワークオリジン・`'self'` 不可。SDK が画像 Part を `fetch('data:…')` で変換するため。2026-11-12 実測・決定）。App Check・Firestore・Analytics・Remote Config・外部ロガーを初期化しない。固定PDF・フォントはビルド時にバイト列として同梱し、実行時 fetch しない。
 5. **本人データは永続化しない。** IndexedDB / localStorage / sessionStorage / Cache Storage / OPFS 等に書かない。メモリのみ。
@@ -36,6 +36,7 @@
 - Node 24（`.nvmrc`）。@firebase/ai 3.x の要件。
 - 2026-11-12 hackathon manager へ3点を再送 → 2026-11-13 返信「技術的質問は Discord #hackathon-help（#BuildHybridAI タグ）で技術チームへ」。Discord で質問（①② は 2026-11-13 #hackathon-help に投稿、回答待ち）:
   1. 「公開様式のクラウド解析＋本人情報の端末抽出」の2経路分担でハイブリッド推論要件を満たすか（自動フォールバック必須か）
+     - 参考（正式回答ではない）: 2026-11-14、Firebase 公式動画「How to Build Hybrid On-Device + Cloud AI Apps with Firebase AI Logic」Q&A（25:18〜）で Firebase エンジニアが口頭回答「両方（端末推論とクラウドフォールバック）を見たいが、機微データは端末推論に留める判断は参加者に任せる」。これを受け公開側に `PREFER_IN_CLOUD` の「欄の説明」機能を追加（本人側は不変）。Q1 の運営回答は引き続き待つ。
   2. 別オリジンの端末専用コンポーネントで App Check 初期化を省略できるか
   3. 「Gemini Nano 4」→ 2026-11-13 Discord 既存スレッドで運営が Firebase チーム回答を転記:「Firebase AI Logic SDK 経由ならよい。chrome://flags の Gemma 4 for built-in AI 有効化が必要な場合あり」。Gemma 4 有効時も検証する → 2026-11-13 フラグ有効（`model_version/v4`）でも当初 Gemma 4 未DL → 同日、公開URLの Prepare で Gemma 4 DL 完了（約23分）、`prompt_api_gemma4` Requested・Available。呼出しごとの実モデルは Chrome が示さないため「Gemma 4 要求下で抽出」と記録（断定しない）
   - 承認済み・規約違反確定のどちらとしても扱わない。回答待ちでも実装・実機検証は進める。本人情報のクラウドフォールバックは回答にかかわらず導入しない。

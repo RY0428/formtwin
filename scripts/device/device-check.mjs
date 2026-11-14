@@ -14,6 +14,7 @@ import { join } from 'node:path';
 import { chromium } from '@playwright/test';
 
 const URL_PRIVATE = 'https://formtwin-dev-private.web.app/';
+const URL_PUBLIC = 'https://formtwin-dev.web.app/';
 const PROFILE = join(homedir(), '.formtwin-device-profile');
 const FLAGS = ['prompt-api-multimodal-input', 'gemma4-for-built-in-ai'];
 const IMAGES = ['data/eval/explore/explore-01.png', 'data/eval/explore/explore-02.png', 'data/eval/explore/explore-03.png'];
@@ -99,6 +100,14 @@ async function openApp(ctx) {
     watched.add(ctx);
     if (FAKE_AI) await ctx.addInitScript(installFake);
     ctx.on('request', (r) => {
+      // Only pages of the private app count: the public app legitimately calls Firebase and reCAPTCHA.
+      let pageUrl;
+      try {
+        pageUrl = r.frame().page()?.url() ?? '';
+      } catch {
+        pageUrl = URL_PRIVATE; // no frame (e.g. a worker): count it, to stay on the safe side
+      }
+      if (!pageUrl.startsWith(URL_PRIVATE)) return;
       const u = new URL(r.url());
       if (u.protocol.startsWith('http') && u.origin !== new URL(URL_PRIVATE).origin) foreign.push(r.url());
     });
@@ -261,9 +270,37 @@ async function main() {
     await page.getByRole('button', { name: 'End session and clear data' }).click();
     step('③ End session clears values', (await page.getByLabel(/^Family name/).inputValue()) === '' && (await page.getByTestId('pdf-preview').count()) === 0);
 
-    step('no request outside the app origin during the whole run', foreign.length === 0, { foreign });
+    // Public field explanations (hybrid, PREFER_IN_CLOUD): cloud first, then the automatic on-device
+    // fallback with the network off. The model is already installed in this profile by the steps above.
+    const pub = await ctx.newPage();
+    await pub.goto(URL_PUBLIC);
+    const explainOnce = async () => {
+      await pub.getByRole('button', { name: 'Explain fields' }).click();
+      await Promise.race([
+        pub.getByTestId('explain-source').waitFor({ timeout: 90_000 }),
+        pub.getByTestId('explain-error').waitFor({ timeout: 90_000 }),
+      ]).catch(() => undefined);
+      const src = (await pub.getByTestId('explain-source').count()) > 0 ? await pub.getByTestId('explain-source').innerText() : null;
+      const err = (await pub.getByTestId('explain-error').count()) > 0 ? await pub.getByTestId('explain-error').innerText() : null;
+      return { source: src, error: err, items: await pub.getByTestId('explain-item').count() };
+    };
+    const deployed = await pub
+      .getByRole('button', { name: 'Explain fields' })
+      .waitFor({ timeout: 20_000 })
+      .then(() => true, () => false);
+    if (!deployed) throw new Error('the hosted public app has no "Explain fields" yet (deploy the current build)');
+    const online = await explainOnce();
+    step('explanations online answered in the cloud', online.source === 'In the cloud' && online.items > 0, online);
+    await ctx.setOffline(true);
+    const offline = await explainOnce();
+    await ctx.setOffline(false);
+    step('explanations offline fell back to this device', (offline.source ?? '').startsWith('On this device') && offline.items > 0, offline);
+    await pub.close();
+
+    step('private app: no request outside its origin during the whole run', foreign.length === 0, { foreign });
   } catch (e) {
     report.error = redact(String(e instanceof Error ? e.message : e)).slice(0, 2000);
+    if (process.env.FORMTWIN_DEBUG === "1") console.error(e);
     log(`stopped: ${report.error}`);
   } finally {
     await ctx.close();
