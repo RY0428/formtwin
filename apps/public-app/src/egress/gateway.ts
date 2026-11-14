@@ -4,6 +4,7 @@ import {
   formDefCandidateSchema,
   type FormDefCandidate,
 } from '@formtwin/contracts';
+import { createCloudFormAnalyzer, createFieldExplainer } from '#cloud-impl';
 import { adoptedRevisionFor } from '../catalog/adopted.ts';
 import type { FieldExplainer } from '../cloud/explainerPort.ts';
 import { SEMANTIC_KEYS } from '@formtwin/domain';
@@ -131,6 +132,9 @@ export function errorDetail(e: unknown): string {
   return line.length > 600 ? `${line.slice(0, 599)}…` : line;
 }
 
+/** No answer (cloud or on-device) within this time ends the run as request_failed (App Check can stall offline). */
+export const EXPLAIN_TIMEOUT_MS = 45_000;
+
 function newRunId(): string {
   return `run-${crypto.randomUUID()}`;
 }
@@ -169,38 +173,49 @@ export class EgressGateway {
     const fieldIds = fields.map((f) => f.fieldId);
     this.inFlight = true;
     try {
-      this.record('planned', source, `explain:${FIELD_EXPLANATIONS_PROMPT_VERSION}`);
-      this.record('started', source, 'explain');
+      const host = { endpointHost: this.analyzer.endpointHost };
+      this.record('planned', source, 'explain', null, host);
+      this.record('started', source, 'explain', null, host);
       let text: string;
       let inferenceSource: string | undefined;
+      let timer: ReturnType<typeof setTimeout> | undefined;
       try {
-        ({ text, inferenceSource } = await this.explainer.explain({ prompt: buildExplainPrompt(fields), fieldIds }));
+        const limit = new Promise<never>((_, reject) => {
+          timer = setTimeout(() => {
+            reject(new Error(`no answer within ${EXPLAIN_TIMEOUT_MS / 1000} s`));
+          }, EXPLAIN_TIMEOUT_MS);
+        });
+        ({ text, inferenceSource } = await Promise.race([this.explainer.explain({ prompt: buildExplainPrompt(fields), fieldIds }), limit]));
       } catch (e: unknown) {
         const detail = errorDetail(e);
         if (this.noteRateLimit(e)) {
-          this.record('unknown', source, 'explain:rate_limited', detail);
+          this.record('unknown', source, 'explain:rate_limited', detail, host);
           return { ok: false, reason: 'rate_limited', detail };
         }
-        this.record('unknown', source, 'explain:request_failed', detail);
+        this.record('unknown', source, 'explain:request_failed', detail, host);
         return { ok: false, reason: 'request_failed', detail };
+      } finally {
+        clearTimeout(timer);
       }
       if (inferenceSource !== 'in_cloud' && inferenceSource !== 'on_device') {
-        this.record('failed', source, 'explain:source_mismatch');
+        this.record('failed', source, 'explain:source_mismatch', null, host);
         return { ok: false, reason: 'source_mismatch' };
       }
       let parsed: ReturnType<typeof fieldExplanationsSchema.safeParse>;
       try {
         parsed = fieldExplanationsSchema.safeParse(JSON.parse(text));
       } catch {
-        this.record('failed', source, 'explain:invalid_output');
+        this.record('failed', source, 'explain:invalid_output', null, host);
         return { ok: false, reason: 'invalid_output' };
       }
       const ids = parsed.success ? parsed.data.items.map((i) => i.fieldId) : [];
       if (!parsed.success || ids.length !== fieldIds.length || !fieldIds.every((id) => ids.includes(id))) {
-        this.record('failed', source, 'explain:invalid_output');
+        this.record('failed', source, 'explain:invalid_output', null, host);
         return { ok: false, reason: 'invalid_output' };
       }
-      this.record('completed', source, `explain:${inferenceSource}`);
+      this.record('completed', source, `explain:${inferenceSource}`, null, {
+        endpointHost: inferenceSource === 'on_device' ? 'on-device (this browser)' : this.analyzer.endpointHost,
+      });
       return { ok: true, items: parsed.data.items, inferenceSource };
     } finally {
       this.inFlight = false;
@@ -234,16 +249,18 @@ export class EgressGateway {
     source: ApprovedSource | undefined,
     reason: string | null,
     detail: string | null = null,
+    /** Explanations send labels, not the PDF: no source hash, their own prompt version and host. */
+    explain?: { endpointHost: string },
   ): void {
     this.seq += 1;
     this.log.push({
       seq: this.seq,
       status,
       formId: source?.formId ?? null,
-      sourceSha256: source?.sha256 ?? null,
-      promptVersion: FORM_ANALYSIS_PROMPT_VERSION,
+      sourceSha256: explain ? null : (source?.sha256 ?? null),
+      promptVersion: explain ? FIELD_EXPLANATIONS_PROMPT_VERSION : FORM_ANALYSIS_PROMPT_VERSION,
       model: this.analyzer.model,
-      endpointHost: this.analyzer.endpointHost,
+      endpointHost: explain ? explain.endpointHost : this.analyzer.endpointHost,
       reason,
       detail,
     });
@@ -394,4 +411,9 @@ export class EgressGateway {
       this.inFlight = false;
     }
   }
+}
+
+/** The UI gets a gateway, never the cloud implementations themselves (lint enforces it). */
+export function createEgressGateway(onLog: (entries: readonly RequestLogEntry[]) => void): EgressGateway {
+  return new EgressGateway(createCloudFormAnalyzer(), onLog, Date.now, createFieldExplainer());
 }

@@ -57,7 +57,7 @@ React + Vite + TypeScript strictで独立した2つのSPAを採用する。SSR�
 | バックエンド | `getAI(app, { backend: new GoogleAIBackend() })` |
 | PIIを扱う端末モデル | Gemini Nano 4を対象に `mode: InferenceMode.ONLY_ON_DEVICE`。実際の世代と利用可能性を記録し、不明なら未確認とする |
 | 公開書式を扱うクラウドモデル | `mode: InferenceMode.ONLY_IN_CLOUD` |
-| 公開側の欄説明（2026-11-14決定） | `mode: InferenceMode.PREFER_IN_CLOUD`（`apps/public-app/src/cloud/fieldExplainer.ts` だけ。check:invariants で強制）。入力は採用済みFormDefの公開ラベルのテキスト、出力は Zod 検証。SDK 3.1.0 は FETCH_ERROR（通信断・429等）・ERROR・API_NOT_ENABLED で、端末モデルが `available` の時に端末へフォールバック。`inferenceSource` を画面に表示 |
+| 公開側の欄説明（2026-11-14決定） | `mode: InferenceMode.PREFER_IN_CLOUD`（`apps/public-app/src/cloud/fieldExplainer.ts` だけ。check:invariants で強制）。入力は採用済みFormDefの公開ラベルのテキスト、出力は Zod 検証。SDK 3.1.0（コード確認）は FETCH_ERROR（429等のHTTPエラー）・ERROR（通信断・App Check トークンのエラー）・API_NOT_ENABLED で、端末モデルが `available` の時に端末で回答する。App Check の初期化が終わらない場合は待ち続けるため、ページ表示時に初期化し、Gateway が45秒で打ち切る。実機での挙動は device:check で確認する。`inferenceSource` を画面に表示 |
 | クラウドモデル名 | `inCloudParams.model`に`gemini-3.5-flash-lite`を明示。利用可能枠と品質は実プロジェクトで確認 |
 | 端末セッション設定 | `onDeviceParams.createOptions`。日本語・画像を含む実際の入力条件に合わせる |
 | 端末の出力制約 | `onDeviceParams.promptOptions.responseConstraint` |

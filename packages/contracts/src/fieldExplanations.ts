@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 /**
  * Public field explanations (docs/decisions.md 2026-11-14): plain-English reference text for the fields of
- * an adopted, approved FormDef. Generated with InferenceMode.PREFER_IN_CLOUD on the public side only; the
+ * an adopted, approved FormDef. Generated with the cloud-first hybrid mode on the public side only (apps/public-app/src/cloud/fieldExplainer.ts); the
  * input is public labels, never personal data. Always re-validated with this schema.
  */
 export const FIELD_EXPLANATION_MAX_LENGTH = 200;

@@ -21,4 +21,4 @@ seconds of a demo should show who it is for, what it is used for, and how Fireba
 
 - Field explanations: "In the cloud" badge, then network off → "On this device" (automatic fallback).
 - Private app: extraction on the device, manual check, PDF; works with the network off.
-- Why personal data has no cloud fallback (Firebase engineer's guidance: keep sensitive data on-device).
+- Why personal data has no cloud fallback (design choice; consistent with a Firebase engineer's spoken answer in the video Q&A — not an official contest answer, so do not present it as one).

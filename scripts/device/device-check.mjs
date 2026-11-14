@@ -103,7 +103,8 @@ async function openApp(ctx) {
       // Only pages of the private app count: the public app legitimately calls Firebase and reCAPTCHA.
       let pageUrl;
       try {
-        pageUrl = r.frame().page()?.url() ?? '';
+        // A request with no page (worker, closed page) counts, to stay on the safe side.
+        pageUrl = r.frame().page()?.url() ?? URL_PRIVATE;
       } catch {
         pageUrl = URL_PRIVATE; // no frame (e.g. a worker): count it, to stay on the safe side
       }
@@ -270,6 +271,8 @@ async function main() {
     await page.getByRole('button', { name: 'End session and clear data' }).click();
     step('③ End session clears values', (await page.getByLabel(/^Family name/).inputValue()) === '' && (await page.getByTestId('pdf-preview').count()) === 0);
 
+    step('private app: no request outside its origin during the whole run', foreign.length === 0, { foreign });
+
     // Public field explanations (hybrid, PREFER_IN_CLOUD): cloud first, then the automatic on-device
     // fallback with the network off. The model is already installed in this profile by the steps above.
     const pub = await ctx.newPage();
@@ -289,6 +292,7 @@ async function main() {
       .waitFor({ timeout: 20_000 })
       .then(() => true, () => false);
     if (!deployed) throw new Error('the hosted public app has no "Explain fields" yet (deploy the current build)');
+    report.publicBuild = ((await pub.getByText(/build [0-9a-f]{7}/).innerText().catch(() => '')).match(/build (\S+)/) ?? [])[1] ?? 'unknown';
     const online = await explainOnce();
     step('explanations online answered in the cloud', online.source === 'In the cloud' && online.items > 0, online);
     await ctx.setOffline(true);
@@ -297,7 +301,6 @@ async function main() {
     step('explanations offline fell back to this device', (offline.source ?? '').startsWith('On this device') && offline.items > 0, offline);
     await pub.close();
 
-    step('private app: no request outside its origin during the whole run', foreign.length === 0, { foreign });
   } catch (e) {
     report.error = redact(String(e instanceof Error ? e.message : e)).slice(0, 2000);
     if (process.env.FORMTWIN_DEBUG === "1") console.error(e);

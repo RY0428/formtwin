@@ -52,6 +52,50 @@ for (const [app, must, mustNot] of [
   }
   if (files.length > 0 && !found) problems.push(`${app}: InferenceMode.${must} not found`);
 }
+// PREFER_* must not appear in shared packages or in E2E-only app files either (a mode value passed in from
+// there would bypass the per-file check above). Built strings cannot be detected; review covers those.
+{
+  const extra = [];
+  const walkAll = (d) => {
+    let names;
+    try {
+      names = readdirSync(d);
+    } catch {
+      return;
+    }
+    for (const n of names) {
+      const p = join(d, n);
+      if (statSync(p).isDirectory()) walkAll(p);
+      else if (/\.(ts|tsx|mjs|js)$/.test(n) && !/\.(test|spec)\.tsx?$/.test(n)) extra.push(p);
+    }
+  };
+  let pkgs;
+  try {
+    pkgs = readdirSync(join(root, 'packages'), { withFileTypes: true }).filter((x) => x.isDirectory());
+  } catch {
+    pkgs = [];
+  }
+  for (const d of pkgs) walkAll(join(root, 'packages', d.name, 'src'));
+  for (const app of ['private-app', 'public-app']) {
+    const all = [];
+    const w = (d) => {
+      let names;
+      try {
+        names = readdirSync(d);
+      } catch {
+        return;
+      }
+      for (const n of names) {
+        const p = join(d, n);
+        if (statSync(p).isDirectory()) w(p);
+        else if (/\.e2e\.ts$/.test(n)) all.push(p);
+      }
+    };
+    w(join(root, 'apps', app, 'src'));
+    extra.push(...all);
+  }
+  for (const f of extra) if (PREFER.test(read(f))) problems.push(`${rel(f)}: PREFER_* inference mode outside the allowed file`);
+}
 
 // Rule 9: no guarantee wording in the apps (negations such as "cannot guarantee" are fine).
 const GUARANTEE =

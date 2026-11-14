@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from 'vitest';
 import type { CloudFormAnalyzer } from '../cloud/CloudFormAnalyzer.ts';
 import { EgressGateway, RATE_LIMIT_COOLDOWN_MS, isRateLimited } from './gateway.ts';
 
+// The real cloud implementations are never loaded in unit tests (each test injects its own fakes).
+vi.mock('#cloud-impl', () => ({ createCloudFormAnalyzer: vi.fn(), createFieldExplainer: vi.fn() }));
 vi.mock('../catalog/approvedSources.ts', async () => {
   const bytes = new TextEncoder().encode('%PDF-approved');
   const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', bytes));
@@ -219,5 +221,20 @@ describe('explainApprovedFields (hybrid, public labels only)', () => {
     t += 60_000;
     expect(g.cooldownMs()).toBe(0);
     expect(ex.explain).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('explain time limit', () => {
+  it('a stalled explainer ends as request_failed and frees the gateway', async () => {
+    vi.useFakeTimers();
+    try {
+      const g = new EgressGateway(analyzer(new Error('x')), undefined, Date.now, { explain: () => new Promise(() => undefined) });
+      const run = g.explainApprovedFields('ok');
+      await vi.advanceTimersByTimeAsync(45_000);
+      expect(await run).toMatchObject({ ok: false, reason: 'request_failed' });
+      expect(g.entries().at(-1)).toMatchObject({ status: 'unknown', sourceSha256: null, promptVersion: 'explain-1' });
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

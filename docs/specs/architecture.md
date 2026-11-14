@@ -167,10 +167,11 @@ MVPは本人1人・単純欄の固定対応表だけを実装する。複合・�
 | --- | --- | --- |
 | 公開側 `CloudFormAnalyzer` | `ONLY_IN_CLOUD`、検証済みモデル名・プロンプト版 | 公開処理の失敗を表示。検収済み固定パッケージは利用可能 |
 | 本人側 `OnDeviceExtractor` | `ONLY_ON_DEVICE`、実際の言語・画像条件に合う設定 | 対象欄を手入力へ。クラウドへ再試行しない |
+| 公開側 `FieldExplainer`（2026-11-14追加） | `PREFER_IN_CLOUD`、入力は採用済みFormDefの公開ラベルのテキストだけ | クラウド失敗時にSDKが端末モデル（`available` の時）で回答。どちらも失敗、または45秒で無応答なら理由を表示 |
 
-モードとアダプタを呼出し元が自由に選べる汎用 `infer(mode, data)` は作らない。モデルインスタンスはアダプタ内部に閉じ込める。Remote Configから本人側のモード・通信許可を変更しない。PREFER系とクラウドへ代替するpolyfillは使用しない。アプリのAI推論をChrome Prompt APIやGemini REST API、別のAI SDKへ直接迂回させない。Prompt APIの可用性・モデル情報の確認は推論と区別し、実際の生成要求はFirebase AI Logicアダプタからのみ行う。
+モードとアダプタを呼出し元が自由に選べる汎用 `infer(mode, data)` は作らない。モデルインスタンスはアダプタ内部に閉じ込める。Remote Configから本人側のモード・通信許可を変更しない。PREFER系は公開側の `FieldExplainer` の `PREFER_IN_CLOUD` だけに限る（本人側では使用しない。check:invariants で強制）。クラウドへ代替するpolyfillは使用しない。アプリのAI推論をChrome Prompt APIやGemini REST API、別のAI SDKへ直接迂回させない。Prompt APIの可用性・モデル情報の確認は推論と区別し、実際の生成要求はFirebase AI Logicアダプタからのみ行う。
 
-`result.response.inferenceSource` は結果を採用する前に確認する。端末側は `ON_DEVICE`、公開側は `IN_CLOUD` のみ受理し、欠落・未知値・不一致は拒否する。不一致時はセッションを停止し、PIIを含まない固定エラーを示す。これは送信後の異常検知であり、送信防止や独立した実行証明ではない。
+`result.response.inferenceSource` は結果を採用する前に確認する。端末側は `ON_DEVICE`、公開側の様式解析は `IN_CLOUD` のみ受理し、公開側の欄説明は `IN_CLOUD` と `ON_DEVICE`（自動フォールバック）を受理して表示する。欠落・未知値・不一致は拒否する。不一致時はセッションを停止し、PIIを含まない固定エラーを示す。これは送信後の異常検知であり、送信防止や独立した実行証明ではない。
 
 ### 6.2 準備・実行・終了
 
@@ -411,6 +412,7 @@ forms/                        # 承認原本・FormDef・履歴・候補・署�
 | 公開入口 | 任意File、URL、記入済PDF、未知ID、差替え原本を拒否。許可済みバイト列だけ送信 |
 | アプリ分離 | 相互import・本人側からの公開モデル呼出しをCIで拒否。別オリジン、opener、CSP、共有ストレージの実設定を確認。本人側 `connect-src` が `data:` だけであることを検査 |
 | SDK・推論 | 公開URLでGemini Nano 4の利用根拠、Firebase AI Logicの実呼出し、画像入力・初期化・ `ONLY_ON_DEVICE` ・ `inferenceSource` を確認。非対応、例外、取消し、タイムアウトでクラウド要求なし |
+| 公開側の欄説明 | オンラインで `IN_CLOUD`、通信断で `ON_DEVICE`（端末モデルが available の時）になること。どちらも不可なら理由表示と45秒の打ち切り。入力が公開ラベルだけであること（device:check・E2E） |
 | 通信 | context単位でURL、ヘッダー、本文、multipart、WebSocket、SDK再送を観測。ブラウザ外側の観測も併用し対象・限界を記録 |
 | カナリア | 未登録値、手入力途中、修正前後、部分値、Unicode変形、符号化、画像を使用。単純な本文検索だけを合格根拠にしない |
 | 保存 | IndexedDB、Local/Session Storage、Cache Storage、OPFS等に本人データがない。PIIがconsole・例外・URLへ出ない |
@@ -456,7 +458,7 @@ PIIをメモリ内に持った状態で、エラー・再試行・通信復帰�
 - 英語の審査手順に対応機器・Chrome設定・初回準備・オンラインが必要な段階を記載する。手入力への退避は説明するが、審査で端末AIを試せる準備を省略しない。
 - 提出版のコミット、両SPAの配信ID、資産ハッシュ、FormDef版、動画・デモURLをリリース記録へ固定する。締切後の機能更新を審査URLへ自動反映しない。
 - Hosting、App Check、API枠、アカウント有効期限を審査期間に合わせて管理する。4日間の追加クォータだけに審査環境を依存させない。
-- 公開側のユーザー単位RPMは全リージョン10（2026-11-13設定、`docs/decisions.md`）。429・RESOURCE_EXHAUSTED は `rate_limited` として英語で表示し、自動再試行せず、60秒間は送信せずに拒否する。診断は最初の429で止める。
+- 公開側のユーザー単位RPMは全リージョン10（2026-11-13設定、`docs/decisions.md`）。429・RESOURCE_EXHAUSTED は `rate_limited` として英語で表示し、自動再試行せず、60秒間は送信せずに拒否する。診断は最初の429で止める。欄説明の429が端末フォールバックで回答された場合はSDK内で処理されるため、待機時間は始まらない（その間もクラウドへ要求が出る）。
 - 障害・ブラウザモデル更新で再現性が変わった場合は状態を記録し、提出内容を変更する必要がある場合は主催者の指示・許可を確認する。提出時の実測記録と後日の状態を混同しない。
 
 ## 14. 原設計からの主な変更

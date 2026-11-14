@@ -10,6 +10,7 @@ const FORBIDDEN = [
   ['axe-core', 'axe-core (test-only accessibility checker)'],
   ['e2e-fake-model', 'E2E fake analyzer'],
   ['fake.invalid', 'E2E fake analyzer'],
+  ['Fake explanation for', 'E2E fake field explainer'],
   ['e2e-dummy', 'E2E dummy config'],
   ['firestore.googleapis.com', 'Firestore endpoint (FormDefs are bundled; no database)'],
   ['FIREBASE_APPCHECK_DEBUG' + '_TOKEN = true', 'App Check debug token enabled'],

@@ -32,7 +32,7 @@ const FORBIDDEN_FIREBASE = [
 /**
  * @param {{ allowAi: boolean, allowAppCheck: boolean, otherApp: string }} opts
  */
-function restrictedImports({ allowAi, allowAppCheck, otherApp }) {
+function restrictedImports({ allowAi, allowAppCheck, otherApp, allowCloudImpl = true }) {
   const paths = FORBIDDEN_FIREBASE.map((name) => ({
     name,
     message: 'This Firebase service is not allowed here (CLAUDE.md rule 4).',
@@ -49,11 +49,20 @@ function restrictedImports({ allowAi, allowAppCheck, otherApp }) {
       message: 'App Check is not initialized here (CLAUDE.md rule 4).',
     });
   }
+  const cloudImplPatterns = allowCloudImpl
+    ? []
+    : [
+        {
+          group: ['#cloud-impl', '**/cloud/firebaseCloud*', '**/cloud/fieldExplainer*', '**/cloud/fakeCloud*'],
+          message: 'Only src/egress may hold cloud implementations (CLAUDE.md rule 6: requests are built by the gateway).',
+        },
+      ];
   return [
     'error',
     {
       paths,
       patterns: [
+        ...cloudImplPatterns,
         {
           group: ['@firebase/*'],
           message: 'Import Firebase only through the public `firebase/*` entry points.',
@@ -212,7 +221,14 @@ export default tseslint.config(
         allowAi: false,
         allowAppCheck: false,
         otherApp: 'private-app',
+        allowCloudImpl: false,
       }),
+    },
+  },
+  {
+    files: ['apps/public-app/src/egress/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': restrictedImports({ allowAi: false, allowAppCheck: false, otherApp: 'private-app' }),
     },
   },
   {

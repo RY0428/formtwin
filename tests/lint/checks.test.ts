@@ -45,6 +45,9 @@ describe('check-invariants', () => {
     ['PREFER in another public file', { 'apps/public-app/src/c.ts': 'InferenceMode.PREFER_IN_CLOUD' }, 'PREFER'],
     ['PREFER_ON_DEVICE in the explainer', { 'apps/public-app/src/cloud/fieldExplainer.ts': 'InferenceMode.PREFER_ON_DEVICE' }, 'PREFER'],
     ['the explainer file name in private-app', { 'apps/private-app/src/cloud/fieldExplainer.ts': 'InferenceMode.PREFER_IN_CLOUD' }, 'PREFER'],
+    ['a lowercase mode string in the explainer', { 'apps/public-app/src/cloud/fieldExplainer.ts': "x(InferenceMode.PREFER_IN_CLOUD); const m = 'prefer_on_device';" }, 'PREFER'],
+    ['a PREFER value in a shared package', { 'packages/contracts/src/m.ts': "export const m = 'prefer_on_device';" }, 'PREFER'],
+    ['a PREFER value in an E2E-only file', { 'apps/private-app/src/x.e2e.ts': 'InferenceMode.PREFER_ON_DEVICE' }, 'PREFER'],
     ['cloud mode in private-app', { 'apps/private-app/src/c.ts': 'InferenceMode.ONLY_IN_CLOUD' }, 'must not use'],
     ['guarantee wording', { 'apps/private-app/src/c.ts': "const s = 'Zero leak: nothing remains on this device';" }, 'guarantee'],
   ])('fails on %s', (_n, extra, msg) => {
