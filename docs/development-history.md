@@ -66,3 +66,4 @@ Submission period: 2026-11-11 13:30 PT – 2026-11-30 14:00 PT (JST 2026-11-12 0
 | 2026-11-14 | Private PDF step: guidance to print A4 one-sided, sign the signature box by hand and complete the other fields and pages (from practitioner sources, recorded as secondary information). Day 13–16 plan recorded. | |
 | 2026-11-14 | Release evaluation (20 unused synthetic cards, frozen protocol, judged once): FAIL on card number 15/18 (threshold 16/18); name, expiry, unread, blank-field, time and PDF criteria passed. | |
 | 2026-11-14 | After the release evaluation failed on card number: a number that breaks the card format is no longer offered for one-click adoption (the user types it); re-evaluation protocol frozen for a new card set. | |
+| 2026-11-14 | Release re-evaluation (new 20 cards): no wrong card number offered for one-click adoption (safety criterion passed), but 4/18 numbers had to be typed by hand (threshold 3) → FAIL; other criteria passed. | |
