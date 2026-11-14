@@ -1,0 +1,365 @@
+{
+  "set": "release2",
+  "run": "release2-2026-11-14-mac",
+  "note": "Automated run by device:check --eval release2 (docs/eval/release2-protocol.md). Judge once.",
+  "environment": {
+    "url": "https://formtwin-dev-private.web.app/",
+    "profile": "device:check dedicated profile",
+    "chrome": "157.0.8103.79",
+    "build": "acc2c43",
+    "flags": {
+      "prompt-api-multimodal-input": "Enabled",
+      "gemma4-for-built-in-ai": "Enabled"
+    },
+    "sdk": "firebase 13.3.0",
+    "device": "developer Mac"
+  },
+  "warmUp": {
+    "file": "explore-01.png",
+    "extractMs": 14110
+  },
+  "runs": [
+    {
+      "file": "release2-01.png",
+      "extractMs": 5689,
+      "timedOut": false,
+      "fields": {
+        "fullName": "ARAUJO JOAO VICTOR",
+        "residenceCardNumber": "OS20850913QB",
+        "periodOfStayExpiry": "2028年08月16日"
+      },
+      "error": null,
+      "pageFirstRun": false
+    },
+    {
+      "file": "release2-02.png",
+      "extractMs": 4567,
+      "timedOut": false,
+      "fields": {
+        "fullName": "MWANGI WンジRU",
+        "residenceCardNumber": "HT47381926NP",
+        "periodOfStayExpiry": "2027年03月03日"
+      },
+      "error": null,
+      "pageFirstRun": false
+    },
+    {
+      "file": "release2-03.png",
+      "extractMs": 5299,
+      "timedOut": false,
+      "fields": {
+        "fullName": "LEFEVRE HELENE",
+        "residenceCardNumber": "BI15008051Z0",
+        "periodOfStayExpiry": "2029年10月10日"
+      },
+      "error": null,
+      "pageFirstRun": false
+    },
+    {
+      "file": "release2-04.png",
+      "extractMs": 5459,
+      "timedOut": false,
+      "fields": {
+        "fullName": "VU THI LAN",
+        "residenceCardNumber": "CK62940375RW",
+        "periodOfStayExpiry": "2026年12月28日"
+      },
+      "error": null,
+      "pageFirstRun": false
+    },
+    {
+      "file": "release2-05.png",
+      "extractMs": 4476,
+      "timedOut": false,
+      "fields": {
+        "fullName": "SANCHEZ MORENO JULIA",
+        "residenceCardNumber": "ZS8011550801",
+        "periodOfStayExpiry": "2028年01月30日"
+      },
+      "error": null,
+      "pageFirstRun": false
+    },
+    {
+      "file": "release2-06.png",
+      "extractMs": 7466,
+      "timedOut": false,
+      "fields": {
+        "fullName": "OSEI KWAME",
+        "residenceCardNumber": "MF39462817TJ",
+        "periodOfStayExpiry": "2027年06月06日"
+      },
+      "error": null,
+      "pageFirstRun": false
+    },
+    {
+      "file": "release2-07.png",
+      "extractMs": 5940,
+      "timedOut": false,
+      "fields": {
+        "fullName": "BECKER JURGEN",
+        "residenceCardNumber": "QB50810085SI",
+        "periodOfStayExpiry": "2029年04月02日"
+      },
+      "error": null,
+      "pageFirstRun": false
+    },
+    {
+      "file": "release2-08.png",
+      "extractMs": 4158,
+      "timedOut": false,
+      "fields": {
+        "fullName": "ZHANG HAORAN",
+        "residenceCardNumber": "EN71625394GX",
+        "periodOfStayExpiry": "2027年12月12日"
+      },
+      "error": null,
+      "pageFirstRun": false
+    },
+    {
+      "file": "release2-09.png",
+      "extractMs": 4300,
+      "timedOut": false,
+      "fields": {
+        "fullName": "IBANEZ SOFIA",
+        "residenceCardNumber": "I005118850BZ",
+        "periodOfStayExpiry": "2028年11月03日"
+      },
+      "error": null,
+      "pageFirstRun": false
+    },
+    {
+      "file": "release2-10.png",
+      "extractMs": 5709,
+      "timedOut": false,
+      "fields": {
+        "fullName": "MOYO TENDAI 見本",
+        "residenceCardNumber": "PA83920471KL",
+        "periodOfStayExpiry": "2026年11月28日"
+      },
+      "error": null,
+      "pageFirstRun": false
+    },
+    {
+      "file": "release2-11.png",
+      "extractMs": 4276,
+      "timedOut": false,
+      "fields": {
+        "fullName": "CONCEICAO PAULO",
+        "residenceCardNumber": "RV29473815DC",
+        "periodOfStayExpiry": "2027年05月15日"
+      },
+      "error": null,
+      "pageFirstRun": false
+    },
+    {
+      "file": "release2-12.png",
+      "extractMs": 4117,
+      "timedOut": false,
+      "fields": {
+        "fullName": "LEE JIHOON",
+        "residenceCardNumber": "SZ5810850100",
+        "periodOfStayExpiry": "2028年02月22日"
+      },
+      "error": null,
+      "pageFirstRun": false
+    },
+    {
+      "file": "release2-13.png",
+      "extractMs": 4566,
+      "timedOut": false,
+      "fields": {
+        "fullName": "MARTINEZ PENA ELENA",
+        "residenceCardNumber": "TL47619283WE",
+        "periodOfStayExpiry": "2029年06月18日"
+      },
+      "error": null,
+      "pageFirstRun": false
+    },
+    {
+      "file": "release2-14.png",
+      "extractMs": 4598,
+      "timedOut": false,
+      "fields": {
+        "fullName": "AHMED FARIDA",
+        "residenceCardNumber": "UG36058172YH",
+        "periodOfStayExpiry": "2027年09月09日"
+      },
+      "error": null,
+      "pageFirstRun": false
+    },
+    {
+      "file": "release2-15.png",
+      "extractMs": 5479,
+      "timedOut": false,
+      "fields": {
+        "fullName": "ITO SOTA",
+        "residenceCardNumber": "VD91827364AF",
+        "periodOfStayExpiry": "2028年04月27日"
+      },
+      "error": null,
+      "pageFirstRun": false
+    },
+    {
+      "file": "release2-16.png",
+      "extractMs": 5285,
+      "timedOut": false,
+      "fields": {
+        "fullName": "CASTRO VEGA ANDRES",
+        "residenceCardNumber": "WM70258139NR",
+        "periodOfStayExpiry": "2027年10月05日"
+      },
+      "error": null,
+      "pageFirstRun": false
+    },
+    {
+      "file": "release2-17.png",
+      "extractMs": 5088,
+      "timedOut": false,
+      "fields": {
+        "fullName": "EZE CHIOMA",
+        "residenceCardNumber": "XJ58260413PT",
+        "periodOfStayExpiry": null
+      },
+      "error": null,
+      "pageFirstRun": false
+    },
+    {
+      "file": "release2-18.png",
+      "extractMs": 3986,
+      "timedOut": false,
+      "fields": {
+        "fullName": "GIRARD AMELIE",
+        "residenceCardNumber": "YH93017462LS",
+        "periodOfStayExpiry": null
+      },
+      "error": null,
+      "pageFirstRun": false
+    },
+    {
+      "file": "release2-19.png",
+      "extractMs": 5081,
+      "timedOut": false,
+      "fields": {
+        "fullName": "HOSSAIN TANVIRLE",
+        "residenceCardNumber": null,
+        "periodOfStayExpiry": "2028年07月08日"
+      },
+      "error": null,
+      "pageFirstRun": false
+    },
+    {
+      "file": "release2-20.png",
+      "extractMs": 4002,
+      "timedOut": false,
+      "fields": {
+        "fullName": "ONO RIKU",
+        "residenceCardNumber": "sample",
+        "periodOfStayExpiry": "2029年03月21日"
+      },
+      "error": null,
+      "pageFirstRun": false
+    }
+  ],
+  "pdfChecks": [
+    {
+      "file": "release2-01.png",
+      "pdf": true,
+      "misfills": []
+    },
+    {
+      "file": "release2-02.png",
+      "pdf": true,
+      "misfills": []
+    },
+    {
+      "file": "release2-03.png",
+      "pdf": true,
+      "misfills": []
+    },
+    {
+      "file": "release2-04.png",
+      "pdf": true,
+      "misfills": []
+    },
+    {
+      "file": "release2-05.png",
+      "pdf": true,
+      "misfills": []
+    },
+    {
+      "file": "release2-06.png",
+      "pdf": true,
+      "misfills": []
+    },
+    {
+      "file": "release2-07.png",
+      "pdf": true,
+      "misfills": []
+    },
+    {
+      "file": "release2-08.png",
+      "pdf": true,
+      "misfills": []
+    },
+    {
+      "file": "release2-09.png",
+      "pdf": true,
+      "misfills": []
+    },
+    {
+      "file": "release2-10.png",
+      "pdf": true,
+      "misfills": []
+    },
+    {
+      "file": "release2-11.png",
+      "pdf": true,
+      "misfills": []
+    },
+    {
+      "file": "release2-12.png",
+      "pdf": true,
+      "misfills": []
+    },
+    {
+      "file": "release2-13.png",
+      "pdf": true,
+      "misfills": []
+    },
+    {
+      "file": "release2-14.png",
+      "pdf": true,
+      "misfills": []
+    },
+    {
+      "file": "release2-15.png",
+      "pdf": true,
+      "misfills": []
+    },
+    {
+      "file": "release2-16.png",
+      "pdf": true,
+      "misfills": []
+    },
+    {
+      "file": "release2-17.png",
+      "pdf": true,
+      "misfills": []
+    },
+    {
+      "file": "release2-18.png",
+      "pdf": true,
+      "misfills": []
+    },
+    {
+      "file": "release2-19.png",
+      "pdf": true,
+      "misfills": []
+    },
+    {
+      "file": "release2-20.png",
+      "pdf": true,
+      "misfills": []
+    }
+  ]
+}
