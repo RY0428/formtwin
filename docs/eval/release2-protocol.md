@@ -34,4 +34,5 @@
 で採点し `docs/eval/release2-results.md` に記録。
 
 ## 凍結記録
-- 凍結日・コミット: 2026-11-14（このファイルを追加したコミット。ハッシュはセット生成時に追記）。
+- 凍結日・コミット: 2026-11-14、`ab68491`（"Option A: no one-click adoption of format-breaking card numbers; freeze re-evaluation protocol"）。
+- `release2` セット: 凍結後のコミットで生成（`data/eval/release2/`、20枚、manifest に SHA-256）。画像は1枚も目視していない。

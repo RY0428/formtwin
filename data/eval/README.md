@@ -9,7 +9,9 @@ All images here are **synthetic test cards** made by `scripts/generate-sample-ca
   (`fe793c2`). Judge once; never use for tuning.
 - `results/` — recorded extraction runs (`score.mjs` input).
 - `release/` — release judgement set (20 cards incl. 4 with a blank field), generated after the release protocol
-  freeze (`bd4745b`, `docs/eval/release-protocol.md`). Judge once; never use for tuning.
+  freeze (`bd4745b`, `docs/eval/release-protocol.md`). Judged once (FAIL on card number); never reuse.
+- `release2/` — release re-evaluation set (20 cards, same mix), generated after `docs/eval/release2-protocol.md`
+  was frozen (`ab68491`). Judge once; never use for tuning.
 
 Regenerate (font used on 2026-11-12: WenQuanYi Zen Hei from the dev container):
 
@@ -17,4 +19,5 @@ Regenerate (font used on 2026-11-12: WenQuanYi Zen Hei from the dev container):
 python3 -I scripts/generate-sample-cards.py /usr/share/fonts/truetype/wqy/wqy-zenhei.ttc data/eval/explore explore
 python3 -I scripts/generate-sample-cards.py /usr/share/fonts/truetype/wqy/wqy-zenhei.ttc data/eval/gate gate
 python3 -I scripts/generate-sample-cards.py /usr/share/fonts/truetype/wqy/wqy-zenhei.ttc data/eval/release release
+python3 -I scripts/generate-sample-cards.py /usr/share/fonts/truetype/wqy/wqy-zenhei.ttc data/eval/release2 release2
 ```
