@@ -1,0 +1,110 @@
+{
+  "set": "explore2",
+  "run": "explore2-2026-11-14-mac",
+  "note": "Exploration run by device:check --eval explore2 (not a judgement).",
+  "environment": {
+    "url": "https://formtwin-dev-private.web.app/",
+    "profile": "device:check dedicated profile",
+    "chrome": "157.0.8103.79",
+    "build": "acc2c43",
+    "flags": {
+      "prompt-api-multimodal-input": "Enabled",
+      "gemma4-for-built-in-ai": "Enabled"
+    },
+    "sdk": "firebase 13.3.0",
+    "device": "developer Mac"
+  },
+  "warmUp": {
+    "file": "explore-01.png",
+    "extractMs": 12002
+  },
+  "runs": [
+    {
+      "file": "explore2-01.png",
+      "extractMs": 4332,
+      "timedOut": false,
+      "fields": {
+        "fullName": "OLIVEIRA RAFAEL",
+        "residenceCardNumber": "0130581027QO",
+        "periodOfStayExpiry": "2028年06月11日"
+      },
+      "error": null,
+      "pageFirstRun": false
+    },
+    {
+      "file": "explore2-02.png",
+      "extractMs": 5552,
+      "timedOut": false,
+      "fields": {
+        "fullName": "NOWAK EWA",
+        "residenceCardNumber": "QS105008110",
+        "periodOfStayExpiry": "2027年02月17日"
+      },
+      "error": null,
+      "pageFirstRun": false
+    },
+    {
+      "file": "explore2-03.png",
+      "extractMs": 5464,
+      "timedOut": false,
+      "fields": {
+        "fullName": "TANDON MEERA LE 見本",
+        "residenceCardNumber": "IB880155000Z",
+        "periodOfStayExpiry": "2029年09月30日"
+      },
+      "error": null,
+      "pageFirstRun": false
+    },
+    {
+      "file": "explore2-04.png",
+      "extractMs": 5591,
+      "timedOut": false,
+      "fields": {
+        "fullName": "KOWALSKI PIOTRLE",
+        "residenceCardNumber": "Z005108150SI",
+        "periodOfStayExpiry": "2026年12月05日"
+      },
+      "error": null,
+      "pageFirstRun": false
+    },
+    {
+      "file": "explore2-05.png",
+      "extractMs": 5232,
+      "timedOut": false,
+      "fields": {
+        "fullName": "ODUYA BISI",
+        "residenceCardNumber": null,
+        "periodOfStayExpiry": "2028年10月01日"
+      },
+      "error": null,
+      "pageFirstRun": false
+    }
+  ],
+  "pdfChecks": [
+    {
+      "file": "explore2-01.png",
+      "pdf": true,
+      "misfills": []
+    },
+    {
+      "file": "explore2-02.png",
+      "pdf": true,
+      "misfills": []
+    },
+    {
+      "file": "explore2-03.png",
+      "pdf": true,
+      "misfills": []
+    },
+    {
+      "file": "explore2-04.png",
+      "pdf": true,
+      "misfills": []
+    },
+    {
+      "file": "explore2-05.png",
+      "pdf": true,
+      "misfills": []
+    }
+  ]
+}

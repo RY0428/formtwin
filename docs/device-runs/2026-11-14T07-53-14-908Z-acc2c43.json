@@ -1,0 +1,30 @@
+{
+  "startedAt": "2026-11-14T07:53:14.908Z",
+  "chrome": "157.0.8103.79",
+  "build": "acc2c43",
+  "flags": {
+    "prompt-api-multimodal-input": "Enabled",
+    "gemma4-for-built-in-ai": "Enabled"
+  },
+  "steps": [
+    {
+      "name": "④ cancel AI preparation",
+      "ok": true,
+      "skipped": "model already installed (preparation is instant)"
+    },
+    {
+      "name": "Prepare AI",
+      "ok": true,
+      "status": "ready",
+      "seconds": 0
+    },
+    {
+      "name": "evaluation explore2: 5 cards",
+      "ok": true,
+      "results": "data/eval/results/explore2-2026-11-14-mac.json",
+      "pdfMisfills": 0
+    }
+  ],
+  "availabilityAtStart": "available",
+  "finishedAt": "2026-11-14T07:54:19.007Z"
+}
