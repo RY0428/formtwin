@@ -57,4 +57,5 @@ N は「その欄に正解値を持つカード数」: fullName 20、residenceCa
    `docs/eval/release-results.md` に記録。
 
 ## 凍結記録
-- 未凍結。
+- 凍結日・コミット: 2026-11-14、`bd4745b`（"Freeze the release evaluation protocol (thresholds and card mix approved)"）。
+- `release` セット: 凍結後のコミットで生成（`data/eval/release/`、20枚、manifest に SHA-256）。生成確認のため release-17 の画像1枚だけを目視（満了日欄の欠落描画）。プロンプト・画像処理の調整には使っていない。
