@@ -1,0 +1,77 @@
+{
+  "startedAt": "2026-11-14T04:39:15.175Z",
+  "chrome": "157.0.8103.79",
+  "build": "b891a48",
+  "flags": {
+    "prompt-api-multimodal-input": "Enabled",
+    "gemma4-for-built-in-ai": "Enabled"
+  },
+  "steps": [
+    {
+      "name": "④ cancel AI preparation",
+      "ok": true,
+      "skipped": "model already installed (preparation is instant)"
+    },
+    {
+      "name": "Prepare AI",
+      "ok": true,
+      "status": "ready",
+      "seconds": 0
+    },
+    {
+      "name": "⑤ extract explore-01.png",
+      "ok": true,
+      "seconds": 12.9,
+      "candidates": 3,
+      "error": null
+    },
+    {
+      "name": "⑤ extract explore-02.png",
+      "ok": true,
+      "seconds": 4.4,
+      "candidates": 4,
+      "error": null
+    },
+    {
+      "name": "⑤ extract explore-03.png",
+      "ok": true,
+      "seconds": 5.9,
+      "candidates": 4,
+      "error": null
+    },
+    {
+      "name": "② Save PDF without lock",
+      "ok": true,
+      "pdfName": true
+    },
+    {
+      "name": "③ End session clears values",
+      "ok": true
+    },
+    {
+      "name": "private app: no request outside its origin during the whole run",
+      "ok": true,
+      "foreign": []
+    },
+    {
+      "name": "explanations online answered in the cloud",
+      "ok": true,
+      "source": "In the cloud",
+      "error": null,
+      "items": 6
+    },
+    {
+      "name": "explanations offline fell back to this device",
+      "ok": true,
+      "source": "On this device (automatic fallback)",
+      "error": null,
+      "items": 6
+    }
+  ],
+  "availabilityAtStart": "available",
+  "notMeasured": [
+    "① hidden page lock (automation keeps the page visible)"
+  ],
+  "publicBuild": "b891a48",
+  "finishedAt": "2026-11-14T04:40:17.489Z"
+}
