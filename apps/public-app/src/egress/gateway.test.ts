@@ -232,7 +232,7 @@ describe('explain time limit', () => {
       const run = g.explainApprovedFields('ok');
       await vi.advanceTimersByTimeAsync(45_000);
       expect(await run).toMatchObject({ ok: false, reason: 'request_failed' });
-      expect(g.entries().at(-1)).toMatchObject({ status: 'unknown', sourceSha256: null, promptVersion: 'explain-1' });
+      expect(g.entries().at(-1)).toMatchObject({ status: 'unknown', sourceSha256: null, promptVersion: 'explain-2' });
     } finally {
       vi.useRealTimers();
     }

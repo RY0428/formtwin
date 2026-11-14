@@ -6,7 +6,7 @@ import { z } from 'zod';
  * input is public labels, never personal data. Always re-validated with this schema.
  */
 export const FIELD_EXPLANATION_MAX_LENGTH = 200;
-export const FIELD_EXPLANATIONS_PROMPT_VERSION = 'explain-1';
+export const FIELD_EXPLANATIONS_PROMPT_VERSION = 'explain-2';
 
 const text = z
   .string()
