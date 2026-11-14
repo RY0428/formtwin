@@ -1,9 +1,11 @@
 import {
+  evaluateTrust,
   formDefSchema,
   manifestSchema,
   manifestSignatureSchema,
   manifestSigningText,
   publicKeySchema,
+  trustListSchema,
   type FormDef,
   type Manifest,
   type PdfLayout,
@@ -25,6 +27,8 @@ export interface BundledPackage {
   readonly manifest: unknown;
   readonly signature: unknown;
   readonly publicKey: unknown;
+  /** forms/trust.json at build time (E2E: a list trusting the throwaway key). */
+  readonly trust: unknown;
   readonly files: { readonly sourcePdf: Uint8Array; readonly formDef: Uint8Array; readonly font: Uint8Array; readonly history: Uint8Array };
 }
 
@@ -34,6 +38,9 @@ export type PackageErrorCode =
   | 'key_mismatch'
   | 'bad_signature'
   | 'revoked'
+  | 'untrusted_key'
+  | 'key_revoked'
+  | 'key_retired'
   | 'incompatible'
   | 'hash_mismatch'
   | 'invalid_formdef';
@@ -99,7 +106,8 @@ export async function verifyPackage(pkg: BundledPackage, appVersion = APP_VERSIO
   const m = manifestSchema.safeParse(pkg.manifest);
   const s = manifestSignatureSchema.safeParse(pkg.signature);
   const k = publicKeySchema.safeParse(pkg.publicKey);
-  if (!m.success || !s.success || !k.success) throw new PackageError('malformed');
+  const t = trustListSchema.safeParse(pkg.trust);
+  if (!m.success || !s.success || !k.success || !t.success) throw new PackageError('malformed');
   const manifest = m.data;
   if (manifest.keyId !== s.data.keyId || s.data.keyId !== k.data.keyId) throw new PackageError('key_mismatch');
 
@@ -121,6 +129,10 @@ export async function verifyPackage(pkg: BundledPackage, appVersion = APP_VERSIO
   if (!ok) throw new PackageError('bad_signature');
 
   if (manifest.status !== 'active') throw new PackageError('revoked');
+  // A key file alone is not trusted: the bundled trust list decides (docs/decisions.md 2026-11-14).
+  const decision = evaluateTrust(t.data, manifest, await sha256Hex(new TextEncoder().encode(manifestSigningText(manifest))));
+  if (decision === 'package_revoked') throw new PackageError('revoked');
+  if (decision !== 'trusted') throw new PackageError(decision);
   if (
     manifest.schemaVersion !== 1 ||
     manifest.ontologyVersion !== ONTOLOGY_VERSION ||

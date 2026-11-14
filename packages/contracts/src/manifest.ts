@@ -133,3 +133,55 @@ export const adoptionHistorySchema = z
   });
 
 export type AdoptionHistory = z.infer<typeof adoptionHistorySchema>;
+
+// ---------------------------------------------------------------------------------------------
+// Trust list (forms/trust.json, docs/decisions.md 2026-11-14). Bundled at build time; never fetched.
+
+const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+
+export const trustListSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    keys: z
+      .array(
+        z
+          .object({
+            keyId,
+            status: z.enum(['active', 'retired', 'revoked']),
+            since: isoDate,
+            /** Retired keys: packages created on or before this date still verify. */
+            retiredAt: isoDate.optional(),
+            note: z.string().max(200).optional(),
+          })
+          .strict()
+          .refine((k) => (k.status === 'retired') === (k.retiredAt !== undefined), 'retiredAt only and always for retired keys'),
+      )
+      .max(20),
+    revokedPackages: z
+      .array(
+        z
+          .object({ packageId: z.string().regex(/^[a-z0-9][a-z0-9-]{0,79}$/), manifestSha256: sha256, reason: z.string().min(1).max(200), revokedAt: isoDate })
+          .strict(),
+      )
+      .max(200),
+  })
+  .strict();
+
+export type TrustList = z.infer<typeof trustListSchema>;
+export type TrustDecision = 'trusted' | 'untrusted_key' | 'key_revoked' | 'key_retired' | 'package_revoked';
+
+/**
+ * Applies the trust list to a manifest whose signature already verified with the key `manifest.keyId`.
+ * `manifestSha256` is the SHA-256 (hex) of `manifestSigningText(manifest)`.
+ */
+export function evaluateTrust(trust: TrustList, manifest: Manifest, manifestSha256: string): TrustDecision {
+  if (trust.revokedPackages.some((r) => r.packageId === manifest.packageId && r.manifestSha256 === manifestSha256)) {
+    return 'package_revoked';
+  }
+  const key = trust.keys.find((k) => k.keyId === manifest.keyId);
+  if (key === undefined) return 'untrusted_key';
+  if (key.status === 'revoked') return 'key_revoked';
+  if (key.status === 'retired' && (key.retiredAt === undefined || manifest.createdAt > key.retiredAt)) return 'key_retired';
+  return 'trusted';
+}
+

@@ -20,5 +20,15 @@ for (const id of readdirSync(dir)) {
 for (const [formId, cur] of Object.entries(readJson(join(ROOT, 'forms/current.json')))) {
   const signed = existsSync(join(dir, cur.packageId, 'manifest.sig.json'));
   console.log(`current ${formId}: ${cur.packageId} ${signed ? 'signed' : 'UNSIGNED — production builds refuse entry until the maintainer signs it'}`);
+  // A signed current package must also pass the trust list (revoked or untrusted → the app refuses entry).
+  if (signed) {
+    try {
+      execFileSync(process.execPath, [join(ROOT, 'scripts/forms/verify-package.mjs'), cur.packageId, '--require-trusted'], { stdio: 'pipe' });
+      console.log(`current ${formId}: trusted`);
+    } catch (e) {
+      console.error(`current ${formId}: NOT TRUSTED (${String(e.stderr ?? '').trim()})`);
+      failed = true;
+    }
+  }
 }
 if (failed) process.exit(1);

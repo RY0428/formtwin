@@ -313,7 +313,7 @@ export function App() {
             </p>
             {boot.status === 'failed' && (
               <Alert variant="destructive" role="alert">
-                {COPY.boot.failed} (<code data-testid="boot-reason">{boot.reason}</code>). {COPY.boot.disabled}
+                {COPY.boot.failed}: {COPY.boot.reasons[boot.reason] ?? boot.reason} (<code data-testid="boot-reason">{boot.reason}</code>). {COPY.boot.disabled}
               </Alert>
             )}
           </CardContent>

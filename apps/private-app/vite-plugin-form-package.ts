@@ -80,6 +80,8 @@ async function ephemeralPackage() {
     manifest,
     signature: { alg: 'ES256', keyId, signature: Buffer.from(sig).toString('base64') },
     publicKey: { keyId, jwk: { kty: pub.kty, crv: pub.crv, x: pub.x, y: pub.y } },
+    // The E2E build trusts only its own throwaway key.
+    trust: { schemaVersion: 1, keys: [{ keyId, status: 'active', since: '2026-11-13' }], revokedPackages: [] },
   };
 }
 
@@ -89,7 +91,7 @@ function committedPackage() {
   const manifest = json(dir + 'manifest.json') as { keyId: string };
   const keyPath = `forms/keys/${manifest.keyId}.pub.json`;
   if (!existsSync(ROOT + keyPath)) return null;
-  return { manifest, signature: json(dir + 'manifest.sig.json'), publicKey: json(keyPath) };
+  return { manifest, signature: json(dir + 'manifest.sig.json'), publicKey: json(keyPath), trust: json('forms/trust.json') };
 }
 
 export function formPackagePlugin(mode: string): Plugin {
@@ -114,6 +116,7 @@ export default {
   manifest: ${JSON.stringify(signed?.manifest ?? null)},
   signature: ${JSON.stringify(signed?.signature ?? null)},
   publicKey: ${JSON.stringify(signed?.publicKey ?? null)},
+  trust: ${JSON.stringify(signed?.trust ?? null)},
   files: {
   ${files}
   },

@@ -1,6 +1,13 @@
 // Verify a package: signature with the committed public key, then every file hash.
 // Usage: node scripts/forms/verify-package.mjs <packageId>
-import { manifestSchema, manifestSignatureSchema, manifestSigningText, publicKeySchema } from '@formtwin/contracts';
+import {
+  evaluateTrust,
+  manifestSchema,
+  manifestSignatureSchema,
+  manifestSigningText,
+  publicKeySchema,
+  trustListSchema,
+} from '@formtwin/contracts';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ROOT, readJson, sha256Hex, verifyBytes } from './lib.mjs';
@@ -20,4 +27,11 @@ if (!(await verifyBytes(pub.jwk, enc(manifestSigningText(manifest)), sig.signatu
 for (const f of manifest.files) {
   if (sha256Hex(readFileSync(join(ROOT, f.path))) !== f.sha256) throw new Error(`hash mismatch: ${f.path}`);
 }
-console.log(`ok ${packageId}: signature by ${sig.keyId}, ${manifest.files.length} file hashes match`);
+// Same trust rules as the private-app start-up check (docs/decisions.md 2026-11-14).
+const trust = trustListSchema.parse(readJson(join(ROOT, 'forms/trust.json')));
+const decision = evaluateTrust(trust, manifest, sha256Hex(Buffer.from(manifestSigningText(manifest), 'utf8')));
+console.log(`ok ${packageId}: signature by ${sig.keyId}, ${manifest.files.length} file hashes match, trust: ${decision}`);
+if (process.argv.includes('--require-trusted') && decision !== 'trusted') {
+  console.error(`NOT TRUSTED ${packageId}: ${decision}`);
+  process.exit(1);
+}

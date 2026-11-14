@@ -10,6 +10,7 @@ forms/
   defs/<formId>/rev-<n>.formdef.json     reviewed FormDef revisions (immutable)
   history/<formId>/rev-<n>.history.json  adoption history: candidate run, model, prompt, changes, review
   keys/<keyId>.pub.json                  package-signing public keys
+  trust.json                             which keys are trusted (active/retired/revoked) and revoked packages
   packages/<formId>-r<n>/manifest.json   file hashes and versions, plus manifest.sig.json (ES256)
 ```
 
@@ -54,3 +55,9 @@ node scripts/forms/keygen.mjs ~/formtwin-signing-key.json
 
 This writes the private key with mode 0600 (keep it backed up and private) and
 `forms/keys/<keyId>.pub.json` (commit it). Both scripts refuse a private-key path inside the repository.
+
+## Trust list, rotation and revocation
+
+A public key in `keys/` is trusted only when `trust.json` lists it. private-app bundles `trust.json` and
+checks it at start-up; `npm run check:package` applies the same rules. Procedures:
+[`docs/forms/key-rotation.md`](../docs/forms/key-rotation.md). Edit the list with `node scripts/forms/trust.mjs`.

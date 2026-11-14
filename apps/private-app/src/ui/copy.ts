@@ -21,6 +21,21 @@ export const COPY = {
   boot: {
     status: 'Form status',
     failed: 'The bundled form package could not be verified',
+    /** Short English reason per package error code (no personal data). */
+    reasons: {
+      unsigned: 'The package is not signed.',
+      malformed: 'The package files are not in the expected format.',
+      key_mismatch: 'The signature and key do not match.',
+      bad_signature: 'The signature is not valid.',
+      revoked: 'This package has been withdrawn.',
+      untrusted_key: 'The signing key is not on the trusted list.',
+      key_revoked: 'The signing key has been revoked.',
+      key_retired: 'The signing key was retired before this package was made.',
+      incompatible: 'The package is not compatible with this app version.',
+      hash_mismatch: 'A package file does not match its signed hash.',
+      invalid_formdef: 'The form definition is not valid.',
+      assets_invalid: 'The bundled files could not be read.',
+    } as Readonly<Record<string, string | undefined>>,
     disabled: 'Entry is disabled.',
   },
   ai: {

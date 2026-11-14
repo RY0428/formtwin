@@ -29,6 +29,8 @@ async function build(opts: {
   files?: Partial<Files>;
   manifest?: Partial<Manifest>;
   hashFiles?: Partial<Files>;
+  /** Trust list for the generated key; default: the key is active. */
+  trust?: (keyId: string, manifestSha256: string) => unknown;
 } = {}): Promise<BundledPackage> {
   const key = await makeKey();
   const files: Files = {
@@ -71,6 +73,10 @@ async function build(opts: {
     manifest,
     signature: { alg: 'ES256', keyId: key.keyId, signature: Buffer.from(sig).toString('base64') },
     publicKey: key.publicKey,
+    trust: (opts.trust ?? ((keyId: string) => ({ schemaVersion: 1, keys: [{ keyId, status: 'active', since: '2026-11-13' }], revokedPackages: [] })))(
+      key.keyId,
+      await hex(new TextEncoder().encode(manifestSigningText(manifest))),
+    ),
     files,
   };
 }
@@ -153,5 +159,43 @@ describe('verifyPackage (throwaway keys)', () => {
       if (f) f.transform = 'name.given';
     });
     expect(await code(verifyPackage(await build({ files: { formDef: bad } })))).toBe('incompatible');
+  });
+
+  describe('trust list (key rotation and revocation)', () => {
+    const list = (keys: unknown[], revokedPackages: unknown[] = []) => ({ schemaVersion: 1, keys, revokedPackages });
+    it('refuses a key that is not on the list, even with a valid signature', async () => {
+      expect(await code(verifyPackage(await build({ trust: () => list([]) })))).toBe('untrusted_key');
+    });
+    it('refuses a revoked key', async () => {
+      const pkg = await build({ trust: (keyId) => list([{ keyId, status: 'revoked', since: '2026-11-13' }]) });
+      expect(await code(verifyPackage(pkg))).toBe('key_revoked');
+    });
+    it('accepts a retired key for packages made on or before retirement, refuses later ones', async () => {
+      const retired = (retiredAt: string) => (keyId: string) => list([{ keyId, status: 'retired', since: '2026-11-01', retiredAt }]);
+      expect(await code(verifyPackage(await build({ trust: retired('2026-11-13') })))).toBe('ok');
+      expect(await code(verifyPackage(await build({ trust: retired('2026-11-12') })))).toBe('key_retired');
+    });
+    it('refuses a revoked package (exact manifest hash)', async () => {
+      const pkg = await build({
+        trust: (keyId, sha) =>
+          list([{ keyId, status: 'active', since: '2026-11-13' }], [
+            { packageId: 'isa-930004094-r1', manifestSha256: sha, reason: 'test', revokedAt: '2026-11-14' },
+          ]),
+      });
+      expect(await code(verifyPackage(pkg))).toBe('revoked');
+    });
+    it('a revocation of another manifest of the same id does not apply', async () => {
+      const pkg = await build({
+        trust: (keyId) =>
+          list([{ keyId, status: 'active', since: '2026-11-13' }], [
+            { packageId: 'isa-930004094-r1', manifestSha256: 'a'.repeat(64), reason: 'test', revokedAt: '2026-11-14' },
+          ]),
+      });
+      expect(await code(verifyPackage(pkg))).toBe('ok');
+    });
+    it('refuses a missing or malformed trust list', async () => {
+      expect(await code(verifyPackage(await build({ trust: () => null })))).toBe('malformed');
+      expect(await code(verifyPackage(await build({ trust: (keyId) => list([{ keyId, status: 'retired', since: '2026-11-13' }]) })))).toBe('malformed');
+    });
   });
 });

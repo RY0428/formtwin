@@ -57,3 +57,4 @@ Submission period: 2026-11-11 13:30 PT – 2026-11-30 14:00 PT (JST 2026-11-12 0
 | 2026-11-13 | Hosted Build 0ff57cf: automated hosted checks pass with no CSP violation (lock/resume, Save PDF, End session). | |
 | 2026-11-13 | Automated device check on the developer's Mac (real Chrome and on-device model, hosted 0ff57cf): model download 1455 s, extraction about 5 s per fictional sample with candidates, Save PDF and End session OK, no foreign requests. | |
 | 2026-11-13 | Public per-user RPM set to 10 in all regions by the developer; recorded with the 429 handling in the three specs. | |
+| 2026-11-14 | Day 8–12 M11: signing trust list (key rotation, retirement, revocation, withdrawn packages) applied at private-app start-up and in check:package; rotation procedure rehearsed; release inventory script. | |
