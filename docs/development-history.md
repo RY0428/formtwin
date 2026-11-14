@@ -61,3 +61,4 @@ Submission period: 2026-11-11 13:30 PT – 2026-11-30 14:00 PT (JST 2026-11-12 0
 | 2026-11-14 | Day 8–12 M12: automated accessibility checks (axe, WCAG A/AA tags) in key states of both apps, 200% zoom without horizontal scroll, focus moves for lock/resume/end, live-region checks. | |
 | 2026-11-14 | Public field explanations with InferenceMode.PREFER_IN_CLOUD (cloud first, automatic on-device fallback) from adopted public labels only; private side unchanged (ONLY_ON_DEVICE). Firebase engineer's Q&A recorded as reference for Q1; demo video notes. | |
 | 2026-11-14 | Hybrid fallback verified on a real device: public field explanations answered in the cloud online and on the device with the network off (Build b891a48); private flow re-checked in the same run. | |
+| 2026-11-14 | Day 8–12 M13: release checklist with a §13 coverage map; device check extended (network-off extraction and PDF, reload, back/forward, optional real-time inactivity). | |

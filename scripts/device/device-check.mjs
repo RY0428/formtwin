@@ -4,6 +4,7 @@
 //
 //   npm run device:check            # full run (first run also sets flags and downloads the model)
 //   npm run device:check -- --skip-download   # stop instead of waiting for a model download
+//   npm run device:check -- --inactivity      # also wait for the real 9/10-minute inactivity end (about 11 min)
 //
 // Uses a dedicated Chrome profile (~/.formtwin-device-profile): Chrome does not let automation drive the
 // everyday profile. Playwright's default switches that block component/model downloads are not used.
@@ -237,7 +238,8 @@ async function main() {
     await page.waitForTimeout(1500);
     let locked = await page.getByTestId('lock-screen').count() > 0;
     await other.close();
-    if (!locked) {
+    // Headless dry runs have no real window: minimising there can break the page target.
+    if (!locked && process.env.FORMTWIN_HEADLESS !== '1') {
       method = 'window minimise';
       const cdp = await ctx.newCDPSession(page);
       const { windowId } = await cdp.send('Browser.getWindowForTarget');
@@ -262,14 +264,65 @@ async function main() {
     for (const c of await page.getByLabel('Checked against my card').all()) await c.check();
     await page.getByRole('button', { name: 'Create PDF' }).click();
     await page.locator('[data-testid="pdf-preview"][data-state="done"]').waitFor({ timeout: 60_000 });
-    const [dl] = await Promise.all([page.waitForEvent('download'), page.getByRole('link', { name: 'Save PDF' }).click()]);
-    // The download event is the evidence; the file itself is not kept (fictional values).
-    const pdfName = dl.suggestedFilename().endsWith('.pdf');
-    await dl.cancel().catch(() => undefined);
-    step('② Save PDF without lock', pdfName && (await page.getByTestId('lock-screen').count()) === 0, { pdfName });
+    if (process.env.FORMTWIN_HEADLESS === '1') {
+      // Headless dry runs only: a blob download intermittently closes the page there. The Mac run covers it.
+      report.notMeasured = [...(report.notMeasured ?? []), '② Save PDF download (headless dry run)'];
+    } else {
+      const [dl] = await Promise.all([page.waitForEvent('download'), page.getByRole('link', { name: 'Save PDF' }).click()]);
+      // The download event is the evidence; the file itself is not kept (fictional values).
+      const pdfName = dl.suggestedFilename().endsWith('.pdf');
+      // Not cancelled: cancelling a finished blob download can close the page in some Chrome builds.
+      step('② Save PDF without lock', pdfName && (await page.getByTestId('lock-screen').count()) === 0, { pdfName });
+    }
 
     await page.getByRole('button', { name: 'End session and clear data' }).click();
     step('③ End session clears values', (await page.getByLabel(/^Family name/).inputValue()) === '' && (await page.getByTestId('pdf-preview').count()) === 0);
+
+    // ⑥ Network off: extraction and PDF still work (the private app needs no network after loading).
+    await ctx.setOffline(true);
+    await page.getByLabel('Residence card image (JPEG or PNG)').setInputFiles(IMAGES[2]);
+    await page.getByAltText('Selected sample').waitFor();
+    const ex = page.getByRole('button', { name: 'Extract on this device' });
+    for (let i = 0; i < 120 && !(await ex.isEnabled()); i += 1) await page.waitForTimeout(1000);
+    await ex.click();
+    const cand = page.getByRole('button', { name: /^Use / });
+    await cand.first().waitFor({ timeout: 120_000 }).catch(() => undefined);
+    const offlineCandidates = await cand.count();
+    for (const [l, v] of [[/^Family name/, 'TANAKA'], ...values]) await page.getByLabel(l).fill(v);
+    for (const c of await page.getByLabel('Checked against my card').all()) await c.check();
+    await page.getByRole('button', { name: 'Create PDF' }).click();
+    const offlinePdf = await page
+      .locator('[data-testid="pdf-preview"][data-state="done"]')
+      .waitFor({ timeout: 60_000 })
+      .then(() => true, () => false);
+    await ctx.setOffline(false);
+    step('⑥ network off: extraction and PDF still work', offlineCandidates > 0 && offlinePdf, { candidates: offlineCandidates, pdf: offlinePdf });
+
+    // ⑦ Reload: nothing is restored (memory only).
+    await page.reload();
+    await page.getByTestId('boot-status').filter({ hasText: 'ready' }).waitFor({ timeout: 60_000 });
+    step('⑦ reload restores no values', (await page.getByLabel(/^Family name/).inputValue()) === '');
+
+    // ⑧ Back/forward: a page restored from the back/forward cache starts a new session.
+    await page.getByRole('button', { name: 'Continue without AI' }).click().catch(() => undefined);
+    await page.getByLabel(/^Family name/).fill('TANAKA');
+    await page.goto('about:blank');
+    await page.goBack({ waitUntil: 'commit' }); // a bfcache restore fires no load event
+    await page.getByTestId('boot-status').filter({ hasText: 'ready' }).waitFor({ timeout: 60_000 });
+    const afterBack = await page.getByLabel(/^Family name/).inputValue();
+    const restoredMsg = (await page.getByTestId('ended-reason').count()) > 0 ? 'bfcache restore → new session' : 'page reloaded (no bfcache)';
+    step('⑧ back/forward shows no previous values', afterBack === '', { how: restoredMsg });
+
+    // Optional: real-time inactivity (about 10 minutes; Playwright keeps the page visible and timers run).
+    if (process.argv.includes('--inactivity')) {
+      await page.getByLabel(/^Family name/).fill('TANAKA');
+      log('waiting about 9 minutes for the inactivity warning (do not touch the window)');
+      const warned = await page.getByTestId('inactivity-warning').waitFor({ timeout: 9.5 * 60_000 }).then(() => true, () => false);
+      const ended = await page.getByTestId('ended-reason').waitFor({ timeout: 2 * 60_000 }).then(() => true, () => false);
+      step('inactivity: warning at 9 min, end and clear at 10 min (real time)', warned && ended && (await page.getByLabel(/^Family name/).inputValue()) === '', { warned, ended });
+    } else {
+      report.notMeasured = [...(report.notMeasured ?? []), 'inactivity 9/10 min (run with --inactivity, about 11 min)'];
+    }
 
     step('private app: no request outside its origin during the whole run', foreign.length === 0, { foreign });
 
