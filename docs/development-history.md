@@ -63,3 +63,4 @@ Submission period: 2026-11-11 13:30 PT – 2026-11-30 14:00 PT (JST 2026-11-12 0
 | 2026-11-14 | Hybrid fallback verified on a real device: public field explanations answered in the cloud online and on the device with the network off (Build b891a48); private flow re-checked in the same run. | |
 | 2026-11-14 | Day 8–12 M13: release checklist with a §13 coverage map; device check extended (network-off extraction and PDF, reload, back/forward, optional real-time inactivity). | |
 | 2026-11-14 | Day 8–12 completed: final automated device run on Build b891a48 passed every step, including network-off extraction and PDF, reload, back/forward, real-time inactivity end and the hybrid fallback. | |
+| 2026-11-14 | Private PDF step: guidance to print A4 one-sided, sign the signature box by hand and complete the other fields and pages (from practitioner sources, recorded as secondary information). Day 13–16 plan recorded. | |

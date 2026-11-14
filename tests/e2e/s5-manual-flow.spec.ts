@@ -61,6 +61,9 @@ test('manual entry without AI, offline, produces a partial PDF with confirmed va
 
   const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('link', { name: 'Save PDF' }).click()]);
   expect(download.suggestedFilename()).toBe('formtwin-filled-form.pdf');
+  // Printing and hand-signature guidance (requirements §9, secondary sources; not asserted as a rule).
+  await expect(page.getByTestId('print-guidance')).toContainText('signed by hand');
+  await expect(page.getByTestId('print-guidance')).toContainText('does not fill in the signature or the date');
   const text = await pdfText(await download.path());
   for (const v of ['TANAKA', 'HANAKO', '2027', '31']) expect(text).toContain(v);
   expect(text).not.toContain('AB12345678CD');

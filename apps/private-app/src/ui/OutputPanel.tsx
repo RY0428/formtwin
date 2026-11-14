@@ -128,6 +128,20 @@ export function OutputPanel({ assets, session }: Props) {
               </a>
             </Button>
           </div>
+          <div className="rounded-md border bg-muted/40 p-3 text-sm" data-testid="print-guidance">
+            <p className="font-medium">Before you submit the paper form</p>
+            <ul className="mt-1 list-disc pl-5">
+              <li>
+                Print on A4 paper, one side only. Guidance from immigration practitioners says the signature box
+                should be signed by hand (black or blue pen); this app does not fill in the signature or the date.
+              </li>
+              <li>
+                Only the fields listed in step 4 are filled, on page 1. Complete the other fields, and the pages for
+                your status of residence, yourself. Check the latest instructions from the Immigration Services
+                Agency or your regional immigration office.
+              </li>
+            </ul>
+          </div>
           <p className="text-xs text-muted-foreground">
             A saved PDF stays on your device and is not changed by later edits here. You entered these values with
             FormTwin; the form is not checked by the Immigration Services Agency.
