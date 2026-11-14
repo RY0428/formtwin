@@ -64,3 +64,4 @@ Submission period: 2026-11-11 13:30 PT – 2026-11-30 14:00 PT (JST 2026-11-12 0
 | 2026-11-14 | Day 8–12 M13: release checklist with a §13 coverage map; device check extended (network-off extraction and PDF, reload, back/forward, optional real-time inactivity). | |
 | 2026-11-14 | Day 8–12 completed: final automated device run on Build b891a48 passed every step, including network-off extraction and PDF, reload, back/forward, real-time inactivity end and the hybrid fallback. | |
 | 2026-11-14 | Private PDF step: guidance to print A4 one-sided, sign the signature box by hand and complete the other fields and pages (from practitioner sources, recorded as secondary information). Day 13–16 plan recorded. | |
+| 2026-11-14 | Release evaluation (20 unused synthetic cards, frozen protocol, judged once): FAIL on card number 15/18 (threshold 16/18); name, expiry, unread, blank-field, time and PDF criteria passed. | |
