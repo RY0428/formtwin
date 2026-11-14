@@ -6,7 +6,7 @@
     "url": "https://formtwin-dev-private.web.app/",
     "profile": "device:check dedicated profile",
     "chrome": "157.0.8103.79",
-    "build": "acc2c43",
+    "build": "e50c9bc",
     "flags": {
       "prompt-api-multimodal-input": "Enabled",
       "gemma4-for-built-in-ai": "Enabled"
@@ -16,16 +16,16 @@
   },
   "warmUp": {
     "file": "explore-01.png",
-    "extractMs": 12002
+    "extractMs": 13591
   },
   "runs": [
     {
       "file": "explore2-01.png",
-      "extractMs": 4332,
+      "extractMs": 4913,
       "timedOut": false,
       "fields": {
         "fullName": "OLIVEIRA RAFAEL",
-        "residenceCardNumber": "0130581027QO",
+        "residenceCardNumber": "OI30581027QO",
         "periodOfStayExpiry": "2028年06月11日"
       },
       "error": null,
@@ -33,11 +33,11 @@
     },
     {
       "file": "explore2-02.png",
-      "extractMs": 5552,
+      "extractMs": 6299,
       "timedOut": false,
       "fields": {
         "fullName": "NOWAK EWA",
-        "residenceCardNumber": "QS105008110",
+        "residenceCardNumber": "QS10500811IO",
         "periodOfStayExpiry": "2027年02月17日"
       },
       "error": null,
@@ -45,10 +45,10 @@
     },
     {
       "file": "explore2-03.png",
-      "extractMs": 5464,
+      "extractMs": 5315,
       "timedOut": false,
       "fields": {
-        "fullName": "TANDON MEERA LE 見本",
+        "fullName": "TANDON MEERALE 見本",
         "residenceCardNumber": "IB880155000Z",
         "periodOfStayExpiry": "2029年09月30日"
       },
@@ -57,11 +57,11 @@
     },
     {
       "file": "explore2-04.png",
-      "extractMs": 5591,
+      "extractMs": 4814,
       "timedOut": false,
       "fields": {
-        "fullName": "KOWALSKI PIOTRLE",
-        "residenceCardNumber": "Z005108150SI",
+        "fullName": "KOWALSKI PIOTRE",
+        "residenceCardNumber": "Z005108150ZI",
         "periodOfStayExpiry": "2026年12月05日"
       },
       "error": null,
@@ -69,7 +69,7 @@
     },
     {
       "file": "explore2-05.png",
-      "extractMs": 5232,
+      "extractMs": 5828,
       "timedOut": false,
       "fields": {
         "fullName": "ODUYA BISI",
