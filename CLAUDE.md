@@ -42,7 +42,7 @@
   3. 「Gemini Nano 4」→ 2026-11-13 Discord 既存スレッドで運営が Firebase チーム回答を転記:「Firebase AI Logic SDK 経由ならよい。chrome://flags の Gemma 4 for built-in AI 有効化が必要な場合あり」。Gemma 4 有効時も検証する → 2026-11-13 フラグ有効（`model_version/v4`）でも当初 Gemma 4 未DL → 同日、公開URLの Prepare で Gemma 4 DL 完了（約23分）、`prompt_api_gemma4` Requested・Available。呼出しごとの実モデルは Chrome が示さないため「Gemma 4 要求下で抽出」と記録（断定しない）
   - 承認済み・規約違反確定のどちらとしても扱わない。回答待ちでも実装・実機検証は進める。本人情報のクラウドフォールバックは回答にかかわらず導入しない。
 
-## 現フェーズ: Day 1–7 完了・実機確認済み（大会Q1/Q2の回答待ちのみ）。次は Day 8–12（requirements.md 8.2）
+## 現フェーズ: Day 1–12 完了・実機確認済み（2026-11-14、Build b891a48、`docs/plans/day8-12.md`）。大会Q1/Q2は回答待ち。次は Day 13–16（requirements.md 8.2: 判定用架空書類20枚のリリース評価、操作検証、審査手順・動画・提出説明）。リリース前の確認は `docs/plans/device-checklist-day12.md`
 
 以下は Day 1–2 の優先順（記録として残す）。
 
