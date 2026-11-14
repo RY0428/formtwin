@@ -10,6 +10,9 @@ const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 
 async function axe(page: Page, state: string) {
   const r = await new AxeBuilder({ page }).withTags(TAGS).analyze();
+  // Heading structure (MVP 11) is tagged best-practice in axe, so it is checked separately.
+  const h = await new AxeBuilder({ page }).withRules(['heading-order', 'page-has-heading-one', 'empty-heading']).analyze();
+  r.violations.push(...h.violations);
   const found = r.violations.map((v) => `${state}: ${v.id} (${v.impact ?? '?'}) ${v.nodes.map((n) => n.target.join(' ')).slice(0, 3).join(' | ')}`);
   expect(found, found.join('\n')).toEqual([]);
 }
@@ -54,7 +57,11 @@ test('private-app: axe in start, filled, PDF, error, lock and ended states', asy
   await axe(page, 'locked');
   await page.getByRole('button', { name: 'Resume' }).click();
   await page.getByRole('button', { name: 'End session and clear data' }).click();
-  await axe(page, 'ended');
+  await expect(page.getByTestId('ended-user')).toBeVisible();
+  await axe(page, 'ended by the user');
+  await page.clock.fastForward('10:01');
+  await expect(page.getByTestId('ended-reason')).toBeVisible();
+  await axe(page, 'ended automatically');
 });
 
 test('public-app: axe on load and with a candidate and diagnostics', async ({ page }) => {
@@ -73,7 +80,8 @@ for (const origin of [PRIVATE, PUBLIC]) {
   test(`${origin}: 200% zoom (640 px CSS width) has no horizontal page scroll`, async ({ page }) => {
     await page.setViewportSize({ width: 640, height: 450 });
     await page.goto(`${origin}/`);
-    await page.waitForLoadState('networkidle');
+    if (origin === PRIVATE) await expect(page.getByTestId('boot-status')).toHaveText('ready');
+    else await page.locator('[data-testid="review-canvas"][data-state="done"]').waitFor();
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow).toBeLessThanOrEqual(0);
   });
@@ -133,5 +141,49 @@ test('private-app live regions: warning is an alert, automatic end and errors ar
   await page.clock.fastForward('01:00');
   const ended = page.getByRole('status').filter({ hasText: '10 minutes without activity' });
   await expect(ended).toBeVisible();
+  await expect(page.getByTestId('ended-reason')).toBeFocused();
+});
+
+test('private-app at 200% zoom: warning and lock stay usable; the warning does not cover the focused field', async ({ page }) => {
+  await page.setViewportSize({ width: 640, height: 450 });
+  await page.clock.install();
+  await page.goto(`${PRIVATE}/`);
+  await expect(page.getByTestId('boot-status')).toHaveText('ready');
+  await page.getByRole('button', { name: 'Continue without AI' }).click();
+  await page.clock.fastForward('09:01');
+  await expect(page.getByTestId('inactivity-warning')).toBeVisible();
+  const field = page.getByLabel(/^Expiry year/);
+  await field.focus();
+  const w = await page.getByTestId('inactivity-warning').boundingBox();
+  const f = await field.boundingBox();
+  expect(w !== null && f !== null && f.y >= w.y + w.height).toBe(true);
+  await expect(page.getByRole('button', { name: 'Keep working' })).toBeInViewport();
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  await expect(page.getByRole('button', { name: 'Resume' })).toBeInViewport();
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+});
+
+test('private-app focus: resume returns to focus outside the form (Diagnostics), and a repeated end moves focus again', async ({ page }) => {
+  await page.clock.install();
+  await page.goto(`${PRIVATE}/`);
+  await expect(page.getByTestId('boot-status')).toHaveText('ready');
+  const summary = page.getByText('Diagnostics (no personal data)');
+  await summary.focus();
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' });
+    document.dispatchEvent(new Event('visibilitychange'));
+    Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'visible' });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  await page.getByRole('button', { name: 'Resume' }).click();
+  await expect(summary).toBeFocused();
+  await page.clock.fastForward('10:01');
+  await expect(page.getByTestId('ended-reason')).toBeFocused();
+  await page.getByRole('button', { name: 'Continue without AI' }).focus();
+  await page.clock.fastForward('10:01');
   await expect(page.getByTestId('ended-reason')).toBeFocused();
 });

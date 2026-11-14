@@ -8,6 +8,7 @@ import { join } from 'node:path';
 const dist = new URL('../apps/private-app/dist/', import.meta.url).pathname;
 
 const FORBIDDEN = [
+  ['axe-core', 'axe-core (test-only accessibility checker)'],
   ['firestore.googleapis.com', 'Firestore endpoint'],
   ['firebaseappcheck.googleapis.com', 'App Check endpoint'],
   ['recaptcha', 'reCAPTCHA'],

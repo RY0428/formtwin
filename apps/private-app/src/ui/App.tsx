@@ -78,6 +78,8 @@ export function App() {
   const endSessionRef = useRef<(reason: EndReason) => void>(() => undefined);
   const [timing, setTiming] = useState<Timing>({});
   const [ended, setEnded] = useState<EndReason | null>(null);
+  // Increments on every end, so focus moves and the message is re-announced even for the same reason.
+  const [endCount, setEndCount] = useState(0);
   const requests = useRef(new ExtractionRequests());
   const fileInput = useRef<HTMLInputElement>(null);
   const confirmClock = useRef<ConfirmClock>(undefined);
@@ -238,6 +240,7 @@ export function App() {
     if (fileInput.current !== null) fileInput.current.value = '';
     confirmClock.current = undefined;
     setEnded(reason);
+    setEndCount((n) => n + 1);
   }, [resetSession]);
   const lifecycle = useSessionLifecycle({ onEnd: clearSession });
   const { end: endLifecycle } = lifecycle;
@@ -245,21 +248,39 @@ export function App() {
   // Focus management (docs/decisions.md 2026-11-14): lock → Resume button; resume → the element that had
   // focus before the lock; end → the end message. Status texts themselves use role=status / role=alert.
   const resumeButton = useRef<HTMLButtonElement>(null);
-  const lastFocusInSession = useRef<HTMLElement | null>(null);
+  const lastFocus = useRef<HTMLElement | null>(null);
   const endMessage = useRef<HTMLDivElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
   const wasLocked = useRef(false);
+  // Remember the last focused element anywhere on the page except the lock screen.
+  useEffect(() => {
+    const onFocusIn = (e: FocusEvent) => {
+      const t = e.target;
+      if (t instanceof HTMLElement && t !== resumeButton.current) lastFocus.current = t;
+    };
+    document.addEventListener('focusin', onFocusIn);
+    return () => {
+      document.removeEventListener('focusin', onFocusIn);
+    };
+  }, []);
   useEffect(() => {
     if (lifecycle.locked) {
       resumeButton.current?.focus();
     } else if (wasLocked.current) {
-      const el = lastFocusInSession.current;
-      if (el !== null && el.isConnected) el.focus();
+      const el = lastFocus.current;
+      el?.focus();
+      // Removed, hidden or disabled element: fall back to the main region instead of <body>.
+      if (el === null || document.activeElement !== el) mainRef.current?.focus();
     }
     wasLocked.current = lifecycle.locked;
   }, [lifecycle.locked]);
   useEffect(() => {
-    if (ended !== null) endMessage.current?.focus();
-  }, [ended]);
+    if (endCount > 0) endMessage.current?.focus();
+  }, [endCount]);
+  // At 200% zoom the sticky warning must not cover the field being edited (WCAG 2.4.11).
+  useEffect(() => {
+    document.documentElement.style.scrollPaddingTop = lifecycle.warning ? '7rem' : '';
+  }, [lifecycle.warning]);
   endSessionRef.current = endLifecycle;
   const onEnd = useCallback(() => {
     endLifecycle('user');
@@ -284,7 +305,7 @@ export function App() {
         </div>
       </header>
 
-      <main className="mx-auto flex max-w-5xl flex-col gap-5 px-4 py-6">
+      <main ref={mainRef} tabIndex={-1} className="mx-auto flex max-w-5xl flex-col gap-5 px-4 py-6 outline-none">
         {lifecycle.locked && (
           <Card aria-labelledby="lock-heading" data-testid="lock-screen">
             <CardHeader>
@@ -309,7 +330,7 @@ export function App() {
           </Alert>
         )}
         {ended !== null && ended !== 'user' && (
-          <Alert variant="info" role="status" data-testid="ended-reason" ref={endMessage} tabIndex={-1}>
+          <Alert key={endCount} variant="info" role="status" data-testid="ended-reason" ref={endMessage} tabIndex={-1}>
             <p>{COPY.lifecycle.endedBecause[ended]}</p>
             <p className="mt-1">{COPY.end.cleared}</p>
             <p className="mt-1 text-xs">{COPY.end.limits}</p>
@@ -319,9 +340,6 @@ export function App() {
           hidden={lifecycle.locked}
           className="flex flex-col gap-5"
           data-testid="session-content"
-          onFocus={(e) => {
-            lastFocusInSession.current = e.target;
-          }}
         >
         <Alert variant="info">
           <p>{COPY.intro(title)}</p>
@@ -506,7 +524,7 @@ export function App() {
                   </Button>
                 </div>
                 {ended === 'user' && (
-                  <Alert variant="success" role="status" ref={endMessage} tabIndex={-1} data-testid="ended-user">
+                  <Alert key={endCount} variant="success" role="status" ref={endMessage} tabIndex={-1} data-testid="ended-user">
                     <p>{COPY.end.cleared}</p>
                     <p className="mt-1">{COPY.end.limits}</p>
                   </Alert>

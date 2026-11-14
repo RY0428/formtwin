@@ -7,6 +7,7 @@ import { join } from 'node:path';
 const dist = new URL('../apps/public-app/dist/', import.meta.url).pathname;
 
 const FORBIDDEN = [
+  ['axe-core', 'axe-core (test-only accessibility checker)'],
   ['e2e-fake-model', 'E2E fake analyzer'],
   ['fake.invalid', 'E2E fake analyzer'],
   ['e2e-dummy', 'E2E dummy config'],
