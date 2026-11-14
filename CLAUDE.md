@@ -32,6 +32,7 @@
 - 重要欄ゲート: 凍結プロトコル（`docs/eval/protocol.md`, `fe793c2`）で判定済み・合格（`docs/eval/gate-results.md`）。要修正: モデルの文字列 `"null"`、印字に無い発音記号
 - スパイクB: 実機確認済み（2026-11-13, build e338cff）。App Check(reCAPTCHA Enterprise, AI Logic enforced)→`ONLY_IN_CLOUD`→20欄・resolved 3。responseSchema の配列 minItems/maxItems は 400（実測）→ 不使用、制約は Zod。`docs/spikes/spike-b.md`
 - Day 3–7 範囲（ループ `docs/plans/day1-7.md`）: 署名済みフォームパッケージ（`forms/`、ES256、秘密鍵はリポジトリ外）、本人側の起動時検証、Tailwind + shadcn/ui 形式部品、React Hook Form、古い抽出結果の破棄、pdf.js プレビュー、公開側レビュー画面を実装。本番パッケージ署名済み（keyId `ft-d27d442d1434e11c`、秘密鍵は開発者Macのみ）。公開URLで本人側導線を実機確認済み（Build ac0c241）
+- 欄の説明（公開側、`PREFER_IN_CLOUD`）: 2026-11-14 実機確認済み（Mac・Chrome 157、Build b891a48）。オンライン→`IN_CLOUD`、通信断→`ON_DEVICE` へ自動フォールバック。`docs/device-runs/2026-11-14T04-39-15-175Z-b891a48.json`
 - SDK 注意: `LanguageModel` global が無い環境では `ONLY_ON_DEVICE` でもクラウドへ送信される（@firebase/ai 3.1.0 のコードで確認）。`FirebaseOnDeviceLLM` のガードを外さない。
 - Node 24（`.nvmrc`）。@firebase/ai 3.x の要件。
 - 2026-11-12 hackathon manager へ3点を再送 → 2026-11-13 返信「技術的質問は Discord #hackathon-help（#BuildHybridAI タグ）で技術チームへ」。Discord で質問（①② は 2026-11-13 #hackathon-help に投稿、回答待ち）:
