@@ -1,0 +1,309 @@
+{
+  "set": "release3",
+  "purpose": "Release re-evaluation 2 only, generated after the release3 protocol freeze (d79d4dd). Judge once; never use for tuning.",
+  "synthetic": true,
+  "generator": "scripts/generate-sample-cards.py",
+  "dateFormatNote": "Ground truth uses ISO dates; the card prints YYYY年MM月DD日.",
+  "cases": [
+    {
+      "file": "release3-01.png",
+      "sha256": "c702973a2cf317fb621814ffcae4e1fca3142c064d1668df292dec65f21ee094",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 0,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "PEREIRA JOAO CARLOS",
+        "residenceCardNumber": "OB61208839SQ",
+        "periodOfStayExpiry": "2028-12-03"
+      }
+    },
+    {
+      "file": "release3-02.png",
+      "sha256": "0bfe5946e35994cd645b47c2e70fc697ad36ed5494e7f07c96fc885cfade43a7",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 0,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "OTIENO BRIAN",
+        "residenceCardNumber": "JM48275016TX",
+        "periodOfStayExpiry": "2027-04-26"
+      }
+    },
+    {
+      "file": "release3-03.png",
+      "sha256": "e64d9dc4b02c086b2d9d7816673c15b3780b3f00fda52e039d2dd8dc309f1f00",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 0,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "MERCIER CELINE",
+        "residenceCardNumber": "SI70810502OB",
+        "periodOfStayExpiry": "2029-08-14"
+      }
+    },
+    {
+      "file": "release3-04.png",
+      "sha256": "e9b10c4493b00d94b116d397e4ff0156d95fb962115d4f26c370c6e4c940e1a3",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 0,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "DO VAN HUNG",
+        "residenceCardNumber": "FN25836147LR",
+        "periodOfStayExpiry": "2026-12-19"
+      }
+    },
+    {
+      "file": "release3-05.png",
+      "sha256": "1ebd9b3c16676ae6743fcd9d110f09fbe439c12d5c0cfb522e6dade8dc7d1db8",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 0,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "JIMENEZ RUIZ PABLO",
+        "residenceCardNumber": "QZ15508100IS",
+        "periodOfStayExpiry": "2028-03-31"
+      }
+    },
+    {
+      "file": "release3-06.png",
+      "sha256": "a1650479f01bcaf17486e774f23febe232461a08e4a9fcd616afcbec727b1195",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 0,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "BOATENG AKOSUA",
+        "residenceCardNumber": "KP93716284VG",
+        "periodOfStayExpiry": "2027-07-21"
+      }
+    },
+    {
+      "file": "release3-07.png",
+      "sha256": "47180dc4d17bdecb0eef04c48beaf38699bb60b3c11c7b8cc0a3c0aab87d27df",
+      "conditions": {
+        "scale": 0.8,
+        "rotate": 0,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "SCHAFER MAX",
+        "residenceCardNumber": "IZ80051185BO",
+        "periodOfStayExpiry": "2029-05-09"
+      }
+    },
+    {
+      "file": "release3-08.png",
+      "sha256": "9ae5a1ed67bdad3301aa5f56e889ccf186e6ab43050da9d4f091cc148bd77330",
+      "conditions": {
+        "scale": 0.8,
+        "rotate": 0,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "HUANG YIFAN",
+        "residenceCardNumber": "TC62849173HW",
+        "periodOfStayExpiry": "2027-10-02"
+      }
+    },
+    {
+      "file": "release3-09.png",
+      "sha256": "05028283eb386b53a6fe3906f67f3f415e058dc942034bf0cee02f91c452294d",
+      "conditions": {
+        "scale": 0.8,
+        "rotate": 0,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "MUNOZ DIAZ ISABEL",
+        "residenceCardNumber": "OO15050811SI",
+        "periodOfStayExpiry": "2028-09-25"
+      }
+    },
+    {
+      "file": "release3-10.png",
+      "sha256": "97f01352b11f7048eddaf268edf3f8d0b15fb8e14eb3cad37dd00d2a8645e2b1",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 4,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "PHIRI CHISOMO",
+        "residenceCardNumber": "WK37482916MU",
+        "periodOfStayExpiry": "2026-11-27"
+      }
+    },
+    {
+      "file": "release3-11.png",
+      "sha256": "2f603e6e0516659e7c1781a6a6cfb004afa1070e8acbab5db6f6da13bac10f5b",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": -4,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "BRANCO JOSE ANTONIO",
+        "residenceCardNumber": "XL58192743EN",
+        "periodOfStayExpiry": "2027-06-30"
+      }
+    },
+    {
+      "file": "release3-12.png",
+      "sha256": "79b96702d8e13ef1750f34c027e4d097ba01669d81532917ee8ecf2e93707a7e",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 4,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "CHOI MINSEO",
+        "residenceCardNumber": "BS50811580ZI",
+        "periodOfStayExpiry": "2028-01-17"
+      }
+    },
+    {
+      "file": "release3-13.png",
+      "sha256": "56479232644b165bd2f9227ab1a1ffff0689c79478df94ddcebac62acc5cee9a",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 0,
+        "brightness": 0.6,
+        "contrast": 0.8
+      },
+      "groundTruth": {
+        "fullName": "HERNANDEZ SOTO LUIS",
+        "residenceCardNumber": "YF26473918RA",
+        "periodOfStayExpiry": "2029-11-08"
+      }
+    },
+    {
+      "file": "release3-14.png",
+      "sha256": "8b9c45175194ae094adf401ccec59c79c089036ee69c5754b7ead20b9f89d881",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 0,
+        "brightness": 0.6,
+        "contrast": 0.8
+      },
+      "groundTruth": {
+        "fullName": "QURESHI SANA",
+        "residenceCardNumber": "AD47168295PJ",
+        "periodOfStayExpiry": "2027-02-02"
+      }
+    },
+    {
+      "file": "release3-15.png",
+      "sha256": "95854af5a60651688b1ad215b70d4c785a6f6e93eb3cb78857e75188509d20e7",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 0,
+        "brightness": 0.6,
+        "contrast": 0.8
+      },
+      "groundTruth": {
+        "fullName": "KATO MIO",
+        "residenceCardNumber": "CW83920157KT",
+        "periodOfStayExpiry": "2028-08-29"
+      }
+    },
+    {
+      "file": "release3-16.png",
+      "sha256": "2ca763257e82635d73342d5fdba4d405aa82133c809fcbb379f6ad927bfa314f",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": -4,
+        "brightness": 0.6,
+        "contrast": 0.8
+      },
+      "groundTruth": {
+        "fullName": "RAMOS FLORES MATEO",
+        "residenceCardNumber": "DH19357284XV",
+        "periodOfStayExpiry": "2027-12-24"
+      }
+    },
+    {
+      "file": "release3-17.png",
+      "sha256": "15bd8a0f9e0feeb9e1f315e0e8b5ffbe35687af141bd61362acc5e0c569c4ee5",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 0,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "NWOSU KELECHI",
+        "residenceCardNumber": "EP64028317NC",
+        "periodOfStayExpiry": null
+      }
+    },
+    {
+      "file": "release3-18.png",
+      "sha256": "1b66223531315c98bde9169b8b3f98c15060dfc4e2c898012a52162d573c53ba",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 0,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "ROUSSEL ANAIS",
+        "residenceCardNumber": "GT70391846MY",
+        "periodOfStayExpiry": null
+      }
+    },
+    {
+      "file": "release3-19.png",
+      "sha256": "4da25fb470bfcf7c836bfc3fe18336fd619d83826ce1c6847ff9a0c49a76bcf4",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 0,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "ISLAM RUMANA",
+        "residenceCardNumber": null,
+        "periodOfStayExpiry": "2028-05-13"
+      }
+    },
+    {
+      "file": "release3-20.png",
+      "sha256": "1ce79406472af94f0a34c5af7aac4603ec9102b531a83e7163be3d6e147ef185",
+      "conditions": {
+        "scale": 1.0,
+        "rotate": 0,
+        "brightness": 1.0,
+        "contrast": 1.0
+      },
+      "groundTruth": {
+        "fullName": "KUDO SORA",
+        "residenceCardNumber": null,
+        "periodOfStayExpiry": "2029-01-06"
+      }
+    }
+  ]
+}

@@ -29,4 +29,5 @@
 `docs/eval/release3-results.md` に記録。
 
 ## 凍結記録
-- 凍結日: 2026-11-14（このファイルを追加したコミット。ハッシュはセット生成時に追記）。
+- 凍結日・コミット: 2026-11-14、`d79d4dd`（"Freeze the release3 re-evaluation protocol (prompt spike-a-2, thresholds as release2)"）。
+- `release3` セット: 凍結後のコミットで生成（`data/eval/release3/`、20枚、manifest に SHA-256）。画像は1枚も目視していない。

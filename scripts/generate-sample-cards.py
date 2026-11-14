@@ -5,7 +5,7 @@ no official design, emblem, photo, hologram or security features, and every
 image carries a large "SAMPLE / NOT A REAL DOCUMENT" watermark. All values are
 fictional. Use only for tuning prompts/cropping (requirements.md §6).
 
-Usage: python3 scripts/generate-sample-cards.py <font-path> <out-dir> [explore|explore2|gate|release|release2]
+Usage: python3 scripts/generate-sample-cards.py <font-path> <out-dir> [explore|explore2|gate|release|release2|release3]
 """
 
 import hashlib
@@ -118,6 +118,30 @@ SETS["release2"] = [
     ("release2-19", {"fullName": "HOSSAIN TANVIR", "residenceCardNumber": None, "periodOfStayExpiry": "2028-07-08"}, BASE),
     ("release2-20", {"fullName": "ONO RIKU", "residenceCardNumber": None, "periodOfStayExpiry": "2029-03-21"}, BASE),
 ]
+# Release re-evaluation 2: generated AFTER docs/eval/release3-protocol.md was frozen (d79d4dd).
+# Same mix and watermark as release/release2; all values new (none shared with any earlier set).
+SETS["release3"] = [
+    ("release3-01", {"fullName": "PEREIRA JOAO CARLOS", "residenceCardNumber": "OB61208839SQ", "periodOfStayExpiry": "2028-12-03"}, BASE),
+    ("release3-02", {"fullName": "OTIENO BRIAN", "residenceCardNumber": "JM48275016TX", "periodOfStayExpiry": "2027-04-26"}, BASE),
+    ("release3-03", {"fullName": "MERCIER CELINE", "residenceCardNumber": "SI70810502OB", "periodOfStayExpiry": "2029-08-14"}, BASE),
+    ("release3-04", {"fullName": "DO VAN HUNG", "residenceCardNumber": "FN25836147LR", "periodOfStayExpiry": "2026-12-19"}, BASE),
+    ("release3-05", {"fullName": "JIMENEZ RUIZ PABLO", "residenceCardNumber": "QZ15508100IS", "periodOfStayExpiry": "2028-03-31"}, BASE),
+    ("release3-06", {"fullName": "BOATENG AKOSUA", "residenceCardNumber": "KP93716284VG", "periodOfStayExpiry": "2027-07-21"}, BASE),
+    ("release3-07", {"fullName": "SCHAFER MAX", "residenceCardNumber": "IZ80051185BO", "periodOfStayExpiry": "2029-05-09"}, {**BASE, "scale": 0.8}),
+    ("release3-08", {"fullName": "HUANG YIFAN", "residenceCardNumber": "TC62849173HW", "periodOfStayExpiry": "2027-10-02"}, {**BASE, "scale": 0.8}),
+    ("release3-09", {"fullName": "MUNOZ DIAZ ISABEL", "residenceCardNumber": "OO15050811SI", "periodOfStayExpiry": "2028-09-25"}, {**BASE, "scale": 0.8}),
+    ("release3-10", {"fullName": "PHIRI CHISOMO", "residenceCardNumber": "WK37482916MU", "periodOfStayExpiry": "2026-11-27"}, {**BASE, "rotate": 4}),
+    ("release3-11", {"fullName": "BRANCO JOSE ANTONIO", "residenceCardNumber": "XL58192743EN", "periodOfStayExpiry": "2027-06-30"}, {**BASE, "rotate": -4}),
+    ("release3-12", {"fullName": "CHOI MINSEO", "residenceCardNumber": "BS50811580ZI", "periodOfStayExpiry": "2028-01-17"}, {**BASE, "rotate": 4}),
+    ("release3-13", {"fullName": "HERNANDEZ SOTO LUIS", "residenceCardNumber": "YF26473918RA", "periodOfStayExpiry": "2029-11-08"}, {**BASE, **DARK}),
+    ("release3-14", {"fullName": "QURESHI SANA", "residenceCardNumber": "AD47168295PJ", "periodOfStayExpiry": "2027-02-02"}, {**BASE, **DARK}),
+    ("release3-15", {"fullName": "KATO MIO", "residenceCardNumber": "CW83920157KT", "periodOfStayExpiry": "2028-08-29"}, {**BASE, **DARK}),
+    ("release3-16", {"fullName": "RAMOS FLORES MATEO", "residenceCardNumber": "DH19357284XV", "periodOfStayExpiry": "2027-12-24"}, {**BASE, "rotate": -4, **DARK}),
+    ("release3-17", {"fullName": "NWOSU KELECHI", "residenceCardNumber": "EP64028317NC", "periodOfStayExpiry": None}, BASE),
+    ("release3-18", {"fullName": "ROUSSEL ANAIS", "residenceCardNumber": "GT70391846MY", "periodOfStayExpiry": None}, BASE),
+    ("release3-19", {"fullName": "ISLAM RUMANA", "residenceCardNumber": None, "periodOfStayExpiry": "2028-05-13"}, BASE),
+    ("release3-20", {"fullName": "KUDO SORA", "residenceCardNumber": None, "periodOfStayExpiry": "2029-01-06"}, BASE),
+]
 
 def render(font_path: str, truth: dict, cond: dict) -> Image.Image:
     s = cond["scale"]
@@ -170,6 +194,7 @@ def main() -> None:
             "gate": "Gate judgement only, generated after the protocol freeze (fe793c2). Not for tuning.",
             "release": "Release judgement only, generated after the release protocol freeze (bd4745b). Judge once; never use for tuning.",
             "release2": "Release re-evaluation only, generated after the release2 protocol freeze (ab68491). Judge once; never use for tuning.",
+            "release3": "Release re-evaluation 2 only, generated after the release3 protocol freeze (d79d4dd). Judge once; never use for tuning.",
         }[set_name],
         "synthetic": True,
         "generator": "scripts/generate-sample-cards.py",
