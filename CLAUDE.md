@@ -35,10 +35,11 @@
 - 欄の説明（公開側、`PREFER_IN_CLOUD`）: 2026-11-14 実機確認済み（Mac・Chrome 157、Build b891a48）。オンライン→`IN_CLOUD`、通信断→`ON_DEVICE` へ自動フォールバック。`docs/device-runs/2026-11-14T04-39-15-175Z-b891a48.json`
 - SDK 注意: `LanguageModel` global が無い環境では `ONLY_ON_DEVICE` でもクラウドへ送信される（@firebase/ai 3.1.0 のコードで確認）。`FirebaseOnDeviceLLM` のガードを外さない。
 - Node 24（`.nvmrc`）。@firebase/ai 3.x の要件。
-- 2026-11-12 hackathon manager へ3点を再送 → 2026-11-13 返信「技術的質問は Discord #hackathon-help（#BuildHybridAI タグ）で技術チームへ」。Discord で質問（①② は 2026-11-13 #hackathon-help に投稿、回答待ち）:
+- 2026-11-12 hackathon manager へ3点を再送 → 2026-11-13 返信「技術的質問は Discord #hackathon-help（#BuildHybridAI タグ）で技術チームへ」。Discord で質問（①② は 2026-11-13 #hackathon-help に投稿、2026-11-17 暫定回答あり・最終回答待ち）:
   1. 「公開様式のクラウド解析＋本人情報の端末抽出」の2経路分担でハイブリッド推論要件を満たすか（自動フォールバック必須か）
      - 参考（正式回答ではない）: 2026-11-14、Firebase 公式動画「How to Build Hybrid On-Device + Cloud AI Apps with Firebase AI Logic」Q&A（25:18〜）で Firebase エンジニアが口頭回答「両方（端末推論とクラウドフォールバック）を見たいが、機微データは端末推論に留める判断は参加者に任せる」。これを受け公開側に `PREFER_IN_CLOUD` の「欄の説明」機能を追加（本人側は不変）。Q1 の運営回答は引き続き待つ。
   2. 別オリジンの端末専用コンポーネントで App Check 初期化を省略できるか
+  - 2026-11-17 運営（Darveloper | Devpost）の暫定回答（Firebase に最終確認中、続報待ち）: ①Firebase チームの Arthur 氏いわく機微データの機能は端末のみ、他はハイブリッド／クラウドでよく、FormTwin はそのパターンに沿う。ただし自動フォールバック無しの審査上の扱いは確認中。②端末のみの部分で App Check 初期化を省略しても技術的に問題ない。クラウド側オリジンでは App Check を強制し続けること。詳細は requirements §9。
   3. 「Gemini Nano 4」→ 2026-11-13 Discord 既存スレッドで運営が Firebase チーム回答を転記:「Firebase AI Logic SDK 経由ならよい。chrome://flags の Gemma 4 for built-in AI 有効化が必要な場合あり」。Gemma 4 有効時も検証する → 2026-11-13 フラグ有効（`model_version/v4`）でも当初 Gemma 4 未DL → 同日、公開URLの Prepare で Gemma 4 DL 完了（約23分）、`prompt_api_gemma4` Requested・Available。呼出しごとの実モデルは Chrome が示さないため「Gemma 4 要求下で抽出」と記録（断定しない）
   - 承認済み・規約違反確定のどちらとしても扱わない。回答待ちでも実装・実機検証は進める。本人情報のクラウドフォールバックは回答にかかわらず導入しない。
 
