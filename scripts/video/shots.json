@@ -82,7 +82,7 @@
       "zoomSource": { "pdf": "raw/formtwin-filled-form.pdf", "field": "residenceCardNumber" },
       "captions": [],
       "narration": [
-        "FormTwin fills the official PDF, with a font that tells O and 0 apart.",
+        "FormTwin fills the official PDF, with a font that tells the letter O and the digit zero apart.",
         "You save it, print it and sign it by hand."
       ]
     },

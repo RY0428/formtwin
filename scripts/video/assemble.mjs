@@ -142,7 +142,10 @@ function pdfCloseUp(pdf, fieldId, name) {
   const cx = (place.x + 40) * k; // number plus the label to its left
   const cy = (841.89 - place.y - place.fontSize * 0.3) * k;
   const out = join(WORK, `${name}-closeup.png`);
-  ff(['-i', page, '-vf', `crop=${Math.round(cw)}:${Math.round(ch)}:${Math.round(cx - cw / 2)}:${Math.round(cy - ch / 2)},scale=${W}:${H}`, out]);
+  // A rasterised PDF page can have a transparent background: flatten it onto white.
+  ff(['-i', page, '-f', 'lavfi', '-i', `color=c=white:s=${W}x${H}:d=1`, '-filter_complex',
+    `[0:v]crop=${Math.round(cw)}:${Math.round(ch)}:${Math.round(cx - cw / 2)}:${Math.round(cy - ch / 2)},scale=${W}:${H},format=rgba[fg];[1:v][fg]overlay=0:0,format=rgb24`,
+    '-frames:v', '1', out]);
   return out;
 }
 

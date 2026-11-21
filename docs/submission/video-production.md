@@ -77,6 +77,10 @@ shot and per caption, Whisper transcript and word error rate against the script)
 
 - Homebrew's ffmpeg on the Mac has no `drawtext`: captions are now transparent PNGs drawn by Playwright and overlaid.
 
+- Mac draft 1 (`say`, placeholders for 3–4): 163.2 s, Whisper WER 0.049. Found: the saved-PDF close-up was black
+  (transparent PDF raster; now flattened on white), the file chooser button was in Japanese (browser locale; recorder
+  now forces en-US), and "O and 0" was heard as "0 and 0" (narration now says "the letter O and the digit zero").
+
 ## Record (fill in after the real run)
 - Date, Chrome version, build shown (both apps), package:
 - Card used and what the model returned (from `raw/recording.json`; typed by hand):

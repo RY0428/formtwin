@@ -60,7 +60,7 @@ tick "Checked against my card" for each field.
 
 **Shot 8 (1:55–2:10)** — Create PDF → preview; zoom on the card number (0 with a dot, O without);
 Save PDF; show the printing guidance (sign by hand). The zoom is done in editing (caption *Zoomed in (editing)*).
-> FormTwin fills the official PDF, with a font that tells O and 0 apart. You save it, print it and sign it by hand.
+> FormTwin fills the official PDF, with a font that tells the letter O and the digit zero apart. You save it, print it and sign it by hand.
 
 ## 2:10–2:30 — Ending the session
 

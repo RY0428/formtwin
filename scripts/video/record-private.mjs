@@ -61,6 +61,7 @@ async function launch() {
     headless: DRY,
     viewport: VIEW,
     deviceScaleFactor: DSF,
+    locale: 'en-US', // the app is English; also the browser's own controls (file chooser button)
     acceptDownloads: true,
     // As device-check: Playwright's default switches would block the on-device model.
     ignoreDefaultArgs: true,
@@ -70,6 +71,9 @@ async function launch() {
       '--no-first-run',
       '--no-default-browser-check',
       '--window-size=1600,1000',
+      '--lang=en-US',
+      // macOS ignores --lang: Chrome's UI language (file chooser button text) follows AppleLanguages.
+      ...(process.platform === 'darwin' ? ['-AppleLanguages', '(en-US)'] : []),
       ...(DRY ? ['--headless=new', '--no-sandbox'] : []),
       'about:blank',
     ],
