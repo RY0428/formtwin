@@ -5,6 +5,7 @@
 //   npm run device:check            # full run (first run also sets flags and downloads the model)
 //   npm run device:check -- --skip-download   # stop instead of waiting for a model download
 //   npm run device:check -- --inactivity      # also wait for the real 9/10-minute inactivity end (about 11 min)
+//   npm run device:check -- --explain-only    # only the public field explanations (online, offline), with request diagnostics
 //
 // Uses a dedicated Chrome profile (~/.formtwin-device-profile): Chrome does not let automation drive the
 // everyday profile. Playwright's default switches that block component/model downloads are not used.
@@ -20,6 +21,7 @@ const PROFILE = join(homedir(), '.formtwin-device-profile');
 const FLAGS = ['prompt-api-multimodal-input', 'gemma4-for-built-in-ai'];
 const IMAGES = ['data/eval/explore/explore-01.png', 'data/eval/explore/explore-02.png', 'data/eval/explore/explore-03.png'];
 const SKIP_DOWNLOAD = process.argv.includes('--skip-download');
+const EXPLAIN_ONLY = process.argv.includes('--explain-only');
 const FAKE_AI_RUN = process.env.FORMTWIN_DRY_FAKE_AI === '1';
 const report = { startedAt: new Date().toISOString(), chrome: null, build: null, flags: {}, steps: [] };
 const log = (m) => console.log(`[device-check]${FAKE_AI_RUN ? ' [DRY RUN, fake model]' : ''} ${m}`);
@@ -141,11 +143,64 @@ async function waitAi(page, timeoutMs) {
 }
 
 /** Thrown after an evaluation run to skip the regular steps (not an error). */
+async function checkExplanations(ctx) {
+  // Public field explanations (hybrid, PREFER_IN_CLOUD): cloud first, then the automatic on-device
+  // fallback with the network off. The model is already installed in this profile by the steps above.
+  const pub = await ctx.newPage();
+  // Diagnostics (public app only, no personal data): Google API / App Check / reCAPTCHA responses
+  // (host, path without query, status) and console warnings and errors.
+  const net = [];
+  const consoleMsgs = [];
+  pub.on('response', (r) => {
+    const u = new URL(r.url());
+    if (/googleapis\.com$|recaptcha|gstatic/.test(u.hostname) || u.hostname.endsWith('google.com')) {
+      net.push({ host: u.hostname, path: u.pathname.slice(0, 160), status: r.status() });
+    }
+  });
+  pub.on('requestfailed', (r) => {
+    const u = new URL(r.url());
+    net.push({ host: u.hostname, path: u.pathname.slice(0, 160), failed: (r.failure()?.errorText ?? '').slice(0, 80) });
+  });
+  pub.on('console', (m) => {
+    if (m.type() === 'error' || m.type() === 'warning') consoleMsgs.push(`${m.type()}: ${redact(m.text()).slice(0, 400)}`);
+  });
+  await pub.goto(URL_PUBLIC);
+  const explainOnce = async () => {
+    await pub.getByRole('button', { name: 'Explain fields' }).click();
+    await Promise.race([
+      pub.getByTestId('explain-source').waitFor({ timeout: 90_000 }),
+      pub.getByTestId('explain-error').waitFor({ timeout: 90_000 }),
+    ]).catch(() => undefined);
+    const src = (await pub.getByTestId('explain-source').count()) > 0 ? await pub.getByTestId('explain-source').innerText() : null;
+    const err = (await pub.getByTestId('explain-error').count()) > 0 ? await pub.getByTestId('explain-error').innerText() : null;
+    return { source: src, error: err, items: await pub.getByTestId('explain-item').count() };
+  };
+  const deployed = await pub
+    .getByRole('button', { name: 'Explain fields' })
+    .waitFor({ timeout: 20_000 })
+    .then(() => true, () => false);
+  if (!deployed) throw new Error('the hosted public app has no "Explain fields" yet (deploy the current build)');
+  report.publicBuild = ((await pub.getByText(/build [0-9a-f]{7}/).innerText().catch(() => '')).match(/build (\S+)/) ?? [])[1] ?? 'unknown';
+  const online = await explainOnce();
+  report.explainDiagnostics = { online: { requests: net.splice(0), console: consoleMsgs.splice(0) } };
+  step('explanations online answered in the cloud', online.source === 'In the cloud' && online.items > 0, online);
+  await ctx.setOffline(true);
+  const offline = await explainOnce();
+  await ctx.setOffline(false);
+  report.explainDiagnostics.offline = { requests: net.splice(0), console: consoleMsgs.splice(0) };
+  step('explanations offline fell back to this device', (offline.source ?? '').startsWith('On this device') && offline.items > 0, offline);
+  await pub.close();
+}
+
 const EVAL_DONE = Symbol('eval done');
 async function main() {
   let ctx = await ensureFlags();
   report.chrome = ctx.browser()?.version() ?? null;
   try {
+    if (EXPLAIN_ONLY) {
+      await checkExplanations(ctx);
+      throw EVAL_DONE;
+    }
     // ④ Cancel during preparation (only possible while the model is not installed yet).
     let { page } = await openApp(ctx);
     // A fresh profile can take minutes before Chrome answers LanguageModel.availability().
@@ -364,33 +419,7 @@ async function main() {
 
     step('private app: no request outside its origin during the whole run', foreign.length === 0, { foreign });
 
-    // Public field explanations (hybrid, PREFER_IN_CLOUD): cloud first, then the automatic on-device
-    // fallback with the network off. The model is already installed in this profile by the steps above.
-    const pub = await ctx.newPage();
-    await pub.goto(URL_PUBLIC);
-    const explainOnce = async () => {
-      await pub.getByRole('button', { name: 'Explain fields' }).click();
-      await Promise.race([
-        pub.getByTestId('explain-source').waitFor({ timeout: 90_000 }),
-        pub.getByTestId('explain-error').waitFor({ timeout: 90_000 }),
-      ]).catch(() => undefined);
-      const src = (await pub.getByTestId('explain-source').count()) > 0 ? await pub.getByTestId('explain-source').innerText() : null;
-      const err = (await pub.getByTestId('explain-error').count()) > 0 ? await pub.getByTestId('explain-error').innerText() : null;
-      return { source: src, error: err, items: await pub.getByTestId('explain-item').count() };
-    };
-    const deployed = await pub
-      .getByRole('button', { name: 'Explain fields' })
-      .waitFor({ timeout: 20_000 })
-      .then(() => true, () => false);
-    if (!deployed) throw new Error('the hosted public app has no "Explain fields" yet (deploy the current build)');
-    report.publicBuild = ((await pub.getByText(/build [0-9a-f]{7}/).innerText().catch(() => '')).match(/build (\S+)/) ?? [])[1] ?? 'unknown';
-    const online = await explainOnce();
-    step('explanations online answered in the cloud', online.source === 'In the cloud' && online.items > 0, online);
-    await ctx.setOffline(true);
-    const offline = await explainOnce();
-    await ctx.setOffline(false);
-    step('explanations offline fell back to this device', (offline.source ?? '').startsWith('On this device') && offline.items > 0, offline);
-    await pub.close();
+    await checkExplanations(ctx);
 
   } catch (e) {
     if (e !== EVAL_DONE) {
