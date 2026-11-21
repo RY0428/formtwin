@@ -1,7 +1,7 @@
 {
   "_comment": "Single source for the demo video: shot order, planned windows, on-screen captions and narration (docs/submission/video-script.md). make-stills, record-private and assemble read this file. Manual clips (shots 3-4) and their kept time ranges go in ~/formtwin-video/manual.json, not here.",
   "target": { "maxSeconds": 175, "width": 1920, "height": 1080, "fps": 30 },
-  "sample": { "image": "data/eval/explore/explore-01.png", "manifest": "data/eval/explore/manifest.json" },
+  "sample": { "image": "data/eval/explore2/explore2-03.png", "manifest": "data/eval/explore2/manifest.json" },
   "package": "isa-930004094-r2-p2",
   "shortenedCaption": "Edited: waiting time shortened",
   "shots": [
@@ -79,6 +79,7 @@
       "id": 8,
       "planned": [115, 130],
       "source": { "type": "recorded", "file": "raw/shot08" },
+      "zoomSource": { "pdf": "raw/formtwin-filled-form.pdf", "field": "residenceCardNumber" },
       "captions": [],
       "narration": [
         "FormTwin fills the official PDF, with a font that tells O and 0 apart.",

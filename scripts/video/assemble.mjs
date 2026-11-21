@@ -115,6 +115,28 @@ function drawtext(text, from, to, style) {
   return `drawtext=fontfile='${FONT}':textfile='${file}':fontcolor=white:box=1:boxcolor=black@0.62:${pos}:enable='between(t,${from.toFixed(3)},${to.toFixed(3)})'`;
 }
 
+/** 1920×1080 close-up of one field on page 1 of a saved PDF (about 10 px per point, so a dotted zero shows). */
+function pdfCloseUp(pdf, fieldId, name) {
+  const formdef = JSON.parse(readFileSync('forms/defs/isa-930004094/rev-2.formdef.json', 'utf8'));
+  const place = formdef.fields.find((f) => f.fieldId === fieldId).placement;
+  const page = join(WORK, `${name}-pdf.png`);
+  const HEIGHT = 8420; // A4 at 10 px per point
+  try {
+    execFileSync('which', ['pdftoppm'], { stdio: 'ignore' });
+    execFileSync('pdftoppm', ['-f', '1', '-l', '1', '-png', '-singlefile', '-scale-to-y', String(HEIGHT), '-scale-to-x', '-1', pdf, page.replace(/\.png$/, '')]);
+  } catch {
+    execFileSync('sips', ['-s', 'format', 'png', '-Z', String(HEIGHT), pdf, '--out', page], { stdio: 'ignore' });
+  }
+  const k = HEIGHT / 841.89; // px per point
+  const cw = 192 * k; // 192 × 108 pt → 1920 × 1080
+  const ch = 108 * k;
+  const cx = (place.x + 40) * k; // number plus the label to its left
+  const cy = (841.89 - place.y - place.fontSize * 0.3) * k;
+  const out = join(WORK, `${name}-closeup.png`);
+  ff(['-i', page, '-vf', `crop=${Math.round(cw)}:${Math.round(ch)}:${Math.round(cx - cw / 2)}:${Math.round(cy - ch / 2)},scale=${W}:${H}`, out]);
+  return out;
+}
+
 function buildShot(shot, idx) {
   const name = `shot${String(shot.id).padStart(2, '0')}`;
   // Narration: one file per sentence.
@@ -133,6 +155,7 @@ function buildShot(shot, idx) {
   let vchain;
   let duration;
   const overlays = [];
+  const extra = []; // extra image inputs, after the narration inputs
   let base = 'v0';
   const src =shot.source.type === 'still' ? null : clipSource(shot);
   const notes = [];
@@ -161,12 +184,20 @@ function buildShot(shot, idx) {
     vchain = `${parts.join(';')};${cat};[cat]${crop}fps=${FPS},scale=${W}:${H}:force_original_aspect_ratio=decrease,pad=${W}:${H}:(ow-iw)/2:(oh-ih)/2,setsar=1,format=yuv420p,tpad=stop_mode=clone:stop_duration=${duration.toFixed(3)},trim=duration=${duration.toFixed(3)}[v0]`;
     // Zoom (editing): crop the rectangle and show it full frame for the given time.
     if (src.zoom) {
-      const [x, y, w, h] = src.zoom.rect;
       const a = mapTime(src.ranges, src.zoom.from);
       const b = mapTime(src.ranges, src.zoom.to);
-      vchain += `;[v0]split[za][zb];[zb]crop=${w}:${h}:${x}:${y},scale=${W}:${H}[zc];[za][zc]overlay=enable='between(t,${a.toFixed(3)},${b.toFixed(3)})'[vz]`;
+      const pdf = shot.zoomSource?.pdf ? join(OUT, shot.zoomSource.pdf) : null;
+      if (pdf && existsSync(pdf)) {
+        // The on-screen preview is too coarse to show the dotted zero: show the saved PDF itself, close up.
+        extra.push('-loop', '1', '-framerate', String(FPS), '-t', duration.toFixed(3), '-i', pdfCloseUp(pdf, shot.zoomSource.field, name));
+        vchain += `;[${1 + shot.narration.length}:v]scale=${W}:${H},setsar=1,format=yuv420p[zc];[v0][zc]overlay=enable='between(t,${a.toFixed(3)},${b.toFixed(3)})'[vz]`;
+        overlays.push({ text: 'Saved PDF, zoomed in (editing)', from: a, to: b, style: 'topright' });
+      } else {
+        const [x, y, w, h] = src.zoom.rect;
+        vchain += `;[v0]split[za][zb];[zb]crop=${w}:${h}:${x}:${y},scale=${W}:${H}[zc];[za][zc]overlay=enable='between(t,${a.toFixed(3)},${b.toFixed(3)})'[vz]`;
+        overlays.push({ text: 'Zoomed in (editing)', from: a, to: b, style: 'topright' });
+      }
       base = 'vz';
-      overlays.push({ text: 'Zoomed in (editing)', from: a, to: b, style: 'topright' });
     }
     // Shortened waits: caption from each join.
     let acc = 0;
@@ -193,7 +224,7 @@ function buildShot(shot, idx) {
   const aParts = sentences.map((s, i) => `[${i + 1}:a]adelay=${Math.round(s.start * 1000)}:all=1[a${i}]`);
   const amix = `${sentences.map((_, i) => `[a${i}]`).join('')}amix=inputs=${sentences.length}:normalize=0,apad,atrim=duration=${duration.toFixed(3)},aresample=48000[a]`;
   const file = join(WORK, `${name}.mp4`);
-  ff([...inputs, ...aIn, '-filter_complex', `${vchain}${vfinal};${aParts.join(';')};${amix}`, '-map', '[v]', '-map', '[a]',
+  ff([...inputs, ...aIn, ...extra, '-filter_complex', `${vchain}${vfinal};${aParts.join(';')};${amix}`, '-map', '[v]', '-map', '[a]',
     '-r', String(FPS), '-c:v', 'libx264', '-preset', 'slow', '-crf', '17', '-pix_fmt', 'yuv420p',
     '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-ac', '2', '-t', duration.toFixed(3), file]);
   log(`${name}: ${duration.toFixed(1)} s${notes.length ? ` (${notes.join('; ')})` : ''}`);

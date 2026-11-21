@@ -15,7 +15,10 @@ after the real run.
   at 1920×1080 = viewport 1536×864 × 1.25, i.e. the 125 % zoom of the script).
 - Shots 3–4: recorded by hand (App Check can refuse an automated browser), with Wi-Fi off shown on screen.
 - Presentation aids that are not app behaviour, disclosed here: a drawn cursor dot in shots 5–9 (the screencast has no
-  cursor), scrolling, a 2× zoom in editing on the card number (caption "Zoomed in (editing)").
+  cursor), scrolling, and in shot 8 a close-up of the **saved PDF** (rasterised at 10 px per point, caption "Saved PDF,
+  zoomed in (editing)"): the on-screen preview is too coarse to show the dotted zero.
+- Sample card: `data/eval/explore2/explore2-03.png` (number `IB88015500OZ`, has both 0 and O; exploration set, fictional),
+  chosen by the developer 2026-11-21 instead of explore-01 (no O or 0 in its number).
 - Network off in shots 5–9 is Chrome's offline mode (`context.setOffline`); the caption says so. The page is loaded
   online first; the network is turned back on for the reload in shot 9 (caption "Network back on for the reload"),
   because a reload needs the network.
@@ -64,6 +67,13 @@ shot and per caption, Whisper transcript and word error rate against the script)
 - `assemble.mjs --tts tone --placeholders --check`: 159.1 s, 1920×1080, 30 fps, H.264 + AAC 48 kHz stereo,
   −16.0 LUFS integrated, `moov` before `mdat` (faststart). Caption frames inspected (offline mode, shortened wait,
   zoom, reload, shot 10). Real narration length is known only after `say` on the Mac.
+
+## Mac run 1 (2026-11-21, shots 5–9 and stills; this session driving the developer's Mac)
+- Stills via `sips`. Recording: hosted Build 92a32b4, package r2-p2, Chrome 157.0.8103.79, dedicated profile, model
+  available. One wait cut (shot 6). End session and reload left the fields empty.
+- The model read the name with watermark text (`TANDON MEERALE 見本`, flagged: non-Latin letters) and the number with O
+  read as 0 (`IB880155000Z`, flagged as not looking right, not offered); the given name and the number were typed by
+  hand from the manifest. Saved PDF checked at high resolution: zeros dotted, O plain.
 
 ## Record (fill in after the real run)
 - Date, Chrome version, build shown (both apps), package:
