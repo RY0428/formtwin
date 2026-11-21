@@ -1,0 +1,109 @@
+{
+  "_comment": "Single source for the demo video: shot order, planned windows, on-screen captions and narration (docs/submission/video-script.md). make-stills, record-private and assemble read this file. Manual clips (shots 3-4) and their kept time ranges go in ~/formtwin-video/manual.json, not here.",
+  "target": { "maxSeconds": 175, "width": 1920, "height": 1080, "fps": 30 },
+  "sample": { "image": "data/eval/explore/explore-01.png", "manifest": "data/eval/explore/manifest.json" },
+  "package": "isa-930004094-r2-p2",
+  "shortenedCaption": "Edited: waiting time shortened",
+  "shots": [
+    {
+      "id": 1,
+      "planned": [0, 10],
+      "source": { "type": "still", "file": "stills/shot01.png" },
+      "captions": [],
+      "narration": [
+        "Every visa renewal, foreign residents in Japan copy their residence card into a Japanese paper form.",
+        "Those values are personal data — they shouldn't have to leave the device."
+      ]
+    },
+    {
+      "id": 2,
+      "planned": [10, 30],
+      "source": { "type": "still", "file": "stills/shot02.png" },
+      "captions": [],
+      "narration": [
+        "FormTwin uses Firebase AI Logic and places each inference by how sensitive the data is.",
+        "Public forms are analysed in the cloud. Personal data is read only by the on-device model in Chrome."
+      ]
+    },
+    {
+      "id": 3,
+      "planned": [30, 45],
+      "source": { "type": "manual", "key": "shot03" },
+      "captions": [],
+      "narration": [
+        "On the public side, Gemini in the cloud proposes field definitions for the official form.",
+        "A person reviews them. Only the adopted revision is signed and bundled into the personal-entry app."
+      ]
+    },
+    {
+      "id": 4,
+      "planned": [45, 65],
+      "source": { "type": "manual", "key": "shot04" },
+      "captions": [],
+      "narration": [
+        "Field explanations use hybrid inference: cloud first, and when the network is gone,",
+        "Firebase AI Logic falls back to the model on this device automatically."
+      ]
+    },
+    {
+      "id": 5,
+      "planned": [65, 75],
+      "source": { "type": "recorded", "file": "raw/shot05" },
+      "captions": [{ "text": "Network off (Chrome offline mode) · model already downloaded" }],
+      "narration": [
+        "The personal-entry app is a separate site. Its security policy blocks network connections from the page,",
+        "and it starts only after checking the signed form package."
+      ]
+    },
+    {
+      "id": 6,
+      "planned": [75, 95],
+      "source": { "type": "recorded", "file": "raw/shot06" },
+      "captions": [{ "text": "Network off (Chrome offline mode)" }],
+      "narration": [
+        "The card is read on this device.",
+        "The results are only candidates — FormTwin asks you to compare every character with your card."
+      ]
+    },
+    {
+      "id": 7,
+      "planned": [95, 115],
+      "source": { "type": "recorded", "file": "raw/shot07" },
+      "captions": [],
+      "narration": [
+        "If a card number does not look right, FormTwin will not offer it with one click — you type it.",
+        "Only values you checked are written to the form."
+      ]
+    },
+    {
+      "id": 8,
+      "planned": [115, 130],
+      "source": { "type": "recorded", "file": "raw/shot08" },
+      "captions": [],
+      "narration": [
+        "FormTwin fills the official PDF, with a font that tells O and 0 apart.",
+        "You save it, print it and sign it by hand."
+      ]
+    },
+    {
+      "id": 9,
+      "planned": [130, 150],
+      "source": { "type": "recorded", "file": "raw/shot09" },
+      "captions": [],
+      "narration": [
+        "Data lives in memory only.",
+        "Ending the session, ten minutes of inactivity, or leaving the page clears it."
+      ]
+    },
+    {
+      "id": 10,
+      "planned": [150, 165],
+      "source": { "type": "still", "file": "stills/shot10.png" },
+      "captions": [{ "text": "Fictional data only · not legal advice" }],
+      "narration": [
+        "We froze our thresholds before testing and kept the result that missed them.",
+        "On-device AI helps; you stay in control of every value. FormTwin."
+      ]
+    }
+  ]
+}

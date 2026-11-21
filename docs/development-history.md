@@ -81,3 +81,8 @@ Submission period: 2026-11-11 13:30 PT – 2026-11-30 14:00 PT (JST 2026-11-12 0
 - LICENSE（Apache-2.0）と NOTICE を追加。公式PDF・フォントは元の条件のまま（THIRD_PARTY_NOTICES.md）。
 - 公開前に、開発者のコミットの作者メールを GitHub の no-reply アドレスへ置換（`git filter-repo --mailmap`）。内容・日時・メッセージは不変、全コミットのハッシュが変わった。
   **この日より前の記録（評価の凍結コミット、実機記録の Build、リリース記録、本履歴）は旧ハッシュ。** 対応表: `docs/commit-map-2026-11-21.md`。
+
+## 2026-11-21 — デモ動画の制作ツール
+- `scripts/video/`: ショット表（`shots.json`）、静止画（ショット1・2・10）、本人側ショット5–9の録画（実Chrome・専用プロファイル・DevTools screencast）、組立（`say` 合成音声・字幕SRT・キャプション・loudnorm・検査用フレーム・Whisper 比較）。
+- クラウドコンテナで代替モデル・テストトーンのドライランのみ（実機の証拠ではない）。実録画・ナレーションは開発者の Mac。記録 `docs/submission/video-production.md`。
+- アプリ本体は変更なし（提出ビルドと一致させるため）。
