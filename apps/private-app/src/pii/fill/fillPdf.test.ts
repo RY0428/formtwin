@@ -158,4 +158,14 @@ describe('fillPdf (official form 930004094, page 1)', () => {
     const without = await fillPdf({ template: officialTemplate, font, layout: officialLayout, values: vals });
     expect(pageFontNames(await PDFDocument.load(without.bytes)).some((n) => n.includes('IBMPlexMono'))).toBe(false);
   });
+
+  it('falls back to the Japanese font when a Latin value fits only in the Japanese font', async () => {
+    // Fictional long name: wider than the 150pt field in Plex Mono, narrower in BIZ UDGothic.
+    const name = 'WOLFESCHLEGELSTEINHAUSEN';
+    const { notFilled, bytes } = await fillPdf({ template: officialTemplate, font, latinFont, layout: officialLayout, values: { familyName: name } });
+    expect(notFilled).toEqual([]);
+    const names = pageFontNames(await PDFDocument.load(bytes));
+    expect(names.some((n) => n.includes('IBMPlexMono'))).toBe(false);
+    expect(names.some((n) => n.includes('BIZUD'))).toBe(true);
+  });
 });

@@ -1,7 +1,7 @@
 // Build an UNSIGNED package manifest from a reviewed FormDef revision.
 // Usage: node scripts/forms/build-package.mjs <formId> <revision> <keyId> [createdAt YYYY-MM-DD] [packaging n ≥ 2]
 // Packaging 2+ adds the Latin font (IBM Plex Mono) and the id suffix -p<n> (docs/decisions.md 2026-11-21).
-// Writes forms/packages/<formId>-r<rev>/manifest.json. Sign it with sign-package.mjs.
+// Writes forms/packages/<packageId>/manifest.json (<formId>-r<rev>[-p<n>]). Sign it with sign-package.mjs.
 import { adoptionHistorySchema, formDefSchema, manifestSchema } from '@formtwin/contracts';
 import { mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -11,7 +11,7 @@ const [formId, revArg, keyId, createdAtArg, packagingArg] = process.argv.slice(2
 const packaging = packagingArg === undefined ? 1 : Number(packagingArg);
 if (!Number.isInteger(packaging) || packaging < 1) throw new Error('packaging must be an integer ≥ 1');
 if (!formId || !revArg || !keyId) {
-  console.error('Usage: node scripts/forms/build-package.mjs <formId> <revision> <keyId> [createdAt]');
+  console.error('Usage: node scripts/forms/build-package.mjs <formId> <revision> <keyId> [createdAt] [packaging n]');
   process.exit(2);
 }
 const rev = Number(revArg);
