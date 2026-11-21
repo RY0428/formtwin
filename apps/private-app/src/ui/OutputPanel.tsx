@@ -67,7 +67,7 @@ export function OutputPanel({ assets, session }: Props) {
     setBusy(true);
     setFailed(false);
     setInvalidated(false);
-    fillPdf({ template: assets.template, font: assets.font, layout: assets.layout, values: snapshot.values }).then(
+    fillPdf({ template: assets.template, font: assets.font, latinFont: assets.latinFont, layout: assets.layout, values: snapshot.values }).then(
       (r) => {
         if (!mounted.current) return;
         setBusy(false);

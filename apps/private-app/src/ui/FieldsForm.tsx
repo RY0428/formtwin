@@ -37,6 +37,8 @@ export function FieldsForm({ session }: Props) {
               id={inputId}
               autoComplete="off"
               spellCheck={false}
+              // System monospace with a slashed zero, so O and 0 look different (no font download).
+              className="font-mono slashed-zero"
               aria-invalid={problem !== undefined}
               aria-describedby={problem === undefined ? undefined : `${inputId}-problem`}
               {...session.bind(id)}

@@ -20,6 +20,9 @@ describe('manifestSchema', () => {
   it('accepts a minimal manifest', () => {
     expect(manifestSchema.safeParse(base).success).toBe(true);
   });
+  it('accepts one optional latinFont and a -p<n> packaging suffix', () => {
+    expect(manifestSchema.safeParse({ ...base, packageId: 'p-r1-p2', files: [...base.files, file('latinFont')] }).success).toBe(true);
+  });
   it.each([
     ['missing font', { ...base, files: [file('sourcePdf'), file('formDef')] }],
     ['two formDefs', { ...base, files: [...base.files, file('formDef', 'forms/x.json')] }],
@@ -27,6 +30,9 @@ describe('manifestSchema', () => {
     ['absolute path', { ...base, files: [file('sourcePdf', '/etc/passwd'), file('formDef'), file('font')] }],
     ['bad keyId', { ...base, keyId: 'abc' }],
     ['unknown field', { ...base, extra: true }],
+    ['two latinFonts', { ...base, files: [...base.files, file('latinFont'), file('latinFont', 'forms/y.ttf')] }],
+    ['packageId of another revision', { ...base, packageId: 'p-r2' }],
+    ['packaging suffix -p1', { ...base, packageId: 'p-r1-p1' }],
   ])('rejects %s', (_n, m) => {
     expect(manifestSchema.safeParse(m).success).toBe(false);
   });

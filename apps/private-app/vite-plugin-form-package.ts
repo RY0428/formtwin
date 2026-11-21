@@ -20,7 +20,11 @@ const CURRENT = (JSON.parse(readFileSync(fileURLToPath(new URL('../../forms/curr
   string,
   { revision: number; packageId: string }
 >)[FORM_ID];
-if (!CURRENT || !Number.isInteger(CURRENT.revision) || CURRENT.packageId !== `${FORM_ID}-r${CURRENT.revision}`) {
+if (
+  !CURRENT ||
+  !Number.isInteger(CURRENT.revision) ||
+  !new RegExp(`^${FORM_ID}-r${CURRENT.revision}(-p[2-9]|-p[1-9][0-9])?$`).test(CURRENT.packageId)
+) {
   throw new Error('forms/current.json: invalid entry for ' + FORM_ID);
 }
 const PACKAGE_ID = CURRENT.packageId;
@@ -29,6 +33,7 @@ const DEFAULT_FILES = {
   formDef: `forms/defs/${FORM_ID}/rev-${CURRENT.revision}.formdef.json`,
   font: 'apps/private-app/assets/fonts/BIZUDGothic-Regular.ttf',
   history: `forms/history/${FORM_ID}/rev-${CURRENT.revision}.history.json`,
+  latinFont: 'apps/private-app/assets/fonts/IBMPlexMono-Regular.ttf',
 } as const;
 type Role = keyof typeof DEFAULT_FILES;
 
@@ -108,9 +113,11 @@ export function formPackagePlugin(mode: string): Plugin {
       const ephemeral = mode === 'e2e';
       const signed = ephemeral ? await ephemeralPackage() : committedPackage();
       const manifestFiles = (signed?.manifest as { files?: { role: Role; path: string }[] } | undefined)?.files;
-      const paths = { ...DEFAULT_FILES } as Record<Role, string>;
+      // A signed package bundles exactly its manifest's files; the defaults apply to the E2E build
+      // (all roles) and to an unsigned package (entry is refused anyway).
+      const paths: Partial<Record<Role, string>> = manifestFiles ? {} : { ...DEFAULT_FILES };
       for (const f of manifestFiles ?? []) paths[f.role] = f.path;
-      const files = (Object.keys(paths) as Role[]).map((r) => `${r}: ${bytesExpr(read(paths[r]))}`).join(',\n  ');
+      const files = (Object.keys(paths) as Role[]).map((r) => `${r}: ${bytesExpr(read(paths[r] as string))}`).join(',\n  ');
       return `const b = (s) => { const t = atob(s); const a = new Uint8Array(t.length); for (let i = 0; i < t.length; i += 1) a[i] = t.charCodeAt(i); return a; };
 export default {
   packageId: ${JSON.stringify(PACKAGE_ID)},

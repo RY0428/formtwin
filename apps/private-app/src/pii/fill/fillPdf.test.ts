@@ -1,7 +1,7 @@
 import { formDefSchema, pdfLayoutSchema } from '@formtwin/contracts';
 import { toPdfLayout } from '../../packages/verifyPackage.ts';
 import { readFileSync } from 'node:fs';
-import { PDFDocument, PDFName } from 'pdf-lib';
+import { PDFDict, PDFDocument, PDFName } from 'pdf-lib';
 import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { describe, expect, it } from 'vitest';
 import { fillPdf, TemplateMismatchError } from './fillPdf.ts';
@@ -9,6 +9,14 @@ import { fillPdf, TemplateMismatchError } from './fillPdf.ts';
 const assets = new URL('../../../assets/', import.meta.url);
 const template = new Uint8Array(readFileSync(new URL('forms/dummy-form.pdf', assets)));
 const font = new Uint8Array(readFileSync(new URL('fonts/BIZUDGothic-Regular.ttf', assets)));
+const latinFont = new Uint8Array(readFileSync(new URL('fonts/IBMPlexMono-Regular.ttf', assets)));
+
+/** BaseFont names used by page 1 (to see which font drew the values). */
+function pageFontNames(doc: PDFDocument): string[] {
+  const fonts = doc.getPages()[0]?.node.Resources()?.lookup(PDFName.of('Font'), PDFDict);
+  if (!fonts) return [];
+  return fonts.keys().map((k) => String(fonts.lookup(k, PDFDict).get(PDFName.of('BaseFont'))));
+}
 const layout = pdfLayoutSchema.parse(JSON.parse(readFileSync(new URL('forms/dummy-form.layout.json', assets), 'utf8')));
 
 // Fictional values only.
@@ -128,5 +136,26 @@ describe('fillPdf (official form 930004094, page 1)', () => {
     const out = await PDFDocument.load(bytes);
     expect(out.getPageCount()).toBe(7);
     expect(out.catalog.has(PDFName.of('AcroForm'))).toBe(false);
+  });
+
+  it('draws Latin-only values with the Latin font and keeps Japanese values in the Japanese font', async () => {
+    const vals = { familyName: 'OOTANI', givenName: 'JOAO', expiryYear: '2027', expiryMonth: '03', expiryDay: '31', residenceCardNumber: 'AO01234567OD' };
+    const withLatin = await fillPdf({ template: officialTemplate, font, latinFont, layout: officialLayout, values: vals });
+    expect(withLatin.notFilled).toEqual([]);
+    const text = await pageText(withLatin.bytes);
+    for (const v of ['OOTANI', 'JOAO', '2027', 'AO01234567OD']) expect(text).toContain(v);
+    const names = pageFontNames(await PDFDocument.load(withLatin.bytes));
+    expect(names.some((n) => n.includes('IBMPlexMono'))).toBe(true);
+
+    // A value with Japanese characters falls back to the Japanese font.
+    const mixed = await fillPdf({ template: officialTemplate, font, latinFont, layout: officialLayout, values: { familyName: '田中' } });
+    expect(mixed.notFilled).toEqual([]);
+    const mixedNames = pageFontNames(await PDFDocument.load(mixed.bytes));
+    expect(mixedNames.some((n) => n.includes('BIZUD'))).toBe(true);
+    expect(mixedNames.some((n) => n.includes('IBMPlexMono'))).toBe(false);
+
+    // Without the Latin font (older package) everything uses the Japanese font.
+    const without = await fillPdf({ template: officialTemplate, font, layout: officialLayout, values: vals });
+    expect(pageFontNames(await PDFDocument.load(without.bytes)).some((n) => n.includes('IBMPlexMono'))).toBe(false);
   });
 });

@@ -9,7 +9,7 @@ import { z } from 'zod';
 const sha256 = z.string().regex(/^[0-9a-f]{64}$/);
 const keyId = z.string().regex(/^ft-[0-9a-f]{16}$/);
 
-export const PACKAGE_FILE_ROLES = ['sourcePdf', 'formDef', 'font', 'history'] as const;
+export const PACKAGE_FILE_ROLES = ['sourcePdf', 'formDef', 'font', 'history', 'latinFont'] as const;
 
 export const manifestSchema = z
   .object({
@@ -43,6 +43,14 @@ export const manifestSchema = z
       if (m.files.filter((f) => f.role === role).length !== 1) {
         ctx.addIssue({ code: 'custom', message: `exactly one ${role} file required` });
       }
+    }
+    // Optional font for values in Latin letters and digits (distinguishable O and 0; decisions 2026-11-21).
+    if (m.files.filter((f) => f.role === 'latinFont').length > 1) {
+      ctx.addIssue({ code: 'custom', message: 'at most one latinFont file allowed' });
+    }
+    // Package id: <formId>-r<revision>, optionally -p<n> for a re-packaging of the same revision.
+    if (!new RegExp(`^${m.formId}-r${m.formDefRevision}(-p[2-9]|-p[1-9][0-9])?$`).test(m.packageId)) {
+      ctx.addIssue({ code: 'custom', message: 'packageId must be <formId>-r<revision>[-p<n>]' });
     }
   });
 

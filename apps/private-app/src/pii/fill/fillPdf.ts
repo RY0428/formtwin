@@ -8,6 +8,8 @@ import { PDFDocument, PDFName, rgb } from 'pdf-lib';
  * - Values that do not fit, or contain characters the font cannot draw, are not truncated or
  *   substituted: they are reported and left blank.
  * - AcroForm appearances are regenerated with the embedded Japanese font, then flattened.
+ * - Values made only of printable ASCII are drawn with the optional Latin font when it can draw them
+ *   and they fit (its 0 is dotted, O is not); everything else uses the Japanese font.
  * - Document metadata is reset to fixed values; no file name is involved.
  * Everything happens in memory; the result is personal data.
  */
@@ -16,6 +18,8 @@ export type FillValue = string | boolean;
 export interface FillInput {
   readonly template: Uint8Array;
   readonly font: Uint8Array;
+  /** Optional font for printable-ASCII values (distinguishable O and 0; decisions 2026-11-21). */
+  readonly latinFont?: Uint8Array | null;
   readonly layout: PdfLayout;
   /** Only confirmed values. Fields absent here stay blank. */
   readonly values: Readonly<Record<string, FillValue>>;
@@ -53,6 +57,17 @@ export async function fillPdf(input: FillInput): Promise<FillResult> {
   const font = await doc.embedFont(input.font, { subset: false });
   const supported = new Set(font.getCharacterSet());
   const unsupported = (text: string): boolean => [...text].some((ch) => !supported.has(ch.codePointAt(0) ?? -1));
+  const latin = input.latinFont ? await doc.embedFont(input.latinFont, { subset: false }) : null;
+  const latinSet = new Set(latin?.getCharacterSet() ?? []);
+  const PRINTABLE_ASCII = /^[\x20-\x7e]+$/;
+  /** The Latin font when it can draw the whole value and the value fits; otherwise null. */
+  const latinFor = (text: string, size: number, width: number) =>
+    latin !== null &&
+    PRINTABLE_ASCII.test(text) &&
+    [...text].every((ch) => latinSet.has(ch.codePointAt(0) ?? -1)) &&
+    latin.widthOfTextAtSize(text, size) <= width
+      ? latin
+      : null;
   const form = doc.getForm();
   const pages = doc.getPages();
   const notFilled: { id: string; reason: NotFilledReason }[] = [];
@@ -65,6 +80,11 @@ export async function fillPdf(input: FillInput): Promise<FillResult> {
         const page = pages[field.page];
         if (typeof value !== 'string' || page === undefined) {
           notFilled.push({ id: field.id, reason: page === undefined ? 'missing_field' : 'type_mismatch' });
+          break;
+        }
+        const latinFont = latinFor(value, field.fontSize, field.width);
+        if (latinFont !== null) {
+          page.drawText(value, { x: field.x, y: field.y, size: field.fontSize, font: latinFont, color: rgb(0, 0, 0) });
           break;
         }
         if (unsupported(value)) {

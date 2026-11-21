@@ -30,7 +30,7 @@ export function CandidatesPanel({ result, onApply }: Props) {
         {result.fields.map((f) => (
           <div key={f.key} className="contents">
             <dt className="text-muted-foreground">{f.key}</dt>
-            <dd className="font-mono">{f.value ?? '(not read)'}</dd>
+            <dd className="font-mono slashed-zero">{f.value ?? '(not read)'}</dd>
           </div>
         ))}
       </dl>

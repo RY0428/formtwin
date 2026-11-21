@@ -69,3 +69,9 @@ Submission period: 2026-11-11 13:30 PT – 2026-11-30 14:00 PT (JST 2026-11-12 0
 | 2026-11-14 | Release re-evaluation (new 20 cards): no wrong card number offered for one-click adoption (safety criterion passed), but 4/18 numbers had to be typed by hand (threshold 3) → FAIL; other criteria passed. | |
 | 2026-11-14 | Release re-evaluation 2 (new 20 cards, prompt with the card-number layout): safety criterion passed again (no wrong number offered), availability 14/18 → FAIL; names improved to 18/20. | |
 | 2026-11-14 | Candidates notice now names the common misreads (O/0, I/1, added or dropped characters); Japanese materials for the collaborator operation check (guide, task sheet, observation sheet). | |
+
+## 2026-11-21 — O と 0 を区別できる英数字フォント
+- 操作検証（自己実施）で、PDF上の O と 0 の区別がつかないと判明（BIZ UDゴシック）。
+- 英数字だけの値を IBM Plex Mono（OFL 1.1、0 に点）で描く。署名済みパッケージの任意ファイル `latinFont` を追加し、
+  パッケージ `isa-930004094-r2-p2`（FormDef 版2のまま）を作成。署名は開発者の Mac で行う。
+- 画面の入力欄・候補表示をシステム等幅＋slashed-zero に変更（フォント配信なし）。

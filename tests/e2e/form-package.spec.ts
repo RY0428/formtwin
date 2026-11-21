@@ -6,6 +6,6 @@ import { expect, test } from '@playwright/test';
 test('private-app verifies the bundled form package before entry and labels the test key', async ({ page }) => {
   await page.goto('http://localhost:4174/');
   await expect(page.getByTestId('boot-status')).toHaveText('ready');
-  await expect(page.getByTestId('package-info')).toContainText('isa-930004094-r2');
+  await expect(page.getByTestId('package-info')).toContainText('isa-930004094-r2-p2');
   await expect(page.getByTestId('package-info')).toContainText('TEST KEY');
 });

@@ -11,6 +11,15 @@
 - SHA-256: `709fcd41e3209fb765da750472f55ccdf925653e9fa7e1eb007cb65c8f749c75`
 - Embedded unmodified in generated PDFs.
 
+### IBM Plex Mono Regular
+- File: `apps/private-app/assets/fonts/IBMPlexMono-Regular.ttf`
+- Copyright © 2017 IBM Corp. with Reserved Font Name "Plex"
+- License: SIL Open Font License 1.1 — full text in `apps/private-app/assets/fonts/OFL-IBMPlexMono.txt`
+- Source: https://github.com/google/fonts, branch `main`, path `ofl/ibmplexmono/IBMPlexMono-Regular.ttf`
+  (retrieved 2026-11-21)
+- SHA-256: `6a3412f058c7d8dfd9170c41e85ade48e5156ecb89356110ca57a0a27734af46`
+- Embedded unmodified in generated PDFs for values in Latin letters and digits (distinguishable O and 0).
+
 ## Official forms
 
 ### 在留期間更新許可申請書（別記第三十号の二様式）

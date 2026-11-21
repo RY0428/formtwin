@@ -103,6 +103,27 @@ describe('verifyPackage (throwaway keys)', () => {
     expect(v.formDef.formDefRevision).toBe(1);
   });
 
+  it('exposes the Latin font only when the signed manifest lists it', async () => {
+    const latin = read('apps/private-app/assets/fonts/IBMPlexMono-Regular.ttf');
+    // Bytes bundled outside the manifest are ignored.
+    const p = await build();
+    expect((await verifyPackage({ ...p, files: { ...p.files, latinFont: latin } })).latinFont).toBeNull();
+    // Listed and intact → exposed; listed but missing → refused.
+    const base = await build();
+    const listed = await build({
+      manifest: {
+        packageId: 'isa-930004094-r1-p2',
+        files: [
+          ...(base.manifest as Manifest).files,
+          { path: 'apps/private-app/assets/fonts/IBMPlexMono-Regular.ttf', role: 'latinFont', sha256: await hex(latin), size: latin.length },
+        ],
+      },
+    });
+    expect(await code(verifyPackage(listed))).toBe('hash_mismatch');
+    const v = await verifyPackage({ ...listed, files: { ...listed.files, latinFont: latin } });
+    expect(v.latinFont?.length).toBe(latin.length);
+  });
+
   it('refuses an unsigned package', async () => {
     const p = await build();
     expect(await code(verifyPackage({ ...p, signature: null }))).toBe('unsigned');
@@ -119,7 +140,7 @@ describe('verifyPackage (throwaway keys)', () => {
 
   it('refuses a manifest edited after signing', async () => {
     const p = await build();
-    const m = { ...(p.manifest as Manifest), formDefRevision: 2 };
+    const m = { ...(p.manifest as Manifest), createdAt: '2026-11-20' };
     expect(await code(verifyPackage({ ...p, manifest: m }))).toBe('bad_signature');
   });
 

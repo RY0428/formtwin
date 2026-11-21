@@ -30,7 +30,14 @@ export interface BundledPackage {
   readonly publicKey: unknown;
   /** forms/trust.json at build time (E2E: a list trusting the throwaway key). */
   readonly trust: unknown;
-  readonly files: { readonly sourcePdf: Uint8Array; readonly formDef: Uint8Array; readonly font: Uint8Array; readonly history: Uint8Array };
+  readonly files: {
+    readonly sourcePdf: Uint8Array;
+    readonly formDef: Uint8Array;
+    readonly font: Uint8Array;
+    readonly history: Uint8Array;
+    /** Optional (packages -p2 and later): font for values in Latin letters and digits. */
+    readonly latinFont?: Uint8Array;
+  };
 }
 
 export type PackageErrorCode =
@@ -57,6 +64,8 @@ export interface VerifiedPackage {
   readonly formDef: FormDef;
   readonly template: Uint8Array;
   readonly font: Uint8Array;
+  /** Present only when the signed manifest lists a latinFont file. */
+  readonly latinFont: Uint8Array | null;
   readonly layout: PdfLayout;
   readonly testKey: boolean;
   /** Date of the bundled trust list (withdrawals made later reach users only with a new build). */
@@ -148,7 +157,7 @@ export async function verifyPackage(pkg: BundledPackage, appVersion = APP_VERSIO
 
   for (const f of manifest.files) {
     const bytes = pkg.files[f.role];
-    if (bytes.length !== f.size || (await sha256Hex(bytes)) !== f.sha256) throw new PackageError('hash_mismatch');
+    if (bytes === undefined || bytes.length !== f.size || (await sha256Hex(bytes)) !== f.sha256) throw new PackageError('hash_mismatch');
   }
 
   let formDef: FormDef;
@@ -176,6 +185,8 @@ export async function verifyPackage(pkg: BundledPackage, appVersion = APP_VERSIO
     formDef,
     template: pkg.files.sourcePdf,
     font: pkg.files.font,
+    // Only a font the signature covers is used; bundled bytes outside the manifest are ignored.
+    latinFont: manifest.files.some((f) => f.role === 'latinFont') ? (pkg.files.latinFont ?? null) : null,
     layout: toPdfLayout(formDef),
     testKey: pkg.testKey,
     trustUpdatedAt: t.data.updatedAt,
