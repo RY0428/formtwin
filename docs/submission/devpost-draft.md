@@ -95,7 +95,7 @@ Suggested (fictional values only): start screen, AI candidates with the warning,
 the printing guidance, lock screen, field explanations "In the cloud" and "On this device".
 
 ### Demo video URL **[developer]**
-YouTube (public or unlisted), ≤ 3 minutes, English or English subtitles. Script: `docs/submission/video-script.md` (to do).
+YouTube (public or unlisted), ≤ 3 minutes, English or English subtitles. Script: `docs/submission/video-script.md`.
 
 ---
 
