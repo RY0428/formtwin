@@ -132,7 +132,7 @@ YouTube (public or unlisted), ≤ 3 minutes, English or English subtitles. Scrip
   > 4. Public app: Explain fields → "In the cloud"; turn the network off and press again → "On this device
   >    (automatic fallback)" when the on-device model is available. Analyze in the cloud shows a field-definition
   >    candidate next to the adopted revision.
-- **Open-source license URL:** https://github.com/RY0428/formtwin/blob/main/LICENSE **[developer: choose the license]**
+- **Open-source license URL:** https://github.com/RY0428/formtwin/blob/main/LICENSE (Apache-2.0)
 - **Eligibility checkboxes (age, jurisdiction, not an employee of the promoters):** **[developer confirms]**
 
 ## 4. Submit

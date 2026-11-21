@@ -1,5 +1,7 @@
 # Third-party notices
 
+FormTwin's own source code is licensed under Apache-2.0 (`LICENSE`, `NOTICE`). The material below keeps its own terms.
+
 ## Fonts
 
 ### BIZ UDGothic Regular

@@ -182,7 +182,7 @@ Nanoを通常のホスト型CIで動かすことは前提にしない。対応�
 | 成果物 | FormTwinでの役割 |
 |---|---|
 | `README.md` | 英語の価値説明、2経路の役割、Firebase AI Logic実呼出し箇所、両SPAのセットアップ・起動・デモURL |
-| `LICENSE` / `THIRD_PARTY_NOTICES.md` | OSSライセンスと第三者資産の出典・条件。Apache-2.0を第一候補とし、権利・互換性確認後に確定。公式様式やフォントまで独自ライセンスへ付け替えない |
+| `LICENSE` / `THIRD_PARTY_NOTICES.md` | OSSライセンスと第三者資産の出典・条件。Apache-2.0 に確定（2026-11-21 開発者決定。`NOTICE` に対象範囲を記載）。公式様式やフォントまで独自ライセンスへ付け替えない |
 | `docs/judging.md` | 英語の端末条件、モデル準備、架空サンプル操作、通信断の手順、非対応時の挙動、検証済み版 |
 | `docs/development-history.md` | 期間前の仕様書・既存コード等と、期間中に作った機能・差分の記録 |
 | `docs/contest-compliance.md` | R01〜R10の確認状態・証拠。個人の資格情報は載せず、2経路・App Checkの質問と公開可能な回答を記録 |
