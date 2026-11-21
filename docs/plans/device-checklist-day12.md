@@ -38,7 +38,10 @@ accessibility (axe, 200% zoom, focus), package trust states, 429 handling.
    boxes and the Japanese text renders.
 4. **Browser force-quit (optional)** — with values entered, quit Chrome (Cmd+Q) and reopen the URL: nothing is
    restored.
-5. **Offline from the first click on the public page (optional)** — load the public page with the network
+5. **Field explanations in the cloud (when device:check reports it as not measured)** — reCAPTCHA Enterprise can
+   refuse the automated Chrome (App Check 403). In your everyday Chrome open the public page, press Explain fields:
+   "Answered: In the cloud". Last verified: 2026-11-21 (Build 92a32b4).
+6. **Offline from the first click on the public page (optional)** — load the public page with the network
    already off and press Explain fields: expect an error within about 45 s (no stall). Not yet device-tested.
 
 ## 4. Coverage map (architecture.md §13)

@@ -183,7 +183,17 @@ async function checkExplanations(ctx) {
   report.publicBuild = ((await pub.getByText(/build [0-9a-f]{7}/).innerText().catch(() => '')).match(/build (\S+)/) ?? [])[1] ?? 'unknown';
   const online = await explainOnce();
   report.explainDiagnostics = { online: { requests: net.splice(0), console: consoleMsgs.splice(0) } };
-  step('explanations online answered in the cloud', online.source === 'In the cloud' && online.items > 0, online);
+  const appCheckRejected = report.explainDiagnostics.online.requests.some(
+    (r) => r.host === 'content-firebaseappcheck.googleapis.com' && r.status === 403,
+  );
+  if (online.source !== 'In the cloud' && appCheckRejected) {
+    // reCAPTCHA Enterprise may rate the automated Chrome as a bot (2026-11-21): App Check refuses the token
+    // and the SDK falls back to the device by design. Not a result about the app; check by hand instead.
+    log('--   explanations online: App Check refused the automated browser (403); check by hand in your everyday Chrome');
+    report.notMeasured = [...(report.notMeasured ?? []), 'explanations online in the cloud (App Check 403 under automation; manual check)'];
+  } else {
+    step('explanations online answered in the cloud', online.source === 'In the cloud' && online.items > 0, online);
+  }
   await ctx.setOffline(true);
   const offline = await explainOnce();
   await ctx.setOffline(false);
