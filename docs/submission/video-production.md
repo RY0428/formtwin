@@ -81,6 +81,10 @@ shot and per caption, Whisper transcript and word error rate against the script)
   (transparent PDF raster; now flattened on white), the file chooser button was in Japanese (browser locale; recorder
   now forces en-US), and "O and 0" was heard as "0 and 0" (narration now says "the letter O and the digit zero").
 
+- Mac run 2 (re-recorded with en-US browser locale): file chooser reads "Choose File / No file chosen"; same model
+  output and hand-typed fields as run 1; draft with placeholders for 3–4: 161.2 s, Whisper WER 0.06 ("the letter O and
+  the digit 0" heard correctly). Close-up frame shows the dotted zero and the plain O. Remaining: shots 3–4 by hand.
+
 ## Record (fill in after the real run)
 - Date, Chrome version, build shown (both apps), package:
 - Card used and what the model returned (from `raw/recording.json`; typed by hand):
