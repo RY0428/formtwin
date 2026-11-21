@@ -1,0 +1,93 @@
+{
+  "startedAt": "2026-11-21T02:58:25.839Z",
+  "chrome": "157.0.8103.79",
+  "build": "92a32b4",
+  "flags": {
+    "prompt-api-multimodal-input": "Enabled",
+    "gemma4-for-built-in-ai": "Enabled"
+  },
+  "steps": [
+    {
+      "name": "④ cancel AI preparation",
+      "ok": true,
+      "skipped": "model already installed (preparation is instant)"
+    },
+    {
+      "name": "Prepare AI",
+      "ok": true,
+      "status": "ready",
+      "seconds": 0
+    },
+    {
+      "name": "⑤ extract explore-01.png",
+      "ok": true,
+      "seconds": 13.5,
+      "candidates": 3,
+      "error": null
+    },
+    {
+      "name": "⑤ extract explore-02.png",
+      "ok": true,
+      "seconds": 5.4,
+      "candidates": 4,
+      "error": null
+    },
+    {
+      "name": "⑤ extract explore-03.png",
+      "ok": true,
+      "seconds": 5.4,
+      "candidates": 4,
+      "error": null
+    },
+    {
+      "name": "② Save PDF without lock",
+      "ok": true,
+      "pdfName": true
+    },
+    {
+      "name": "③ End session clears values",
+      "ok": true
+    },
+    {
+      "name": "⑥ network off: extraction and PDF still work",
+      "ok": true,
+      "candidates": 4,
+      "pdf": true
+    },
+    {
+      "name": "⑦ reload restores no values",
+      "ok": true
+    },
+    {
+      "name": "⑧ back/forward shows no previous values",
+      "ok": true,
+      "how": "bfcache restore → new session"
+    },
+    {
+      "name": "private app: no request outside its origin during the whole run",
+      "ok": true,
+      "foreign": []
+    },
+    {
+      "name": "explanations online answered in the cloud",
+      "ok": false,
+      "source": "On this device (automatic fallback)",
+      "error": null,
+      "items": 6
+    },
+    {
+      "name": "explanations offline fell back to this device",
+      "ok": true,
+      "source": "On this device (automatic fallback)",
+      "error": null,
+      "items": 6
+    }
+  ],
+  "availabilityAtStart": "available",
+  "notMeasured": [
+    "① hidden page lock (automation keeps the page visible)",
+    "inactivity 9/10 min (run with --inactivity, about 11 min)"
+  ],
+  "publicBuild": "92a32b4",
+  "finishedAt": "2026-11-21T02:59:35.181Z"
+}
