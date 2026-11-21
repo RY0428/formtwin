@@ -1,0 +1,105 @@
+{
+  "generatedAt": "2026-11-21T02:57:44.586Z",
+  "commit": "92a32b4",
+  "dirty": false,
+  "node": "v24.22.1",
+  "versions": {
+    "firebase": "13.3.0",
+    "@firebase/ai": "3.1.0",
+    "@firebase/app-check": "0.13.1",
+    "react": "19.3.1",
+    "vite": "8.3.8",
+    "pdf-lib": "1.17.1",
+    "pdfjs-dist": "6.5.438",
+    "zod": "4.6.7",
+    "@playwright/test": "1.63.0"
+  },
+  "trustListSha256": "6a7d2dff1f53662d7927e0bc5a74ba32e921a95c0e920769b3f0af56059dcd34",
+  "packages": [
+    {
+      "formId": "isa-930004094",
+      "packageId": "isa-930004094-r2-p2",
+      "signed": true,
+      "verified": true,
+      "keyId": "ft-d27d442d1434e11c",
+      "keyStatus": "active",
+      "manifestSha256": "c6fa072e6403fe0cde1554bc0a92d042bec57f5574f52794ca5ed8d286d54ac8",
+      "trust": "trusted"
+    }
+  ],
+  "firebaseJsonSha256": "42906f1311bc8531cd99094fd1a47e84b0a788959712f921d49aed32e89f4c5b",
+  "hosting": [
+    {
+      "target": "public",
+      "csp": "default-src 'none'; script-src 'self' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; style-src 'self'; img-src 'self'; font-src 'self'; worker-src 'self'; frame-src https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/; connect-src 'self' https://firebasevertexai.googleapis.com https://content-firebaseappcheck.googleapis.com https://www.google.com/recaptcha/; manifest-src 'none'; form-action 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
+    },
+    {
+      "target": "private",
+      "csp": "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob:; font-src 'self'; worker-src 'self'; connect-src data:; manifest-src 'none'; media-src 'none'; frame-src 'none'; child-src 'none'; form-action 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
+    }
+  ],
+  "builds": {
+    "public-app": {
+      "built": true,
+      "matchesCommit": false,
+      "files": [
+        {
+          "path": "assets/index-D8wzAUdv.css",
+          "size": 17335,
+          "sha256": "def6dfb2348156b4327cfa934b164ceaa98550cea8757c41a8e430b08f9ccb34"
+        },
+        {
+          "path": "assets/index-zy6qstdY.js",
+          "size": 1307574,
+          "sha256": "e47cd8fc6a80e3edb2089a8ec306d61a32a0a070aa9b65ca956945df7d0ef703"
+        },
+        {
+          "path": "assets/pdf.worker.min-CIqJB0yW.mjs",
+          "size": 1271915,
+          "sha256": "1e64c8240e54735ec5913b37acd5134747799cb8c6bb3777c70adbc01232d2aa"
+        },
+        {
+          "path": "favicon.svg",
+          "size": 174,
+          "sha256": "565068fb6fc99c7b8789dcc50e14598a0f35412802e0085de2fc7d7724b9aa4a"
+        },
+        {
+          "path": "index.html",
+          "size": 534,
+          "sha256": "3a726308469245a8fc7eeea00d68d053a4e8ca453e09c1775637ae6d097c74dd"
+        }
+      ]
+    },
+    "private-app": {
+      "built": true,
+      "matchesCommit": false,
+      "files": [
+        {
+          "path": "assets/index-B7n6qAon.css",
+          "size": 18412,
+          "sha256": "3645cd38550d91b23f2e64af5a78e54c1e865d3e5278fdd0b466a696d3d100ce"
+        },
+        {
+          "path": "assets/index-C_dvqzAz.js",
+          "size": 8887354,
+          "sha256": "d8812be8e787313fd0f1e56c5c6b26c5f78b30fb6f5e1f71bf7ba707f64364a0"
+        },
+        {
+          "path": "assets/pdf.worker.min-CIqJB0yW.mjs",
+          "size": 1271915,
+          "sha256": "1e64c8240e54735ec5913b37acd5134747799cb8c6bb3777c70adbc01232d2aa"
+        },
+        {
+          "path": "favicon.svg",
+          "size": 174,
+          "sha256": "565068fb6fc99c7b8789dcc50e14598a0f35412802e0085de2fc7d7724b9aa4a"
+        },
+        {
+          "path": "index.html",
+          "size": 543,
+          "sha256": "5586c3886f9862ecc5851747c2fdd190d97cbfd7992d98eecfbbf93be5f113b4"
+        }
+      ]
+    }
+  }
+}
