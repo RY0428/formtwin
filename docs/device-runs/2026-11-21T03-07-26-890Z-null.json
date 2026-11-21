@@ -1,0 +1,105 @@
+{
+  "startedAt": "2026-11-21T03:07:26.890Z",
+  "chrome": "157.0.8103.79",
+  "build": null,
+  "flags": {
+    "prompt-api-multimodal-input": "Enabled",
+    "gemma4-for-built-in-ai": "Enabled"
+  },
+  "steps": [
+    {
+      "name": "explanations online answered in the cloud",
+      "ok": false,
+      "source": "On this device (automatic fallback)",
+      "error": null,
+      "items": 6
+    },
+    {
+      "name": "explanations offline fell back to this device",
+      "ok": true,
+      "source": "On this device (automatic fallback)",
+      "error": null,
+      "items": 6
+    }
+  ],
+  "publicBuild": "92a32b4",
+  "explainDiagnostics": {
+    "online": {
+      "requests": [
+        {
+          "host": "www.google.com",
+          "path": "/recaptcha/enterprise.js",
+          "status": 200
+        },
+        {
+          "host": "www.gstatic.com",
+          "path": "/recaptcha/releases/DqDoLJqJmjhqr0vRwNZ2MCHA/recaptcha__ja.js",
+          "status": 200
+        },
+        {
+          "host": "www.google.com",
+          "path": "/recaptcha/enterprise/anchor",
+          "status": 200
+        },
+        {
+          "host": "www.gstatic.com",
+          "path": "/recaptcha/releases/DqDoLJqJmjhqr0vRwNZ2MCHA/styles__ltr.css",
+          "status": 200
+        },
+        {
+          "host": "www.gstatic.com",
+          "path": "/recaptcha/releases/DqDoLJqJmjhqr0vRwNZ2MCHA/recaptcha__ja.js",
+          "status": 200
+        },
+        {
+          "host": "www.google.com",
+          "path": "/recaptcha/enterprise/webworker.js",
+          "status": 200
+        },
+        {
+          "host": "www.gstatic.com",
+          "path": "/recaptcha/releases/DqDoLJqJmjhqr0vRwNZ2MCHA/recaptcha__ja.js",
+          "status": 200
+        },
+        {
+          "host": "www.google.com",
+          "path": "/recaptcha/enterprise/reload",
+          "status": 200
+        },
+        {
+          "host": "www.google.com",
+          "path": "/recaptcha/enterprise/clr",
+          "status": 200
+        },
+        {
+          "host": "www.google.com",
+          "path": "/recaptcha/enterprise/reload",
+          "status": 200
+        },
+        {
+          "host": "content-firebaseappcheck.googleapis.com",
+          "path": "/v1/projects/formtwin-dev/apps/1:862810991275:web:50528e939d4314a853a5ee:exchangeRecaptchaEnterpriseToken",
+          "status": 200
+        },
+        {
+          "host": "www.google.com",
+          "path": "/recaptcha/enterprise/clr",
+          "status": 200
+        },
+        {
+          "host": "content-firebaseappcheck.googleapis.com",
+          "path": "/v1/projects/formtwin-dev/apps/1:862810991275:web:50528e939d4314a853a5ee:exchangeRecaptchaEnterpriseToken",
+          "status": 403
+        }
+      ],
+      "console": [
+        "error: Failed to load resource: the server responded with a status of 403 ()"
+      ]
+    },
+    "offline": {
+      "requests": [],
+      "console": []
+    }
+  },
+  "finishedAt": "2026-11-21T03:08:14.419Z"
+}
