@@ -19,6 +19,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { chromium } from '@playwright/test';
 
 const arg = (name, fallback) => {
   const i = process.argv.indexOf(name);
@@ -45,10 +46,6 @@ const log = (m) => console.log(`[assemble] ${m}`);
 const ff = (args) => execFileSync('ffmpeg', ['-y', '-v', 'error', ...args], { stdio: ['ignore', 'inherit', 'inherit'] });
 const probe = (file) => Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', file]).toString().trim());
 
-const FONT =
-  process.env.FORMTWIN_FONT ??
-  ['/System/Library/Fonts/Supplemental/Arial.ttf', '/Library/Fonts/Arial.ttf', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'].find(existsSync);
-if (!FONT) throw new Error('no font for captions: set FORMTWIN_FONT to a .ttf file');
 
 // ---------- narration ----------
 function speak(text, file) {
@@ -102,17 +99,29 @@ function mapTime(ranges, t) {
 }
 
 // ---------- drawing ----------
-let textN = 0;
-function drawtext(text, from, to, style) {
-  const file = join(WORK, `text${textN++}.txt`);
-  writeFileSync(file, text);
-  const pos =
-    style === 'top'
-      ? 'x=48:y=40:fontsize=34:boxborderw=14'
-      : style === 'topright'
-        ? 'x=w-text_w-48:y=40:fontsize=34:boxborderw=14'
-        : 'x=(w-text_w)/2:y=h-text_h-70:fontsize=40:boxborderw=18';
-  return `drawtext=fontfile='${FONT}':textfile='${file}':fontcolor=white:box=1:boxcolor=black@0.62:${pos}:enable='between(t,${from.toFixed(3)},${to.toFixed(3)})'`;
+// Captions are transparent PNGs drawn by the browser and overlaid by ffmpeg (Homebrew's ffmpeg has no drawtext).
+let browser = null;
+let capPage = null;
+let capN = 0;
+async function captionPng(text, style) {
+  if (!capPage) {
+    if (process.env.FORMTWIN_CHROME_PATH) browser = await chromium.launch({ executablePath: process.env.FORMTWIN_CHROME_PATH });
+    else browser = await chromium.launch().catch(() => chromium.launch({ channel: 'chrome' }));
+    capPage = await browser.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 1 });
+  }
+  const pos = {
+    top: 'left:48px;top:40px;font-size:34px',
+    topright: 'right:48px;top:40px;font-size:34px',
+    center: 'left:50%;top:50%;transform:translate(-50%,-50%);font-size:48px',
+    bottom: 'left:50%;bottom:70px;transform:translateX(-50%);font-size:40px',
+  }[style];
+  const esc = text.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  await capPage.setContent(`<!doctype html><html><body style="margin:0;background:transparent">
+    <div style="position:absolute;${pos};padding:12px 22px;border-radius:6px;background:rgba(0,0,0,0.62);color:#fff;
+      font-family:-apple-system,'Helvetica Neue',Helvetica,Arial,'DejaVu Sans',sans-serif;white-space:nowrap">${esc}</div></body></html>`);
+  const file = join(WORK, `caption${capN++}.png`);
+  await capPage.screenshot({ path: file, omitBackground: true });
+  return file;
 }
 
 /** 1920×1080 close-up of one field on page 1 of a saved PDF (about 10 px per point, so a dotted zero shows). */
@@ -137,7 +146,7 @@ function pdfCloseUp(pdf, fieldId, name) {
   return out;
 }
 
-function buildShot(shot, idx) {
+async function buildShot(shot, idx) {
   const name = `shot${String(shot.id).padStart(2, '0')}`;
   // Narration: one file per sentence.
   const sentences = [];
@@ -156,22 +165,26 @@ function buildShot(shot, idx) {
   let duration;
   const overlays = [];
   const extra = []; // extra image inputs, after the narration inputs
+  let nextInput = 1 + shot.narration.length;
+  const addImage = (file) => {
+    extra.push('-loop', '1', '-framerate', String(FPS), '-t', duration.toFixed(3), '-i', file);
+    return nextInput++;
+  };
   let base = 'v0';
   const src =shot.source.type === 'still' ? null : clipSource(shot);
   const notes = [];
   if (shot.source.type === 'still' || src === null) {
-    let still = join(OUT, shot.source.file ?? '');
+    duration = Math.max(plannedLen, narrationEnd);
     if (shot.source.type !== 'still') {
       if (!PLACEHOLDERS) throw new Error(`${name}: clip missing (see manual.json / record-private.mjs), or run with --placeholders for a draft`);
       notes.push('PLACEHOLDER');
-      still = join(WORK, `${name}-placeholder.png`);
-      ff(['-f', 'lavfi', '-i', `color=c=0x334155:s=${W}x${H}:d=1`, '-frames:v', '1',
-        '-vf', drawtext(`Shot ${shot.id}: clip pending`, 0, 1e6, 'bottom').replace('y=h-text_h-70', 'y=(h-text_h)/2'), still]);
-    } else if (!existsSync(still)) {
-      throw new Error(`${name}: ${still} missing (run make-stills.mjs)`);
+      inputs.push('-f', 'lavfi', '-i', `color=c=0x334155:s=${W}x${H}:r=${FPS}:d=${duration.toFixed(3)}`);
+      overlays.push({ text: `Shot ${shot.id}: clip pending`, from: 0, to: duration, style: 'center' });
+    } else {
+      const still = join(OUT, shot.source.file);
+      if (!existsSync(still)) throw new Error(`${name}: ${still} missing (run make-stills.mjs)`);
+      inputs.push('-loop', '1', '-framerate', String(FPS), '-t', duration.toFixed(3), '-i', still);
     }
-    duration = Math.max(plannedLen, narrationEnd);
-    inputs.push('-loop', '1', '-framerate', String(FPS), '-t', duration.toFixed(3), '-i', still);
     vchain = `[0:v]scale=${W}:${H},setsar=1,format=yuv420p[v0]`;
   } else {
     inputs.push('-i', src.file);
@@ -189,8 +202,8 @@ function buildShot(shot, idx) {
       const pdf = shot.zoomSource?.pdf ? join(OUT, shot.zoomSource.pdf) : null;
       if (pdf && existsSync(pdf)) {
         // The on-screen preview is too coarse to show the dotted zero: show the saved PDF itself, close up.
-        extra.push('-loop', '1', '-framerate', String(FPS), '-t', duration.toFixed(3), '-i', pdfCloseUp(pdf, shot.zoomSource.field, name));
-        vchain += `;[${1 + shot.narration.length}:v]scale=${W}:${H},setsar=1,format=yuv420p[zc];[v0][zc]overlay=enable='between(t,${a.toFixed(3)},${b.toFixed(3)})'[vz]`;
+        const idx = addImage(pdfCloseUp(pdf, shot.zoomSource.field, name));
+        vchain += `;[${idx}:v]scale=${W}:${H},setsar=1,format=yuv420p[zc];[v0][zc]overlay=enable='between(t,${a.toFixed(3)},${b.toFixed(3)})'[vz]`;
         overlays.push({ text: 'Saved PDF, zoomed in (editing)', from: a, to: b, style: 'topright' });
       } else {
         const [x, y, w, h] = src.zoom.rect;
@@ -216,8 +229,15 @@ function buildShot(shot, idx) {
   bottoms.forEach((o, i) => {
     if (i + 1 < bottoms.length) o.to = Math.min(o.to, bottoms[i + 1].from);
   });
-  const texts = overlays.filter((o) => o.text).map((o) => drawtext(o.text, o.from, o.to, o.style));
-  const vfinal = texts.length ? `;[${base}]${texts.join(',')}[v]` : `;[${base}]null[v]`;
+  let cur = base;
+  const chain = [];
+  for (const o of overlays.filter((x) => x.text)) {
+    const idx = addImage(await captionPng(o.text, o.style));
+    const next = `c${chain.length}`;
+    chain.push(`[${cur}][${idx}:v]overlay=0:0:enable='between(t,${o.from.toFixed(3)},${o.to.toFixed(3)})'[${next}]`);
+    cur = next;
+  }
+  const vfinal = `;${chain.length ? `${chain.join(';')};` : ''}[${cur}]format=yuv420p[v]`;
 
   // Audio: sentences placed at their start times.
   const aIn = sentences.map((s) => ['-i', s.wav]).flat();
@@ -288,7 +308,9 @@ function chunks(text) {
 }
 
 // ---------- main ----------
-const built = CFG.shots.map((s, i) => buildShot(s, i));
+const built = [];
+for (const [i, s] of CFG.shots.entries()) built.push(await buildShot(s, i));
+await browser?.close();
 const total = built.reduce((n, b) => n + b.duration, 0);
 const list = join(WORK, 'shots.ffconcat');
 writeFileSync(list, `ffconcat version 1.0\n${built.map((b) => `file '${b.file}'`).join('\n')}\n`);

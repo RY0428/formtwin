@@ -75,6 +75,8 @@ shot and per caption, Whisper transcript and word error rate against the script)
   read as 0 (`IB880155000Z`, flagged as not looking right, not offered); the given name and the number were typed by
   hand from the manifest. Saved PDF checked at high resolution: zeros dotted, O plain.
 
+- Homebrew's ffmpeg on the Mac has no `drawtext`: captions are now transparent PNGs drawn by Playwright and overlaid.
+
 ## Record (fill in after the real run)
 - Date, Chrome version, build shown (both apps), package:
 - Card used and what the model returned (from `raw/recording.json`; typed by hand):
