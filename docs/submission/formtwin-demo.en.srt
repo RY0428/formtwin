@@ -61,74 +61,74 @@ Firebase AI Logic falls back to the
 model on this device automatically.
 
 14
-00:01:12,035 --> 00:01:14,445
+00:01:17,735 --> 00:01:20,145
 The personal-entry app is a separate site.
 
 15
-00:01:14,445 --> 00:01:17,945
+00:01:20,145 --> 00:01:23,645
 Its security policy blocks network
 connections from the page,
 
 16
-00:01:18,295 --> 00:01:21,473
+00:01:23,995 --> 00:01:27,173
 and it starts only after checking
 the signed form package.
 
 17
-00:01:23,135 --> 00:01:24,842
+00:01:28,835 --> 00:01:30,542
 The card is read on this device.
 
 18
-00:01:25,192 --> 00:01:27,042
+00:01:30,892 --> 00:01:32,742
 The results are only candidates —
 
 19
-00:01:27,042 --> 00:01:30,405
+00:01:32,742 --> 00:01:36,105
 FormTwin asks you to compare
 every character with your card.
 
 20
-00:01:37,506 --> 00:01:39,625
+00:01:43,206 --> 00:01:45,325
 If a card number does not look right,
 
 21
-00:01:39,625 --> 00:01:42,832
+00:01:45,325 --> 00:01:48,532
 FormTwin will not offer it
 with one click — you type it.
 
 22
-00:01:43,182 --> 00:01:45,555
+00:01:48,882 --> 00:01:51,255
 Only values you checked
 are written to the form.
 
 23
-00:02:00,820 --> 00:02:02,670
+00:02:06,520 --> 00:02:08,370
 FormTwin fills the official PDF,
 
 24
-00:02:02,670 --> 00:02:06,197
+00:02:08,370 --> 00:02:11,897
 with a font that tells the letter
 O and the digit zero apart.
 
 25
-00:02:06,547 --> 00:02:08,942
+00:02:12,247 --> 00:02:14,642
 You save it, print it and sign it by hand.
 
 26
-00:02:15,768 --> 00:02:17,273
+00:02:21,468 --> 00:02:22,973
 Data lives in memory only.
 
 27
-00:02:17,623 --> 00:02:21,950
+00:02:23,323 --> 00:02:27,650
 Ending the session, ten minutes of
 inactivity, or leaving the page clears it.
 
 28
-00:02:32,251 --> 00:02:36,015
+00:02:37,951 --> 00:02:41,715
 We froze our thresholds before testing
 and kept the result that missed them.
 
 29
-00:02:36,365 --> 00:02:40,946
+00:02:42,065 --> 00:02:46,646
 On-device AI helps; you stay in
 control of every value. FormTwin.

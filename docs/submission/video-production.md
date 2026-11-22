@@ -91,15 +91,18 @@ shot and per caption, Whisper transcript and word error rate against the script)
   (macOS screen recording, 2816×1762, cropped to 16:9 from the top), hosted public app build 92a32b4.
 - Card: `data/eval/explore2/explore2-03.png`. Model output: name with watermark text (`TANDON MEERALE 見本`), card number
   with O read as 0 (`IB880155000Z`, not offered); given name and card number typed by hand.
-- Shortened waits (caption shown): shot 3 cloud analysis (about 5.4 s cut), shot 4 on-device fallback answer (about
-  15.7 s cut), shot 6 Prepare AI / extraction (about 12.4 s cut). The first cloud answer in shot 4 (about 3.7 s) is real time.
+- Shot 4 is take 2 (2026-11-22 17:50). Take 1's on-device answer explained the expiry year as "the year you will leave
+  Japan"; the developer re-recorded. Take 2's on-device answer says "Write the last digit of your expiration year" (wrong:
+  the form needs the full year); the developer chose to keep it with an on-screen note "On-device answers vary and can be
+  wrong · reference text only" (shown while the answer is on screen). Each take has one cloud and one on-device answer;
+  no answers were discarded within a take. The last frame is held 3 s so the answer and note can be read.
+- Shortened waits (caption shown): shot 3 cloud analysis (about 5.4 s cut), shot 4 cloud answer (about 5.3 s cut) and
+  on-device fallback answer (about 11.2 s cut), shot 6 Prepare AI / extraction (about 12.4 s cut).
 - Blurred (personal details in the hand recordings): the Chrome profile avatar (name) in shots 3–4, and the Wi-Fi menu's
   network list (device name with the developer's name, network name) in shot 4. Checked frame by frame at the menu.
 - Voice: synthetic, macOS `say`, voice Samantha, 165 wpm.
-- Final: 166.97 s (ffprobe), 1920×1080, 30 fps, H.264 + AAC 48 kHz, faststart, 17.2 MB. Whisper (small) word error rate
-  0.191 on the whole file; the excess is a Whisper repetition loop (shot 5 sentences repeated inside shot 6); the same
-  20 s segment transcribed alone matches the script. Run 2 (same narration) measured 0.06.
+- Final: 172.6 s (limit 175 s), 1920×1080, 30 fps, H.264 + AAC 48 kHz, faststart. Whisper (small) word error rate
+  0.09 against the script (narration unchanged; an earlier cut measured 0.191 because of a Whisper repetition loop,
+  and its 20 s segment transcribed alone matched the script).
 - Subtitles: `docs/submission/formtwin-demo.en.srt` (same as `out/formtwin-demo.en.srt`).
-- Note for reviewers: the on-device fallback explanation of the expiry fields says "the year you will leave Japan"
-  (model wording, reference text only; the cloud answer says "expiration year"). Visible in shot 4.
 - YouTube URL (public or unlisted), subtitles uploaded: **[developer]**
