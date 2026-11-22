@@ -105,4 +105,5 @@ shot and per caption, Whisper transcript and word error rate against the script)
   0.09 against the script (narration unchanged; an earlier cut measured 0.191 because of a Whisper repetition loop,
   and its 20 s segment transcribed alone matched the script).
 - Subtitles: `docs/submission/formtwin-demo.en.srt` (same as `out/formtwin-demo.en.srt`).
-- YouTube URL (public or unlisted), subtitles uploaded: **[developer]**
+- YouTube: https://youtu.be/s3SPPqrm_NA (unlisted, uploaded 2026-11-22 by the developer; video language English; English
+  subtitles uploaded from `formtwin-demo.en.srt` with timecodes and checked against the audio in YouTube Studio).

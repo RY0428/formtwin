@@ -94,8 +94,9 @@ firebase-hosting, react, typescript, vite, tailwindcss, pdf-lib, pdf.js, zod, pl
 Suggested (fictional values only): start screen, AI candidates with the warning, checked fields, PDF preview with
 the printing guidance, lock screen, field explanations "In the cloud" and "On this device".
 
-### Demo video URL **[developer]**
-YouTube (public or unlisted), ≤ 3 minutes, English or English subtitles. Script: `docs/submission/video-script.md`.
+### Demo video URL
+https://youtu.be/s3SPPqrm_NA (YouTube, unlisted, 2:53, English narration with English subtitles; synthetic voice).
+Script: `docs/submission/video-script.md`; production record: `docs/submission/video-production.md`.
 
 ---
 
