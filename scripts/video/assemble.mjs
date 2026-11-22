@@ -10,6 +10,8 @@
 //     { "shot03": { "file": "raw/shot03.mov", "ranges": [[2.0, 11.5], [38.0, 45.0]], "crop": [0, 74, 2880, 1620] } }
 //     ranges = kept parts in seconds; a join between two ranges is a shortened wait and gets the caption.
 //     crop (optional) = x, y, w, h in source pixels (e.g. to drop the macOS menu bar; keep 16:9).
+//     blur (optional) = [{ "rect": [x, y, w, h], "from": s, "to": s }] in source pixels and source seconds
+//     (from/to optional = whole clip): hides personal details such as a browser profile name or Wi-Fi names.
 // Narration: macOS `say` (synthetic voice, FORMTWIN_VOICE, default Samantha, FORMTWIN_RATE wpm, default 165),
 // one file per sentence so subtitles match the voice exactly. `--tts tone` is a stand-in for tests only.
 // `--placeholders` draws a grey card for any missing clip (drafts only; never upload such a cut).
@@ -79,12 +81,12 @@ function clipSource(shot) {
       at = b;
     }
     ranges.push([at, meta.duration]);
-    return { file, ranges, crop: null, captions: meta.captions ?? [], zoom: meta.zoom ?? null };
+    return { file, ranges, crop: null, blur: [], captions: meta.captions ?? [], zoom: meta.zoom ?? null };
   }
   const m = MANUAL[shot.source.key ?? name];
   if (!m || !existsSync(join(OUT, m.file))) return null;
   const file = join(OUT, m.file);
-  return { file, ranges: m.ranges ?? [[0, probe(file)]], crop: m.crop ?? null, captions: m.captions ?? [], zoom: m.zoom ?? null };
+  return { file, ranges: m.ranges ?? [[0, probe(file)]], crop: m.crop ?? null, blur: m.blur ?? [], captions: m.captions ?? [], zoom: m.zoom ?? null };
 }
 
 /** Maps a time in the source clip to the time in the edited shot (null if it falls in a cut). */
@@ -194,10 +196,21 @@ async function buildShot(shot, idx) {
     const kept = src.ranges.reduce((n, [a, b]) => n + (b - a), 0);
     duration = Math.max(kept, narrationEnd);
     if (kept > plannedLen + 5) notes.push(`clip ${kept.toFixed(1)} s is longer than planned ${plannedLen} s`);
-    const crop = src.crop ? `crop=${src.crop.join(':')},` : '';
-    const parts = src.ranges.map(([a, b], i) => `[0:v]trim=start=${a}:end=${b},setpts=PTS-STARTPTS[p${i}]`);
+    const crop = src.crop ? `crop=${src.crop[2]}:${src.crop[3]}:${src.crop[0]}:${src.crop[1]},` : ''; // x, y, w, h → w:h:x:y
+    // Blur boxes on the source (source time), then split the source once per kept range.
+    const pre = [];
+    let srcLabel = '0:v';
+    src.blur.forEach((bl, i) => {
+      const [x, y, w, h] = bl.rect;
+      const when = bl.from === undefined ? '' : `:enable='between(t,${bl.from},${bl.to})'`;
+      pre.push(`[${srcLabel}]split[bk${i}][bs${i}];[bs${i}]crop=${w}:${h}:${x}:${y},boxblur=24:4[bb${i}];[bk${i}][bb${i}]overlay=${x}:${y}${when}[bo${i}]`);
+      srcLabel = `bo${i}`;
+    });
+    const n = src.ranges.length;
+    pre.push(`[${srcLabel}]split=${n}${src.ranges.map((_, i) => `[sp${i}]`).join('')}`);
+    const parts = src.ranges.map(([a, b], i) => `[sp${i}]trim=start=${a}:end=${b},setpts=PTS-STARTPTS[p${i}]`);
     const cat = `${src.ranges.map((_, i) => `[p${i}]`).join('')}concat=n=${src.ranges.length}:v=1:a=0[cat]`;
-    vchain = `${parts.join(';')};${cat};[cat]${crop}fps=${FPS},scale=${W}:${H}:force_original_aspect_ratio=decrease,pad=${W}:${H}:(ow-iw)/2:(oh-ih)/2,setsar=1,format=yuv420p,tpad=stop_mode=clone:stop_duration=${duration.toFixed(3)},trim=duration=${duration.toFixed(3)}[v0]`;
+    vchain = `${pre.join(';')};${parts.join(';')};${cat};[cat]${crop}fps=${FPS},scale=${W}:${H}:force_original_aspect_ratio=decrease,pad=${W}:${H}:(ow-iw)/2:(oh-ih)/2,setsar=1,format=yuv420p,tpad=stop_mode=clone:stop_duration=${duration.toFixed(3)},trim=duration=${duration.toFixed(3)}[v0]`;
     // Zoom (editing): crop the rectangle and show it full frame for the given time.
     if (src.zoom) {
       const a = mapTime(src.ranges, src.zoom.from);
