@@ -1,0 +1,134 @@
+1
+00:00:00,400 --> 00:00:03,454
+Every visa renewal, foreign
+residents in Japan copy
+
+2
+00:00:03,454 --> 00:00:06,329
+their residence card into
+a Japanese paper form.
+
+3
+00:00:06,679 --> 00:00:10,335
+Those values are personal data — they
+shouldn't have to leave the device.
+
+4
+00:00:11,335 --> 00:00:13,927
+FormTwin uses Firebase AI Logic and places
+
+5
+00:00:13,927 --> 00:00:16,642
+each inference by how
+sensitive the data is.
+
+6
+00:00:16,992 --> 00:00:19,219
+Public forms are analysed in the cloud.
+
+7
+00:00:19,219 --> 00:00:22,646
+Personal data is read only by
+the on-device model in Chrome.
+
+8
+00:00:31,335 --> 00:00:34,175
+On the public side, Gemini
+in the cloud proposes
+
+9
+00:00:34,175 --> 00:00:36,543
+field definitions for the official form.
+
+10
+00:00:36,893 --> 00:00:39,524
+A person reviews them.
+Only the adopted revision
+
+11
+00:00:39,524 --> 00:00:42,265
+is signed and bundled into
+the personal-entry app.
+
+12
+00:00:49,935 --> 00:00:55,056
+Field explanations use hybrid inference:
+cloud first, and when the network is gone,
+
+13
+00:00:55,406 --> 00:00:59,541
+Firebase AI Logic falls back to the
+model on this device automatically.
+
+14
+00:01:17,735 --> 00:01:20,145
+The personal-entry app is a separate site.
+
+15
+00:01:20,145 --> 00:01:23,645
+Its security policy blocks network
+connections from the page,
+
+16
+00:01:23,995 --> 00:01:27,173
+and it starts only after checking
+the signed form package.
+
+17
+00:01:28,835 --> 00:01:30,542
+The card is read on this device.
+
+18
+00:01:30,892 --> 00:01:32,742
+The results are only candidates —
+
+19
+00:01:32,742 --> 00:01:36,105
+FormTwin asks you to compare
+every character with your card.
+
+20
+00:01:43,206 --> 00:01:45,325
+If a card number does not look right,
+
+21
+00:01:45,325 --> 00:01:48,532
+FormTwin will not offer it
+with one click — you type it.
+
+22
+00:01:48,882 --> 00:01:51,255
+Only values you checked
+are written to the form.
+
+23
+00:02:06,520 --> 00:02:08,370
+FormTwin fills the official PDF,
+
+24
+00:02:08,370 --> 00:02:11,897
+with a font that tells the letter
+O and the digit zero apart.
+
+25
+00:02:12,247 --> 00:02:14,642
+You save it, print it and sign it by hand.
+
+26
+00:02:21,468 --> 00:02:22,973
+Data lives in memory only.
+
+27
+00:02:23,323 --> 00:02:27,650
+Ending the session, ten minutes of
+inactivity, or leaving the page clears it.
+
+28
+00:02:37,951 --> 00:02:41,715
+We froze our thresholds before testing
+and kept the result that missed them.
+
+29
+00:02:42,065 --> 00:02:46,646
+On-device AI helps; you stay in
+control of every value. FormTwin.

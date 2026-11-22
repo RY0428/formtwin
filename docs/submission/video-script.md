@@ -1,6 +1,7 @@
 # Demo video — script and shot list (draft 2026-11-21)
 
-Target length **2:45** (limit 3:00, R06). English narration with English subtitles. Fictional data only.
+Target length **2:45** (limit 3:00, R06). English narration (synthetic voice, macOS `say`, decided 2026-11-21) with
+English subtitles. Fictional data only. Production tools and record: `docs/submission/video-production.md`.
 No guarantee wording (CLAUDE.md rule 9). Everything shown must come from the same submitted build (requirements
 §10: cloud candidate, adopted revision, on-device extraction, user correction, PDF save).
 
@@ -42,7 +43,8 @@ Wi-Fi menu), press again: badge **On this device (automatic fallback)**.
 ## 1:05–2:10 — Private app: on-device extraction, check, PDF
 
 **Shot 5 (1:05–1:15)** — formtwin-dev-private.web.app with the network **still off**. Footer: package
-`isa-930004094-r2-p2`, signed. Caption: *Network off · model already downloaded*
+`isa-930004094-r2-p2`, signed. Caption: *Network off (Chrome offline mode) · model already downloaded*
+(recorded with `scripts/video/record-private.mjs`; the page is loaded online first, then Chrome's offline mode)
 > The personal-entry app is a separate site. Its security policy blocks network connections from the page,
 > and it starts only after checking the signed form package.
 
@@ -57,12 +59,13 @@ tick "Checked against my card" for each field.
 > Only values you checked are written to the form.
 
 **Shot 8 (1:55–2:10)** — Create PDF → preview; zoom on the card number (0 with a dot, O without);
-Save PDF; show the printing guidance (sign by hand).
-> FormTwin fills the official PDF, with a font that tells O and 0 apart. You save it, print it and sign it by hand.
+Save PDF; show the printing guidance (sign by hand). The zoom is done in editing (caption *Zoomed in (editing)*).
+> FormTwin fills the official PDF, with a font that tells the letter O and the digit zero apart. You save it, print it and sign it by hand.
 
 ## 2:10–2:30 — Ending the session
 
 **Shot 9 (2:10–2:30)** — End session and clear data → fields empty; reload → nothing restored.
+Caption before the reload: *Network back on for the reload* (a reload needs the network).
 > Data lives in memory only. Ending the session, ten minutes of inactivity, or leaving the page clears it.
 
 ## 2:30–2:45 — Honest results and close
