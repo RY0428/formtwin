@@ -12,6 +12,7 @@
 //     crop (optional) = x, y, w, h in source pixels (e.g. to drop the macOS menu bar; keep 16:9).
 //     blur (optional) = [{ "rect": [x, y, w, h], "from": s, "to": s }] in source pixels and source seconds
 //     (from/to optional = whole clip): hides personal details such as a browser profile name or Wi-Fi names.
+//     holdEnd (optional) = seconds to keep the last frame on screen (e.g. so a result can be read).
 //     captions (optional) = [{ "text": "...", "from": s, "to": s, "style": "bottom|top|topright" }] in source seconds.
 // Narration: macOS `say` (synthetic voice, FORMTWIN_VOICE, default Samantha, FORMTWIN_RATE wpm, default 165),
 // one file per sentence so subtitles match the voice exactly. `--tts tone` is a stand-in for tests only.
@@ -87,7 +88,7 @@ function clipSource(shot) {
   const m = MANUAL[shot.source.key ?? name];
   if (!m || !existsSync(join(OUT, m.file))) return null;
   const file = join(OUT, m.file);
-  return { file, ranges: m.ranges ?? [[0, probe(file)]], crop: m.crop ?? null, blur: m.blur ?? [], captions: m.captions ?? [], zoom: m.zoom ?? null };
+  return { file, ranges: m.ranges ?? [[0, probe(file)]], crop: m.crop ?? null, blur: m.blur ?? [], captions: m.captions ?? [], zoom: m.zoom ?? null, holdEnd: m.holdEnd ?? 0 };
 }
 
 /** Maps a time in the source clip to the time in the edited shot (null if it falls in a cut). */
@@ -195,7 +196,7 @@ async function buildShot(shot, idx) {
   } else {
     inputs.push('-i', src.file);
     const kept = src.ranges.reduce((n, [a, b]) => n + (b - a), 0);
-    duration = Math.max(kept, narrationEnd);
+    duration = Math.max(kept + (src.holdEnd ?? 0), narrationEnd); // holdEnd: keep the last frame on screen longer
     if (kept > plannedLen + 5) notes.push(`clip ${kept.toFixed(1)} s is longer than planned ${plannedLen} s`);
     const crop = src.crop ? `crop=${src.crop[2]}:${src.crop[3]}:${src.crop[0]}:${src.crop[1]},` : ''; // x, y, w, h → w:h:x:y
     // Blur boxes on the source (source time), then split the source once per kept range.
