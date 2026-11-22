@@ -89,3 +89,4 @@ Submission period: 2026-11-11 13:30 PT – 2026-11-30 14:00 PT (JST 2026-11-12 0
 - 2026-11-22: 最終版の動画を開発者の Mac で組立（166.97 秒、合成音声、ショット3・4は手動収録、個人情報の写り込みはぼかし）。英語字幕 `docs/submission/formtwin-demo.en.srt`。YouTube 公開は開発者。
 - 2026-11-22: デモ動画を YouTube に限定公開（https://youtu.be/s3SPPqrm_NA、英語字幕付き）。`devpost-draft.md` に記載。
 - 2026-11-22: README rewritten in English for judges (links, hybrid design, how to try, device evidence by build, honest accuracy, limits, period work).
+- 2026-11-22: Public repository recreated from the rewritten history only (the old repository, renamed and kept private, still served pre-rewrite commits by hash). Devpost draft made ready to paste.
