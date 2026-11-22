@@ -1,7 +1,7 @@
 # Devpost submission — draft (English)
 
-Status: draft 2026-11-21. Fields follow the Devpost form order. Items marked **[developer]** need your decision or
-confirmation. Video URL and some numbers are filled in after recording and the last checks.
+Status: ready to paste, 2026-11-22. Fields follow the Devpost form order. Text in `>` quotes and code blocks is
+meant to be pasted as is. Items marked **[developer]** need your own choice or confirmation in the form.
 
 ---
 
@@ -26,7 +26,7 @@ confirmation. Video URL and some numbers are filled in after recording and the l
 ## Inspiration
 Foreign residents in Japan fill in official paper forms in Japanese for every visa renewal. Copying values from a
 residence card is tedious and error-prone, but those values are exactly the kind of personal data that should not
-be uploaded anywhere. We wanted AI help that never needs to send the card to a server.
+be uploaded anywhere. We wanted AI help that does not need to send the card to a server.
 
 ## What it does
 FormTwin fills the Application for Extension of Period of Stay (Form 30-2, applicant part 1) with fictional sample
@@ -70,7 +70,7 @@ FormTwin is two separate web apps (separate origins and builds) that use Firebas
 ## Accomplishments
 - Hybrid inference chosen per feature by data sensitivity, verified on a real device: field explanations answer
   "In the cloud" online and "On this device (automatic fallback)" with the network off.
-- 190+ unit tests and 58 end-to-end tests (fake models; never counted as device evidence), plus automated checks on
+- 198 unit tests and 58 end-to-end tests (fake models; never counted as device evidence), plus automated checks on
   the deployed apps and a one-command device check on a real Chrome with the on-device model.
 
 ## What we learned
@@ -88,7 +88,7 @@ firebase-hosting, react, typescript, vite, tailwindcss, pdf-lib, pdf.js, zod, pl
 ### "Try it out" links
 - https://formtwin-dev-private.web.app (personal-entry app; fictional data only)
 - https://formtwin-dev.web.app (public form analysis and field explanations)
-- https://github.com/RY0428/formtwin **[developer: must be public before submitting]**
+- https://github.com/RY0428/formtwin (public since 2026-11-22)
 
 ### Image gallery (≤ 15, 3:2) **[developer]**
 Suggested (fictional values only): start screen, AI candidates with the warning, checked fields, PDF preview with
@@ -119,7 +119,7 @@ Script: `docs/submission/video-script.md`; production record: `docs/submission/v
   > Cloud: the public app uses `ONLY_IN_CLOUD` (gemini-3.5-flash-lite) with App Check (reCAPTCHA Enterprise,
   > enforced) to analyse an approved blank form. Hybrid fallback: the public field explanations use
   > `PREFER_IN_CLOUD`, so Firebase AI Logic answers on the device when the cloud request fails; the UI shows the
-  > `inferenceSource`. Personal data is never sent to the cloud, following the Firebase team's guidance that
+  > `inferenceSource`. Personal data has no cloud path by design (no cloud fallback), following the Firebase team's guidance that
   > sensitive features may run on-device only while others run hybrid or in the cloud.
 - **Working demo URL:** https://formtwin-dev-private.web.app
 - **Testing instructions:**
@@ -127,8 +127,9 @@ Script: `docs/submission/video-script.md`; production record: `docs/submission/v
   > 1. (On-device AI, optional) In chrome://flags enable "Prompt API Multimodal Input" and "Gemma 4 for built-in
   >    AI", relaunch. The first "Prepare AI" can download the model (about 20+ minutes); without it, use
   >    "Continue without AI" — manual entry and the PDF work everywhere.
-  > 2. Private app: Prepare AI → choose a sample card from the repository (data/eval/explore/explore-01.png) →
-  >    Extract on this device → compare and use candidates → tick every field → Create PDF → Save PDF.
+  > 2. Private app: Prepare AI → choose a fictional sample card downloaded from the repository
+  >    (https://github.com/RY0428/formtwin/tree/main/data/eval/explore2, e.g. explore2-03.png; or data/eval/explore)
+  >    → Extract on this device → compare and use candidates → tick every field → Create PDF → Save PDF.
   > 3. Try: switch tabs (the page locks), End session (values cleared), turn the network off (extraction still works).
   > 4. Public app: Explain fields → "In the cloud"; turn the network off and press again → "On this device
   >    (automatic fallback)" when the on-device model is available. Analyze in the cloud shows a field-definition
