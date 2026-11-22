@@ -12,6 +12,7 @@
 //     crop (optional) = x, y, w, h in source pixels (e.g. to drop the macOS menu bar; keep 16:9).
 //     blur (optional) = [{ "rect": [x, y, w, h], "from": s, "to": s }] in source pixels and source seconds
 //     (from/to optional = whole clip): hides personal details such as a browser profile name or Wi-Fi names.
+//     captions (optional) = [{ "text": "...", "from": s, "to": s, "style": "bottom|top|topright" }] in source seconds.
 // Narration: macOS `say` (synthetic voice, FORMTWIN_VOICE, default Samantha, FORMTWIN_RATE wpm, default 165),
 // one file per sentence so subtitles match the voice exactly. `--tts tone` is a stand-in for tests only.
 // `--placeholders` draws a grey card for any missing clip (drafts only; never upload such a cut).
@@ -235,7 +236,8 @@ async function buildShot(shot, idx) {
       if (i < src.ranges.length - 1) overlays.push({ text: CFG.shortenedCaption, from: acc, to: Math.min(acc + SHORTENED_S, duration), style: 'top' });
     });
     for (const c of src.captions) {
-      overlays.push({ text: c.text, from: mapTime(src.ranges, c.from), to: c.to === null ? duration : mapTime(src.ranges, c.to), style: 'bottom' });
+      const to = c.to === null || c.to === undefined ? duration : mapTime(src.ranges, c.to);
+      overlays.push({ text: c.text, from: mapTime(src.ranges, c.from ?? 0), to, style: c.style ?? 'bottom' });
     }
   }
   for (const c of shot.captions) overlays.push({ text: c.text, from: c.from ?? 0, to: c.to ?? duration, style: 'bottom' });
