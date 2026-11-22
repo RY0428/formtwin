@@ -85,10 +85,21 @@ shot and per caption, Whisper transcript and word error rate against the script)
   output and hand-typed fields as run 1; draft with placeholders for 3–4: 161.2 s, Whisper WER 0.06 ("the letter O and
   the digit 0" heard correctly). Close-up frame shows the dotted zero and the plain O. Remaining: shots 3–4 by hand.
 
-## Record (fill in after the real run)
-- Date, Chrome version, build shown (both apps), package:
-- Card used and what the model returned (from `raw/recording.json`; typed by hand):
-- Shortened waits (shot, from `timeline.json`):
-- Voice: synthetic (macOS `say`, voice …) / own
-- Final duration (ffprobe) and Whisper word error rate:
-- YouTube URL (public or unlisted), subtitles uploaded:
+## Record (final cut, 2026-11-22, `~/formtwin-video/out/formtwin-demo.mp4` on the developer's Mac)
+- Shots 5–9: 2026-11-21/22, Chrome 157.0.8103.79 (dedicated profile, en-US), hosted private app Build 92a32b4 (= `e1ce7b7`
+  after the history rewrite), package `isa-930004094-r2-p2`. Shots 3–4: 2026-11-22, developer's everyday Chrome by hand
+  (macOS screen recording, 2816×1762, cropped to 16:9 from the top), hosted public app build 92a32b4.
+- Card: `data/eval/explore2/explore2-03.png`. Model output: name with watermark text (`TANDON MEERALE 見本`), card number
+  with O read as 0 (`IB880155000Z`, not offered); given name and card number typed by hand.
+- Shortened waits (caption shown): shot 3 cloud analysis (about 5.4 s cut), shot 4 on-device fallback answer (about
+  15.7 s cut), shot 6 Prepare AI / extraction (about 12.4 s cut). The first cloud answer in shot 4 (about 3.7 s) is real time.
+- Blurred (personal details in the hand recordings): the Chrome profile avatar (name) in shots 3–4, and the Wi-Fi menu's
+  network list (device name with the developer's name, network name) in shot 4. Checked frame by frame at the menu.
+- Voice: synthetic, macOS `say`, voice Samantha, 165 wpm.
+- Final: 166.97 s (ffprobe), 1920×1080, 30 fps, H.264 + AAC 48 kHz, faststart, 17.2 MB. Whisper (small) word error rate
+  0.191 on the whole file; the excess is a Whisper repetition loop (shot 5 sentences repeated inside shot 6); the same
+  20 s segment transcribed alone matches the script. Run 2 (same narration) measured 0.06.
+- Subtitles: `docs/submission/formtwin-demo.en.srt` (same as `out/formtwin-demo.en.srt`).
+- Note for reviewers: the on-device fallback explanation of the expiry fields says "the year you will leave Japan"
+  (model wording, reference text only; the cloud answer says "expiration year"). Visible in shot 4.
+- YouTube URL (public or unlisted), subtitles uploaded: **[developer]**

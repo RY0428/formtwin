@@ -86,3 +86,4 @@ Submission period: 2026-11-11 13:30 PT – 2026-11-30 14:00 PT (JST 2026-11-12 0
 - `scripts/video/`: ショット表（`shots.json`）、静止画（ショット1・2・10）、本人側ショット5–9の録画（実Chrome・専用プロファイル・DevTools screencast）、組立（`say` 合成音声・字幕SRT・キャプション・loudnorm・検査用フレーム・Whisper 比較）。
 - クラウドコンテナで代替モデル・テストトーンのドライランのみ（実機の証拠ではない）。実録画・ナレーションは開発者の Mac。記録 `docs/submission/video-production.md`。
 - アプリ本体は変更なし（提出ビルドと一致させるため）。
+- 2026-11-22: 最終版の動画を開発者の Mac で組立（166.97 秒、合成音声、ショット3・4は手動収録、個人情報の写り込みはぼかし）。英語字幕 `docs/submission/formtwin-demo.en.srt`。YouTube 公開は開発者。
