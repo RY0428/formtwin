@@ -89,34 +89,19 @@ Script: `docs/submission/video-script.md`; production record: `docs/submission/v
 - **Country of residence:** Japan **[developer]**
 - **Organization name (if applicable):** N/A **[developer]**
 - **Start date (MM-DD-YY):** 11-12-26
-- **New or existed before Nov 11, 2026:** choose the option that says it existed in a limited form — **[developer:
-  check the exact choices]**. Explanation:
-  > Before the submission period only the product concept and three design documents (Japanese) existed. No
-  > application code existed. All code, tests, form data, signing and deployment were built during the period;
-  > see docs/development-history.md in the repository, which separates the two.
+- **Is your project new, or did it exist before Nov 11, 2026:** "Existing. This project did exist before Nov 11, 2026"
+  (only two choices; chosen 2026-11-26 so the design documents are disclosed). Explanation:
+  > Only the product concept and three design documents (in Japanese, in docs/specs/: requirements, architecture and tech stack) existed before the submission period. No application code, tests, form data or deployment existed. Everything else was built during the period: both web apps, the on-device, cloud and hybrid AI features, the signed form packages, all tests, the accuracy evaluation and the demo video. docs/development-history.md in the repository separates the two.
 - **Platform(s):** Web (Chrome)
 - **How the project meets the main technology requirement:**
-  > All AI inference goes through the Firebase AI Logic Web SDK (firebase 13.3.0 / @firebase/ai 3.1.0). On-device:
-  > the personal-entry app uses `InferenceMode.ONLY_ON_DEVICE` with Chrome's built-in model (Gemini Nano; with the
-  > "Gemma 4 for built-in AI" flag enabled as advised in the hackathon Discord) to read a residence card image.
-  > Cloud: the public app uses `ONLY_IN_CLOUD` (gemini-3.5-flash-lite) with App Check (reCAPTCHA Enterprise,
-  > enforced) to analyse an approved blank form. Hybrid fallback: the public field explanations use
-  > `PREFER_IN_CLOUD`, so Firebase AI Logic answers on the device when the cloud request fails; the UI shows the
-  > `inferenceSource`. Personal data has no cloud path by design (no cloud fallback), following the Firebase team's guidance that
-  > sensitive features may run on-device only while others run hybrid or in the cloud.
+  > All AI inference goes through the Firebase AI Logic Web SDK (firebase 13.3.0 / @firebase/ai 3.1.0). On-device: the personal-entry app uses InferenceMode.ONLY_ON_DEVICE with Chrome's built-in model (Gemini Nano; with the "Gemma 4 for built-in AI" flag enabled as advised in the hackathon Discord) to read a residence card image. Cloud: the public app uses ONLY_IN_CLOUD (gemini-3.5-flash-lite) with App Check (reCAPTCHA Enterprise, enforced) to analyse an approved blank form. Hybrid fallback: the public field explanations use PREFER_IN_CLOUD, so Firebase AI Logic answers on the device when the cloud request fails; the UI shows the inferenceSource. Personal data has no cloud path by design (no cloud fallback), in line with the organizers' interim answer relaying the Firebase team's view that sensitive features may run on-device only while others run hybrid or in the cloud.
 - **Working demo URL:** https://formtwin-dev-private.web.app
 - **Testing instructions:**
   > Use desktop Chrome. No login or credentials. Use fictional data only.
-  > 1. (On-device AI, optional) In chrome://flags enable "Prompt API Multimodal Input" and "Gemma 4 for built-in
-  >    AI", relaunch. The first "Prepare AI" can download the model (about 20+ minutes); without it, use
-  >    "Continue without AI" — manual entry and the PDF work everywhere.
-  > 2. Private app: Prepare AI → choose a fictional sample card downloaded from the repository
-  >    (https://github.com/RY0428/formtwin/tree/main/data/eval/explore2, e.g. explore2-03.png; or data/eval/explore)
-  >    → Extract on this device → compare and use candidates → tick every field → Create PDF → Save PDF.
-  > 3. Try: switch tabs (the page locks), End session (values cleared), turn the network off (extraction still works).
-  > 4. Public app: Explain fields → "In the cloud"; turn the network off and press again → "On this device
-  >    (automatic fallback)" when the on-device model is available. Analyze in the cloud shows a field-definition
-  >    candidate next to the adopted revision.
+  > 1. (On-device AI, optional) In chrome://flags enable "Prompt API Multimodal Input" and "Gemma 4 for built-in AI", then relaunch. The first "Prepare AI" can download the model (about 20+ minutes). Without it, use "Continue without AI": manual entry and the PDF work everywhere.
+  > 2. Personal-entry app (https://formtwin-dev-private.web.app): Prepare AI → choose a fictional sample card downloaded from https://github.com/RY0428/formtwin/tree/main/data/eval/explore2 (e.g. explore2-03.png) → Extract on this device → compare and use the candidates → tick every field → Create PDF → Save PDF.
+  > 3. Also try: switch tabs (the page locks), End session (values cleared), turn the network off (extraction and the PDF still work).
+  > 4. Public app (https://formtwin-dev.web.app): Explain fields → "In the cloud"; turn the network off and press again → "On this device (automatic fallback)" when the on-device model is available. "Analyze in the cloud" shows a field-definition candidate next to the adopted revision.
 - **Open-source license URL:** https://github.com/RY0428/formtwin/blob/main/LICENSE (Apache-2.0)
 - **Eligibility checkboxes (age, jurisdiction, not an employee of the promoters):** **[developer confirms]**
 
