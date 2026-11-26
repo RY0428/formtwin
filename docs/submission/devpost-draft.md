@@ -24,16 +24,12 @@ meant to be pasted as is. Items marked **[developer]** need your own choice or c
 
 ```markdown
 ## Inspiration
-Foreign residents in Japan fill in official paper forms in Japanese for every visa renewal. Copying values from a
-residence card is tedious and error-prone, but those values are exactly the kind of personal data that should not
-be uploaded anywhere. We wanted AI help that does not need to send the card to a server.
+Foreign residents in Japan fill in official paper forms in Japanese for every visa renewal. Copying values from a residence card is tedious and error-prone, but those values are exactly the kind of personal data that should not be uploaded anywhere. We wanted AI help that does not need to send the card to a server.
 
 ## What it does
-FormTwin fills the Application for Extension of Period of Stay (Form 30-2, applicant part 1) with fictional sample
-data in this demo:
+FormTwin fills the Application for Extension of Period of Stay (Form 30-2, applicant part 1) with fictional sample data in this demo:
 1. Pick a photo of a residence card (fictional sample cards are included).
-2. **On-device AI** (Firebase AI Logic, `ONLY_ON_DEVICE`) reads the name, card number and expiry date. The values
-   appear as *candidates* only.
+2. **On-device AI** (Firebase AI Logic, `ONLY_ON_DEVICE`) reads the name, card number and expiry date. The values appear as *candidates* only.
 3. The user compares every value with the card and ticks it. Only checked values are written.
 4. FormTwin fills the official PDF and shows a preview; the user saves and prints it, then signs by hand.
 
@@ -48,34 +44,21 @@ FormTwin is two separate web apps (separate origins and builds) that use Firebas
 | Analyse the blank official form | public | `ONLY_IN_CLOUD` (gemini-3.5-flash-lite) with App Check |
 | Explain each form field in plain English | public | `PREFER_IN_CLOUD` — cloud first, **automatic on-device fallback** when offline or rate-limited |
 
-- **Personal-entry app** (`formtwin-dev-private.web.app`): Content-Security-Policy `connect-src data:` — the page
-  cannot open network connections; no App Check, analytics or storage; data lives in memory only and is cleared
-  on End session, after 10 minutes of inactivity, or when a page is restored from the back/forward cache.
-- **Public app** (`formtwin-dev.web.app`): cloud analysis of an approved blank form produces a field-definition
-  candidate. A human reviews it; the adopted revision is signed (ES256) and bundled into the personal-entry app,
-  which verifies the signature and a trust list at start-up.
+- **Personal-entry app** (`formtwin-dev-private.web.app`): Content-Security-Policy `connect-src data:` blocks network connections from the page; no App Check, analytics or storage; data lives in memory only and is cleared on End session, after 10 minutes of inactivity, or when a page is restored from the back/forward cache.
+- **Public app** (`formtwin-dev.web.app`): cloud analysis of an approved blank form produces a field-definition candidate. A human reviews it; the adopted revision is signed (ES256) and bundled into the personal-entry app, which verifies the signature and a trust list at start-up.
 - React 19, TypeScript, Vite, pdf-lib + fontkit (BIZ UDGothic embedded), pdf.js preview, Zod, Playwright, Vitest.
 
 ## Challenges
-- **Keeping personal data on the device.** With @firebase/ai 3.1.0 an `ONLY_ON_DEVICE` model sends to the cloud if
-  Chrome's `LanguageModel` global is missing, so we guard it ourselves and enforce `connect-src data:`. Automated
-  tests search every request, WebSocket frame, console message and browser storage area for fictional canary values.
-- **Honest accuracy.** We froze thresholds *before* generating unused fictional test cards and judged each set once.
-  Name 17–18/20 and expiry 18/18 passed. The card number did not reach our availability bar: the model reads the
-  letters O/I/Q at the ends as digits. We made format-breaking numbers impossible to adopt with one click — across
-  54 numbers in three runs, **no wrong number was offered**; about 4 in 18 must be typed by hand. We kept the
-  failing result on record instead of moving the bar.
+- **Keeping personal data on the device.** With @firebase/ai 3.1.0 an `ONLY_ON_DEVICE` model sends to the cloud if Chrome's `LanguageModel` global is missing, so we guard it ourselves and enforce `connect-src data:`. Automated tests search every request, WebSocket frame, console message and browser storage area for fictional canary values.
+- **Honest accuracy.** We froze thresholds *before* generating unused fictional test cards and judged each set once. Name 17–18/20 and expiry 18/18 passed. The card number did not reach our availability bar: the model reads the letters O/I/Q at the ends as digits. We then made format-breaking numbers impossible to adopt with one click: in the two runs judged with this safeguard, **no wrong number was offered (0/36)**, and about 4 in 18 must be typed by hand. We kept the failing result on record instead of moving the bar.
 - **Response schemas:** array `minItems`/`maxItems` made the cloud request fail (400); limits are enforced with Zod.
 
 ## Accomplishments
-- Hybrid inference chosen per feature by data sensitivity, verified on a real device: field explanations answer
-  "In the cloud" online and "On this device (automatic fallback)" with the network off.
-- 198 unit tests and 58 end-to-end tests (fake models; never counted as device evidence), plus automated checks on
-  the deployed apps and a one-command device check on a real Chrome with the on-device model.
+- Hybrid inference chosen per feature by data sensitivity, verified on a real device: field explanations answer "In the cloud" online and "On this device (automatic fallback)" with the network off.
+- 198 unit tests and 58 end-to-end tests (fake models; never counted as device evidence), plus automated checks on the deployed apps and a one-command device check on a real Chrome with the on-device model.
 
 ## What we learned
-On-device AI is a strong fit for personal data, but it needs product design around it: candidates instead of
-answers, per-field confirmation, and clear limits.
+On-device AI is a strong fit for personal data, but it needs product design around it: candidates instead of answers, per-field confirmation, and clear limits.
 
 ## What's next
 More forms and fields, a support-worker mode, and re-evaluation as Chrome's built-in models improve.
@@ -85,10 +68,10 @@ More forms and fields, a support-worker mode, and re-evaluation as Chrome's buil
 firebase, firebase-ai-logic, gemini-nano, gemini, chrome-built-in-ai, app-check, recaptcha-enterprise,
 firebase-hosting, react, typescript, vite, tailwindcss, pdf-lib, pdf.js, zod, playwright, vitest, node.js
 
-### "Try it out" links
-- https://formtwin-dev-private.web.app (personal-entry app; fictional data only)
-- https://formtwin-dev.web.app (public form analysis and field explanations)
-- https://github.com/RY0428/formtwin (public since 2026-11-22)
+### "Try it out" links (URL only in each box)
+- https://formtwin-dev-private.web.app — personal-entry app; fictional data only
+- https://formtwin-dev.web.app — public form analysis and field explanations
+- https://github.com/RY0428/formtwin — public since 2026-11-22
 
 ### Image gallery (≤ 15, 3:2) **[developer]**
 Suggested (fictional values only): start screen, AI candidates with the warning, checked fields, PDF preview with
