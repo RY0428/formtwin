@@ -15,10 +15,10 @@ your project until the hackathon deadline: November 30, 2026 at 05:00pm EST."
 - Form text: `docs/submission/devpost-draft.md` (as entered). Thumbnail and 12 gallery images (3:2, fictional data) kept
   outside the repository on the developer's Mac (`~/formtwin-video/gallery/final/`).
 - Additional info: "Existing" chosen, with the disclosure that only the concept and three design documents existed
-  before the period; platform Web (Chrome); eligibility boxes ticked by the developer.
+  before the period; platform Web (Chrome); eligibility boxes ticked by the developer. 2026-11-26: one sentence added
+  to that disclosure — the specs were revised during the period (first committed 2026-11-12 10:19 JST).
 
 Keep the deployed builds and package unchanged until judging ends (requirements.md §10.2). Changes after the deadline
 (2026-11-30 14:00 PT) are not judged.
 
-Open items: contest Q1/Q2 final answers (edit the text before the deadline if they arrive); the spec-timestamp TODO in
-`docs/development-history.md`.
+Open items: contest Q1/Q2 final answers (edit the text before the deadline if they arrive).
