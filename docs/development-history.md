@@ -6,13 +6,21 @@ Submission period: 2026-11-11 13:30 PT – 2026-11-30 14:00 PT (JST 2026-11-12 0
 
 ## Before the submission period
 
-- Product concept and three design documents (Japanese), drafted 2026-11-10 to 2026-11-12:
+- Product concept and three design documents (Japanese), drafted before the period (final read-through review
+  2026-11-10):
   - `docs/specs/requirements.md`
   - `docs/specs/architecture.md`
   - `docs/specs/tech-stack.md`
 - No application code existed before the period.
 
-> TODO: confirm the exact timestamps of the final spec revisions relative to the period start (2026-11-12 06:30 JST) and adjust this section if any revision happened after the start.
+Spec timestamps (checked 2026-11-26 from the full git history):
+- The specs were first committed with the scaffold in `4c3a017` at 2026-11-12 10:19 JST, **after** the period start
+  (06:30 JST). That commit is the earliest recorded version; nothing earlier is in the repository.
+- Its header says the specs were revised on 2026-11-12 to reflect the published contest rules, after the
+  2026-11-10 review. The time of that revision was not recorded, so it may fall inside the period; treat it as
+  possibly made during the period.
+- Every later spec change was made during the period and is in git: requirements 21 more commits, architecture 14,
+  tech stack 17 (from `4c3a017` to 2026-11-26: +67/−46 lines in total). `git log -- docs/specs/` lists them.
 
 ## During the submission period
 
