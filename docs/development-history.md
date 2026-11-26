@@ -90,3 +90,4 @@ Submission period: 2026-11-11 13:30 PT – 2026-11-30 14:00 PT (JST 2026-11-12 0
 - 2026-11-22: デモ動画を YouTube に限定公開（https://youtu.be/s3SPPqrm_NA、英語字幕付き）。`devpost-draft.md` に記載。
 - 2026-11-22: README rewritten in English for judges (links, hybrid design, how to try, device evidence by build, honest accuracy, limits, period work).
 - 2026-11-22: Public repository recreated from the rewritten history only (the old repository, renamed and kept private, still served pre-rewrite commits by hash). Devpost draft made ready to paste.
+- 2026-11-26: Submitted on Devpost (https://devpost.com/software/formtwin-fill-official-forms-with-on-device-ai). Record: `docs/submission/submission-record.md`.

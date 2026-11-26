@@ -106,4 +106,5 @@ Script: `docs/submission/video-script.md`; production record: `docs/submission/v
 - **Eligibility checkboxes (age, jurisdiction, not an employee of the promoters):** **[developer confirms]**
 
 ## 4. Submit
-- Terms checkbox **[developer]**. The submission can be edited until the deadline.
+- Submitted 2026-11-26: https://devpost.com/software/formtwin-fill-official-forms-with-on-device-ai
+  (record: `docs/submission/submission-record.md`). Editable until the deadline.
